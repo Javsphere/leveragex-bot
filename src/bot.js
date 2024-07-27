@@ -15,8 +15,8 @@ import {
   isStocksOpen,
   withinMaxGroupOi,
 } from '@gainsnetwork/sdk';
+import { PriceServiceConnection } from "@pythnetwork/price-service-client";
 import Web3 from 'web3';
-import { WebSocket } from 'ws';
 import { DateTime } from 'luxon';
 import fetch from 'node-fetch';
 import { Contract, Provider } from 'ethcall';
@@ -32,27 +32,29 @@ import {
   TRADE_TYPE,
 } from './constants/index.js';
 import {
-  appConfig,
-  buildTradeIdentifier,
-  convertOiWindows,
-  convertTrade,
-  convertTradeInfo,
-  convertTradeInitialAccFees,
-  createLogger,
-  decreaseWindowOi,
-  getEthersContract,
-  increaseWindowOi,
-  initContracts,
-  NonceManager,
-  packTrigger,
-  transferOiWindows,
-  transformFrom1e10,
-  transformOi,
-  transformRawTrade,
-  transformRawTrades,
-  updateWindowsCount,
-  updateWindowsDuration,
+	appConfig,
+	buildTradeIdentifier,
+	convertOiWindows,
+	convertTrade,
+	convertTradeInfo,
+	convertTradeInitialAccFees,
+	createLogger,
+	decreaseWindowOi, feedIdToPriceIndex,
+	getEthersContract,
+	increaseWindowOi,
+	initContracts, leverageXId,
+	NonceManager,
+	packTrigger,
+	transferOiWindows,
+	transformFrom1e10,
+	transformOi,
+	transformRawTrade,
+	transformRawTrades,
+	updateWindowsCount,
+	updateWindowsDuration,
 } from './utils/index.js';
+
+import { WebSocket } from 'ws';
 
 const { toHex, BN } = Web3.utils;
 
@@ -90,6 +92,8 @@ let executionStats = {
   startTime: new Date(),
 };
 
+let connection = new PriceServiceConnection("https://hermes.pyth.network");
+
 // -----------------------------------------
 // 2. GLOBAL VARIABLES
 // -----------------------------------------
@@ -126,7 +130,6 @@ const app = {
   diamond: null,
   contracts: {
     diamond: null,
-    link: null,
   },
   eventSub: null,
   // params
@@ -154,48 +157,6 @@ appLogger.info('Welcome to the gTrade NFT bot!');
 
 if (!NETWORK) {
   throw new Error(`Invalid chain id: ${CHAIN_ID}`);
-}
-
-async function checkLinkAllowance(contractAddress) {
-  try {
-    const link = app.contracts.link;
-
-    if (!link) {
-      throw new Error('Link contract not initialized');
-    }
-
-    const allowance = await link.methods.allowance(process.env.PUBLIC_KEY, contractAddress).call();
-
-    if (parseFloat(allowance) > 0) {
-      app.allowedLink = true;
-      appLogger.info(`LINK allowance OK.`);
-    } else {
-      appLogger.info(`LINK not allowed, approving now.`);
-
-      const tx = createTransaction({
-        to: link.options.address,
-        data: link.methods
-          .approve(contractAddress, '115792089237316195423570985008687907853269984665640564039457584007913129639935')
-          .encodeABI(),
-      });
-
-      try {
-        const signed = await app.currentlySelectedWeb3Client.eth.accounts.signTransaction(tx, process.env.PRIVATE_KEY);
-        await app.currentlySelectedWeb3Client.eth.sendSignedTransaction(signed.rawTransaction);
-
-        appLogger.info(`LINK successfully approved.`);
-        app.allowedLink = true;
-      } catch (error) {
-        appLogger.error(`LINK approve transaction failed!`, error);
-
-        throw error;
-      }
-    }
-  } catch {
-    setTimeout(() => {
-      checkLinkAllowance(contractAddress);
-    }, 5 * 1000);
-  }
 }
 
 // -----------------------------------------
@@ -237,7 +198,6 @@ async function setCurrentWeb3Client(newWeb3ClientIndex) {
   // Fire and forget refreshing of data using new provider
   fetchTradingVariables();
   fetchOpenTrades();
-  checkLinkAllowance(app.contracts.diamond.options.address);
 
   appLogger.info('New web3 client selection completed. Took: ' + (performance.now() - executionStartTime) + 'ms');
 }
@@ -973,24 +933,28 @@ async function handleBorrowingFeesEvent(event) {
 function watchPricingStream() {
   appLogger.info('Connecting to pricing stream...');
 
-  let socket = new WebSocket(process.env.PRICES_URL);
+	if (!NETWORK.feedIds) {
+		throw Error('Missing `feedIds` network configuration.');
+	}
+
   let pricingUpdatesMessageProcessingCount = 0;
 
-  socket.onopen = () => {
-    appLogger.info('Pricing stream connected.');
-  };
-  socket.onclose = () => {
-    appLogger.error('Pricing stream websocket closed! Will attempt to reconnect in two seconds...');
+	connection.onWsError = (error) => {
+		console.log(
+			`Received error ${error} start again`
+		);
+		connection.unsubscribePriceFeedUpdates(NETWORK.feedIds);
+		connection.closeWebSocket();
+		watchPricingStream()
+	};
 
-    setTimeout(() => {
-      watchPricingStream();
-    }, 2000);
-  };
-  socket.onerror = (error) => {
-    appLogger.error('Pricing stream websocket error occurred!', { error });
-    socket.close();
-  };
-  socket.onmessage = (msg) => {
+	connection.subscribePriceFeedUpdates(NETWORK.feedIds, (priceFeed) => {
+		let price = priceFeed.getPriceNoOlderThan(60);
+		if (!price) {
+			price = priceFeed.getPriceUnchecked()
+
+		}
+
     const currentKnownOpenTrades = app.knownOpenTrades;
 
     if (currentKnownOpenTrades === null) {
@@ -1005,25 +969,10 @@ function watchPricingStream() {
       return;
     }
 
-    if (!app.allowedLink) {
-      appLogger.warn('LINK is not currently allowed for the configured account; unable to process any trades!');
-
-      return;
-    }
-
-    const messageData = JSON.parse(msg.data.toString());
-
-    // If there's only one element in the array then it's a timestamp
-    if (messageData.length === 1) {
-      // Checkpoint ts at index 0
-      // const checkpoint = messageData[0]
-      return;
-    }
-
     const pairPrices = new Map();
-    for (let i = 0; i < messageData.length; i += 2) {
-      pairPrices.set(messageData[i], messageData[i + 1]);
-    }
+		if (feedIdToPriceIndex.get(priceFeed.id)) {
+			pairPrices.set(feedIdToPriceIndex.get(priceFeed.id), +price.price * 10 ** price.expo);
+		}
 
     pricingUpdatesMessageProcessingCount++;
 
@@ -1051,6 +1000,8 @@ function watchPricingStream() {
 
           const price = pairPrices.get(parseInt(pairIndex));
           if (price === undefined) return;
+
+					appLogger.debug(`Received ${price} update check for pair ${pairIndex}; with price ${price}!`);
 
           const isPendingOpenLimitOrder = openTrade.tradeType + '' !== '0';
           const openTradeKey = buildTradeIdentifier(user, index);
@@ -1330,7 +1281,7 @@ function watchPricingStream() {
         })
       );
     }
-  };
+  });
 
   function getTradeLiquidationPrice(precision, borrowingFeesContext, trade) {
     const { tradeInfo, initialAccFees, pairIndex } = trade;
