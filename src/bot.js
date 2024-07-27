@@ -970,7 +970,7 @@ function watchPricingStream() {
     }
 
     const pairPrices = new Map();
-		if (feedIdToPriceIndex.get(priceFeed.id)) {
+		if (feedIdToPriceIndex.get(priceFeed.id) !== undefined && feedIdToPriceIndex.get(priceFeed.id) >= 0) {
 			pairPrices.set(feedIdToPriceIndex.get(priceFeed.id), +price.price * 10 ** price.expo);
 		}
 
