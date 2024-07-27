@@ -66,77 +66,75 @@ docker-compose up --build --force-recreate -d
 | MAX_RETRIES                                  | How many times the bot should attempt to trigger an order. Set to `-1` to disable.                                                                                                                                                                                                                                                                                                                                                                                     |
 | ORACLE_ADDRESS                                             | **FOR ORACLE OPERATORS ONLY:** The address of your oracle. The `PUBLIC_KEY` you use to run the bot must either be an authorized fulfiller or the owner of the oracle contract                                                                                                                                                                                                                                                                                          |
 
-### Methoden im Detail:
+### Methods in detail:
 
-#### 4. Handelsvariablen abrufen
+#### 4. Fetching Trading Variables
 
-**`fetchTradingVariables`**: Diese Methode ist verantwortlich für das Abrufen und Aktualisieren der dynamischen Handelsvariablen, die in der App verwendet werden. Es gibt mehrere Unterfunktionen, die spezifische Daten abrufen.
-
+**`fetchTradingVariables`**: This method is responsible for fetching and updating the dynamic trading variables used in the app. It includes several sub-functions that retrieve specific data.
 - **`fetchPairs(pairsCount)`**:
-	- Ruft die Tiefe, maximale Hebelwirkung und Paardaten für alle Handelspaare ab.
-	- Speichert die maximalen Hebelwirkungen in einer Map und die Tiefen in einem Array.
-	- Die Paardaten enthalten Informationen wie das Handelsasset (from, to), den Spread, die Gruppen- und Gebührendex.
+   - Retrieves the depth, maximum leverage, and pair data for all trading pairs.
+   - Stores the maximum leverage in a map and the depths in an array.
+   - The pair data includes information such as the trading asset (from, to), the spread, the group, and the fee index.
 
 - **`fetchBorrowingFees()`**:
-	- Ruft die Borrowing Fees für alle Collaterals und Paare ab.
-	- Speichert die Gebühreninformationen und Open Interest (OI) in der `borrowingFeesContext`.
+	- Fetches the borrowing fees for all collaterals and pairs.
+    - Stores the fee information and open interest (OI) in the borrowingFeesContext.
 
 - **`fetchOiWindows(pairLength)`**:
-	- Ruft die Einstellungen für Open Interest Windows (Startzeit, Dauer und Anzahl) ab.
-	- Berechnet die aktuellen Fenster-IDs und ruft die OI-Daten für diese Fenster ab.
-	- Speichert die OI-Daten in einer strukturierten Weise, um sie später leicht zugänglich zu machen.
+	- Fetches the settings for Open Interest Windows (start time, duration, and count).
+    - Calculates the current window IDs and fetches the OI data for these windows.
+	- Stores the OI data in a structured manner to make it easily accessible later.
 
-Die `fetchTradingVariables`-Methode wird regelmäßig aufgerufen, um sicherzustellen, dass die Handelsdaten stets aktuell sind. Wenn ein Fehler auftritt, wird die Methode nach einer kurzen Verzögerung erneut aufgerufen.
+The `fetchTradingVariables`-method is called regularly to ensure the trading data is always up-to-date. If an error occurs, the method is retried after a short delay.
+#
+### 5. Fetching and Synchronizing Open Trades
 
-#### 5. Offene Trades abrufen und synchronisieren
-
-**`fetchOpenTrades`**: Diese Methode ruft die aktuellen offenen Trades ab und synchronisiert sie mit der internen Datenstruktur der App.
+**`fetchOpenTrades`**: This method fetches the current open trades and synchronizes them with the app’s internal data structure.
 
 - **`fetchOpenPairTrades`**:
-	- Verwendet die `ethers`-Bibliothek und die `@gainsnetwork/sdk`, um die rohen Daten der offenen Paartrades abzurufen.
-	- Transformiert die rohen Daten in eine nutzbare Form und speichert sie in der `knownOpenTrades`-Map.
+	- Uses the ethers library and the @gainsnetwork/sdk to fetch raw data of open pair trades.
+    - Transforms the raw data into a usable form and stores it in the knownOpenTrades map.
 
 - **`synchronizeOpenTrades(event)`**:
-	- Synchronisiert die offenen Trades basierend auf spezifischen Blockchain-Ereignissen.
-	- Verarbeitet Ereignisse wie `TradeStored`, `TradeClosed`, `TradeTpUpdated`, `TradeSlUpdated` und andere.
-	- Aktualisiert die `knownOpenTrades`-Map entsprechend den neuen Informationen, die durch die Ereignisse bereitgestellt werden.
+	- Synchronizes open trades based on specific blockchain events.
+    - Processes events such as TradeStored, TradeClosed, TradeTpUpdated, TradeSlUpdated, and others.
+	- Updates the knownOpenTrades map according to the new information provided by the events.
 
 #### 6. Event-Listener
 
-**`watchLiveTradingEvents`**: Diese Methode setzt Event-Listener für verschiedene Blockchain-Ereignisse, die Handelsaktivitäten betreffen.
+**`watchLiveTradingEvents`**: This method sets up event listeners for various blockchain events related to trading activities.
 
 - **Event-Listener**:
-	- Überwacht alle Ereignisse von den `diamond`-Verträgen.
-	- Reagiert auf spezifische Ereignisse wie `PriceImpactOpenInterestAdded`, `BorrowingPairAccFeesUpdated`, `TradeStored`, etc.
-	- Nutzt Verzögerungen (`setTimeout`), um sicherzustellen, dass die Ereignisse vollständig verarbeitet werden, bevor weitere Aktionen durchgeführt werden.
+	- Monitors all events from the diamond contracts.
+    - Responds to specific events such as PriceImpactOpenInterestAdded, BorrowingPairAccFeesUpdated, TradeStored, etc.
+    - Uses delays (setTimeout) to ensure events are fully processed before further actions are taken.
 
 - **`handleMultiCollatEvents(event)`**:
-	- Verarbeitet Ereignisse im Zusammenhang mit der Preisbeeinflussung von Open Interest (OI).
-	- Aktualisiert die OI-Daten basierend auf den Ereignisinformationen.
+	- Processes events related to the price impact of Open Interest (OI).
+    - Updates the OI data based on the event information.
 
 - **`handleBorrowingFeesEvent(event)`**:
-	- Verarbeitet Ereignisse im Zusammenhang mit den Borrowing Fees.
-	- Aktualisiert die Gebühreninformationen basierend auf den Ereignisinformationen.
+	- Processes events related to borrowing fees.
+    - Updates the fee information based on the event information.
 
-#### 7. Preisstrom überwachen
+#### 7. Monitoring Price Stream
 
-**`watchPricingStream`**: Diese Methode verbindet sich mit einem Websocket-Preisstrom und überwacht Preisänderungen, um entsprechende Handelsaktionen auszulösen.
+**`watchPricingStream`**: This method connects to a WebSocket price stream and monitors price changes to trigger appropriate trading actions.
 
 - **WebSocket-Setup**:
-	- Verbindet sich mit dem Websocket-Preisstrom, um Echtzeit-Preisdaten zu erhalten.
-	- Setzt verschiedene Event-Handler (`onopen`, `onclose`, `onerror`, `onmessage`), um die Verbindung zu verwalten und Nachrichten zu verarbeiten.
+	- Connects to the WebSocket price stream to receive real-time price data.
+    - Sets up various event handlers (onopen, onclose, onerror, onmessage) to manage the connection and process messages.
 
 - **Nachrichtenverarbeitung (`onmessage`)**:
-	- Verarbeitet die empfangenen Preisaktualisierungen und aktualisiert die bekannten offenen Trades entsprechend.
-	- Überprüft, ob die Trades basierend auf den neuen Preisen ausgelöst werden sollen (z.B. TP, SL, Liquidation).
-	- Wenn ein Trade ausgelöst werden soll, erstellt und signiert die Methode eine Transaktion, um den Trade durchzuführen.
+	- Processes the received price updates and updates the known open trades accordingly.
+    - Checks if trades should be triggered based on the new prices (e.g., TP, SL, liquidation).
+    - If a trade should be triggered, the method creates and signs a transaction to execute the trade.
 
 - **`handleOnMessageAsync()`**:
-	- Die eigentliche Logik zur Verarbeitung der empfangenen Preisdaten.
-	- Überprüft, ob ein Trade basierend auf den aktuellen Preisen und den Handelsbedingungen ausgelöst werden soll.
-	- Verwendet verschiedene Hilfsfunktionen, um die Liquidationspreise, Hebelwirkungen und andere Handelsparameter zu berechnen.
+	- Contains the actual logic for processing the received price data.
+    - Checks if a trade should be triggered based on current prices and trading conditions.
+    - Uses various helper functions to calculate liquidation prices, leverage, and other trading parameters.
 
 - **`canRetry(triggerId)`**:
-	- Überprüft, ob ein ausgelöster Order erneut versucht werden kann, basierend auf einer maximalen Anzahl von Versuchen.
+	- Checks if a triggered order can be retried based on a maximum number of attempts.
 
-Durch diese Methoden stellt die App sicher, dass sie immer auf dem neuesten Stand der Handelsdaten ist und schnell auf Marktänderungen reagieren kann.
