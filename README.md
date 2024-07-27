@@ -1,6 +1,6 @@
-# NFT Bot for gTrade v6.x
+# LeverageX Bot
 
-This is the bot that executes limit orders for [gTrade](https://gains.trade), the decentralized leveraged trading platform.
+This is the bot that executes limit orders, liquidations and tp or sl for LeverageX the decentralized leveraged trading platform.
 
 ## Run
 
