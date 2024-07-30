@@ -6,7 +6,7 @@ export const getEthersContract = (web3Contract, provider) => {
 };
 
 export const initContracts = async (w3, ctx, networkConfig) => {
-  ctx.contracts.diamond = new w3.eth.Contract(abis.MULTI_COLLAT_DIAMOND, networkConfig.diamondAddress);
+  ctx.contracts.diamond = new w3.eth.Contract(abis.DIAMOND, networkConfig.diamondAddress);
 
   for (const collateral of networkConfig.collaterals) {
     ctx.collaterals[collateral.collateralIndex] = {
