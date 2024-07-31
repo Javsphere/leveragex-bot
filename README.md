@@ -17,7 +17,7 @@ $ cp .env.base.example .env.base
    4. Set `ORACLE_ADDRESS` to your Oracle contract address
 
 
-### Run the bots
+### Run the bot
 
 ```
 $ docker-compose build
@@ -25,8 +25,7 @@ $ docker-compose up
 ```
 
 ```
-$ run build
-$ docker-compose up
+$ run src/bot.js
 ```
 
 ### Updating bots
