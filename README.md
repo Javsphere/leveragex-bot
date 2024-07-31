@@ -1,4 +1,4 @@
-# LeverageX Bo
+# LeverageX Bot
 
 ## Run
 
