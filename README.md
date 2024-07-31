@@ -1,19 +1,16 @@
-# LeverageX Bot
-
-This is the bot that executes limit orders, liquidations and tp or sl for LeverageX the decentralized leveraged trading platform.
+# LeverageX Bo
 
 ## Run
 
 ### Clone the repo & creat `.env` files
 ```
 $ git clone git@github.com:GainsNetwork-org/nft-bot-v3.git
-$ cp .env.polygon.example .env.polygon
-$ cp .env.arbitrum.example .env.arbitrum
-$ cp .env.mumbai.example .env.mumbai
+$ cp .env.seopolia.example .env.sepolia
+$ cp .env.base.example .env.base
 ```
 
 ### Edit the `.env.*` files
-(`.env.polygon`, `.env.arbitrum` and `.env.mumbai`)
+(`.env.base`, `.env.sepolia`)
    1. Set `WSS_URLS` to your dedicated WSS endpoints (comma separated list)
    2. Set `PRIVATE_KEY` to your account's private key
    3. Set `PUBLIC_KEY` to your account's public key
@@ -24,6 +21,11 @@ $ cp .env.mumbai.example .env.mumbai
 
 ```
 $ docker-compose build
+$ docker-compose up
+```
+
+```
+$ run build
 $ docker-compose up
 ```
 
