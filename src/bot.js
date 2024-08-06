@@ -5,31 +5,28 @@
 import dotenv from 'dotenv';
 import ethers from 'ethers';
 import {
-  fetchOpenPairTradesRaw,
-  getCurrentOiWindowId,
-  getLiquidationPrice,
-  getSpreadWithPriceImpactP,
-  isCommoditiesOpen,
-  isForexOpen,
-  isIndicesOpen,
-  isStocksOpen,
-  withinMaxGroupOi,
+	fetchOpenPairTradesRaw,
+	getCurrentOiWindowId,
+	getLiquidationPrice,
+	getSpreadWithPriceImpactP,
+	isCommoditiesOpen,
+	isForexOpen,
+	isIndicesOpen,
+	isStocksOpen,
+	withinMaxGroupOi,
 } from '@gainsnetwork/sdk';
-import { PriceServiceConnection } from "@pythnetwork/price-service-client";
+import { PriceServiceConnection } from '@pythnetwork/price-service-client';
 import Web3 from 'web3';
 import { DateTime } from 'luxon';
 import fetch from 'node-fetch';
-import { Contract, Provider } from 'ethcall';
 import {
-  ABIS as abis,
-  GAS_MODE,
-  isCommoditiesGroup,
-  isForexGroup,
-  isIndicesGroup,
-  isStocksGroup,
-  MAX_OPEN_NEGATIVE_PNL_P,
-  PENDING_ORDER_TYPE,
-  TRADE_TYPE,
+	GAS_MODE,
+	isCommoditiesGroup,
+	isForexGroup,
+	isIndicesGroup,
+	isStocksGroup,
+	MAX_OPEN_NEGATIVE_PNL_P,
+	PENDING_ORDER_TYPE,
 } from './constants/index.js';
 import {
 	appConfig,
@@ -39,10 +36,10 @@ import {
 	convertTradeInfo,
 	convertTradeInitialAccFees,
 	createLogger,
-	decreaseWindowOi, feedIdToPriceIndex,
+	decreaseWindowOi,
 	getEthersContract,
 	increaseWindowOi,
-	initContracts, leverageXId,
+	initContracts,
 	NonceManager,
 	packTrigger,
 	transferOiWindows,
@@ -934,24 +931,24 @@ function watchPricingStream() {
 		throw Error('Missing `feedIds` network configuration.');
 	}
 
+	let socket = new WebSocket(process.env.PRICES_URL);
   let pricingUpdatesMessageProcessingCount = 0;
 
-	connection.onWsError = (error) => {
-		console.log(
-			`Received error ${error} start again`
-		);
-		connection.unsubscribePriceFeedUpdates(NETWORK.feedIds);
-		connection.closeWebSocket();
-		watchPricingStream()
+	socket.onopen = () => {
+		appLogger.info('Pricing stream connected.');
 	};
+	socket.onclose = () => {
+		appLogger.error('Pricing stream websocket closed! Will attempt to reconnect in two seconds...');
 
-	connection.subscribePriceFeedUpdates(NETWORK.feedIds, (priceFeed) => {
-		let price = priceFeed.getPriceNoOlderThan(60);
-		if (!price) {
-			price = priceFeed.getPriceUnchecked()
-
-		}
-
+		setTimeout(() => {
+			watchPricingStream();
+		}, 2000);
+	};
+	socket.onerror = (error) => {
+		appLogger.error('Pricing stream websocket error occurred!', { error });
+		socket.close();
+	};
+	socket.onmessage = (msg) => {
     const currentKnownOpenTrades = app.knownOpenTrades;
 
     if (currentKnownOpenTrades === null) {
@@ -966,10 +963,17 @@ function watchPricingStream() {
       return;
     }
 
-    const pairPrices = new Map();
-		if (feedIdToPriceIndex.get(priceFeed.id) !== undefined && feedIdToPriceIndex.get(priceFeed.id) >= 0) {
-			pairPrices.set(feedIdToPriceIndex.get(priceFeed.id), +price.price * 10 ** price.expo);
+		const messageData = JSON.parse(msg.data.toString());
+
+		const pairPrices = new Map();
+		// stocks pricefeed
+		if (messageData.priceCombined !== undefined) {
+			pairPrices.set(messageData.id, +messageData.priceCombined.price * 10 ** messageData.priceCombined.expo);
+			// everything else directly from pyth
+		} else {
+			pairPrices.set(messageData.id, +messageData.price.price * 10 ** messageData.price.expo);
 		}
+
 
     pricingUpdatesMessageProcessingCount++;
 
@@ -1278,7 +1282,7 @@ function watchPricingStream() {
         })
       );
     }
-  });
+	};
 
   function getTradeLiquidationPrice(precision, borrowingFeesContext, trade) {
     const { tradeInfo, initialAccFees, pairIndex } = trade;
