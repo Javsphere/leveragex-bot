@@ -3780,25 +3780,35 @@ export const ABIS = {
 		'name': 'SetAdminAddress',
 		'type': 'event',
 	}, {
-		'anonymous': false,
-		'inputs': [{
-			'indexed': true,
-			'internalType': 'address',
-			'name': 'triggerCaller',
-			'type': 'address',
-		}, {
-			'indexed': false,
-			'internalType': 'enum ITradingStorage.PendingOrderType',
-			'name': 'orderType',
-			'type': 'uint8',
-		}, {
-			'indexed': false,
-			'internalType': 'enum ITradingProcessing.CancelReason',
-			'name': 'cancelReason',
-			'type': 'uint8',
-		}],
-		'name': 'TriggerOrderCanceled',
-		'type': 'event',
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "triggerCaller",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint32",
+				"name": "index",
+				"type": "uint32"
+			},
+			{
+				"indexed": false,
+				"internalType": "enum ITradingStorage.PendingOrderType",
+				"name": "orderType",
+				"type": "uint8"
+			},
+			{
+				"indexed": false,
+				"internalType": "enum ITradingProcessing.CancelReason",
+				"name": "cancelReason",
+				"type": "uint8"
+			}
+		],
+		"name": "TriggerOrderCanceled",
+		"type": "event"
 	}, {
 		'anonymous': false,
 		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'account', 'type': 'address' }],

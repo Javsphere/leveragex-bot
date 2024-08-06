@@ -837,12 +837,9 @@ async function synchronizeOpenTrades(event) {
         appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
       }
     } else if (eventName === 'TriggerOrderCanceled') {
-      const { user, index } = eventReturnValues.orderId; // this is a pending order Id
-      const { orderType } = eventReturnValues;
+      const { triggerCaller, index, orderType } = eventReturnValues; // this is a pending order Id
 
-      const pendingOrder = await app.contracts.diamond.methods.getPendingOrder({ user, index }).call();
-
-      const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(pendingOrder.trade.user, pendingOrder.trade.index, orderType);
+      const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(triggerCaller, index, orderType);
 
       if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifier)) {
         app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
