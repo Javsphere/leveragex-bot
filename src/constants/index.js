@@ -1,9 +1,9 @@
 const GROUP_IDS = {
-  CRYPTO: [0],
-  FOREX: [1, 8, 9],
-  STOCKS: [2, 3, 4],
-  INDICES: [5],
-  COMMODITIES: [6, 7],
+	CRYPTO: [0],
+	FOREX: [2],
+	STOCKS: [1],
+	COMMODITIES: [3],
+	INDICES: [4],
 };
 export const isCryptoGroup = (groupId) => GROUP_IDS.CRYPTO.includes(groupId);
 export const isForexGroup = (groupId) => GROUP_IDS.FOREX.includes(groupId);

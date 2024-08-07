@@ -15,7 +15,6 @@ import {
 	isStocksOpen,
 	withinMaxGroupOi,
 } from '@gainsnetwork/sdk';
-import { PriceServiceConnection } from '@pythnetwork/price-service-client';
 import Web3 from 'web3';
 import { DateTime } from 'luxon';
 import fetch from 'node-fetch';
@@ -50,8 +49,6 @@ import {
 	updateWindowsCount,
 	updateWindowsDuration,
 } from './utils/index.js';
-
-import { WebSocket } from 'ws';
 
 const { toHex, BN } = Web3.utils;
 
@@ -89,8 +86,6 @@ let executionStats = {
   startTime: new Date(),
 };
 
-let connection = new PriceServiceConnection("https://hermes.pyth.network");
-
 // -----------------------------------------
 // 2. GLOBAL VARIABLES
 // -----------------------------------------
@@ -99,7 +94,6 @@ const {
   MAX_FEE_PER_GAS_WEI_HEX,
   MAX_GAS_PER_TRANSACTION_HEX,
   EVENT_CONFIRMATIONS_MS,
-  AUTO_HARVEST_MS,
   FAILED_ORDER_TRIGGER_TIMEOUT_MS,
   PRIORITY_GWEI_MULTIPLIER,
   MIN_PRIORITY_GWEI,
@@ -183,9 +177,9 @@ async function setCurrentWeb3Client(newWeb3ClientIndex) {
   // Subscribe to events using the new provider
   watchLiveTradingEvents();
 
-  var startFetchingLatestGasPricesPromise = null;
+	let startFetchingLatestGasPricesPromise = null;
 
-  // If no client was previously selected, start fetching gas prices
+	// If no client was previously selected, start fetching gas prices
   if (wasFirstClientSelection) {
     startFetchingLatestGasPricesPromise = startFetchingLatestGasPrices();
   }
@@ -1317,41 +1311,6 @@ function watchPricingStream() {
 }
 
 watchPricingStream();
-
-// ------------------------------------------
-// AUTO HARVEST REWARDS
-// ------------------------------------------
-
-if (AUTO_HARVEST_MS > 0) {
-  async function claimRewards() {
-    if (!process.env.ORACLE_ADDRESS) return;
-
-    const tx = createTransaction({
-      to: app.contracts.diamond.options.address,
-      data: app.contracts.diamond.methods.claimPendingTriggerRewards(process.env.ORACLE_ADDRESS).encodeABI(),
-    });
-
-    try {
-      const signed = await app.currentlySelectedWeb3Client.eth.accounts.signTransaction(tx, process.env.PRIVATE_KEY);
-
-      await app.currentlySelectedWeb3Client.eth.sendSignedTransaction(signed.rawTransaction);
-
-      appLogger.info(`Tokens claimed.`);
-    } catch (error) {
-      appLogger.error(`Claim tokens transaction failed!`, error);
-    }
-  }
-
-  setInterval(async () => {
-    appLogger.info('Harvesting rewards...');
-
-    try {
-      await claimRewards();
-    } catch (error) {
-      appLogger.error('Harvesting rewards failed unexpectedly!', error);
-    }
-  }, AUTO_HARVEST_MS);
-}
 
 /**
  * Creates a base transaction object using fixed, configured values and optionally fills out any additionally

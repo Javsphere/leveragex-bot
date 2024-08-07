@@ -1,6 +1,7 @@
 import { pack } from '@gainsnetwork/sdk';
 import Web3 from 'web3';
 import { CHAIN_IDS, NETWORKS } from '../constants/index.js';
+
 export const transformRawTrades = (rawTrades) => rawTrades?.map((t) => transformRawTrade(t));
 
 export const transformRawTrade = ({ trade, tradeInfo, initialAccFees }) => ({
@@ -161,7 +162,6 @@ export const appConfig = () => {
       (process.env.MAX_GAS_PRICE_GWEI ?? '').length > 0 ? Web3.utils.toHex(parseInt(process.env.MAX_GAS_PRICE_GWEI, 10) * 1e9) : 0,
     MAX_GAS_PER_TRANSACTION_HEX: Web3.utils.toHex(parseInt(process.env.MAX_GAS_PER_TRANSACTION, 10)),
     EVENT_CONFIRMATIONS_MS: parseFloat(process.env.EVENT_CONFIRMATIONS_SEC) * 1000,
-    AUTO_HARVEST_MS: parseFloat(process.env.AUTO_HARVEST_SEC) * 1000,
     FAILED_ORDER_TRIGGER_TIMEOUT_MS: parseFloat(process.env.FAILED_ORDER_TRIGGER_TIMEOUT_SEC || '60') * 1000,
     PRIORITY_GWEI_MULTIPLIER: parseFloat(process.env.PRIORITY_GWEI_MULTIPLIER),
     MIN_PRIORITY_GWEI: parseFloat(process.env.MIN_PRIORITY_GWEI),
