@@ -50,6 +50,8 @@ import {
 	updateWindowsDuration,
 } from './utils/index.js';
 
+import { WebSocket } from 'ws';
+
 const { toHex, BN } = Web3.utils;
 
 // Make errors JSON serializable
