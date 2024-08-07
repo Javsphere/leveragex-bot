@@ -919,7 +919,7 @@ async function handleBorrowingFeesEvent(event) {
 // ---------------------------------------------
 
 function watchPricingStream() {
-  appLogger.info('Connecting to pricing stream...');
+	appLogger.info(`Connecting to pricing stream... ${process.env.PRICES_URL}`);
 
 	if (!NETWORK.feedIds) {
 		throw Error('Missing `feedIds` network configuration.');
