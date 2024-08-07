@@ -144,7 +144,7 @@ const app = {
   },
 };
 
-appLogger.info('Welcome to the gTrade NFT bot!');
+appLogger.info('Welcome to the LeverageX bot!');
 
 if (!NETWORK) {
   throw new Error(`Invalid chain id: ${CHAIN_ID}`);

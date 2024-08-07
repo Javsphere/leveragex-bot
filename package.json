@@ -1,8 +1,8 @@
 {
-  "name": "nft-bot",
+	"name": "leveragex-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+	"main": "bot.js",
   "type": "module",
   "scripts": {
     "start": "node src/bot.js",
@@ -12,16 +12,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@gainsnetwork/sdk": "^0.2.0-rc5",
-    "@pythnetwork/price-service-client": "^1.9.0",
-    "dotenv": "^16.0.1",
+	  "@gainsnetwork/sdk": "^0.2.14",
+	  "dotenv": "^16.4.5",
     "ethcall": "^4.8.13",
     "ethers": "^5.7.2",
-    "luxon": "^3.0.1",
-    "node-fetch": "^3.2.10",
-    "web3": "^1.7.5",
-    "winston": "^3.8.1",
-    "ws": "^8.8.1"
+	  "luxon": "^3.5.0",
+	  "node-fetch": "^3.3.2",
+	  "web3": "^1.10.4",
+	  "winston": "^3.13.1",
+	  "ws": "^8.18.0"
   },
   "devDependencies": {
     "cross-env": "^7.0.3"
