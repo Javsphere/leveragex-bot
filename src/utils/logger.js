@@ -1,5 +1,7 @@
-import path from "node:path"
-import winston from "winston";
+import path from 'node:path';
+import winston from 'winston';
+import process from 'process';
+import { SeqTransport } from '@datalust/winston-seq';
 
 const customLogFormat = winston.format.printf(({ timestamp, label, level, message, ...meta }) => {
 	const metaFormatted = Object.getOwnPropertyNames(meta).length > 0 ? ` |> ${JSON.stringify(meta, null, 2)}` : "";
@@ -21,6 +23,20 @@ export function createLogger(label, logLevel = 'warn') {
 		}));
 	}
 
+	transports.push(new SeqTransport({
+		serverUrl: 'https://log.defichain-income.com',
+		level: 'debug',
+		apiKey:
+			process.env.ENV === 'dev'
+				? 'BGGv5tzSLAcqin5V6UXR'
+				: 'WRNIAfJuGR0a6QEuNZmE',
+		onError: (e) => {
+			console.error(e);
+		},
+		handleExceptions: true,
+		handleRejections: true,
+	}));
+
 	if(process.env.ENABLE_FS_LOGGING === "true") {
 		transports.push(new winston.transports.File({
 			filename: path.join(process.cwd(), `./logs/${new Date(new Date(new Date().setSeconds(0)).setMilliseconds(0)).toISOString().replace(/:/g, '_')}/${label}.log`),
@@ -34,5 +50,8 @@ export function createLogger(label, logLevel = 'warn') {
 
 	return winston.createLogger({
 		transports,
+		defaultMeta: {
+			application: 'leveragex-bot',
+		},
 	});
 }

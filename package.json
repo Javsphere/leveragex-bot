@@ -1,28 +1,29 @@
 {
 	"name": "leveragex-bot",
-  "version": "1.0.0",
-  "description": "",
+	"version": "1.0.0",
+	"description": "",
 	"main": "bot.js",
-  "type": "module",
-  "scripts": {
-    "start": "node src/bot.js",
-    "start:dev": "npx cross-env NODE_ENV=development node src/bot.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-	  "@gainsnetwork/sdk": "^0.2.14",
-	  "dotenv": "^16.4.5",
-    "ethcall": "^4.8.13",
-    "ethers": "^5.7.2",
-	  "luxon": "^3.5.0",
-	  "node-fetch": "^3.3.2",
-	  "web3": "^1.10.4",
-	  "winston": "^3.13.1",
-	  "ws": "^8.18.0"
-  },
-  "devDependencies": {
-    "cross-env": "^7.0.3"
-  }
+	"type": "module",
+	"scripts": {
+		"start": "PORT=3000 node src/bot.js",
+		"start:dev": "npx cross-env NODE_ENV=development node src/bot.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@datalust/winston-seq": "^2.0.0",
+		"@gainsnetwork/sdk": "^0.2.14",
+		"dotenv": "^16.4.5",
+		"ethcall": "^4.8.13",
+		"ethers": "^5.7.2",
+		"luxon": "^3.5.0",
+		"node-fetch": "^3.3.2",
+		"web3": "^1.10.4",
+		"winston": "^3.13.1",
+		"ws": "^8.18.0"
+	},
+	"devDependencies": {
+		"cross-env": "^7.0.3"
+	}
 }

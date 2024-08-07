@@ -1122,7 +1122,7 @@ function watchPricingStream() {
             // removed from known open trades asynchronously which is why we check again here even though we're
             // looping through the set of what we thought were the known open trades here
             if (!currentKnownOpenTrades.has(openTradeKey)) {
-              appLogger.warn(`Trade ${openTradeKey} no longer exists in our known open trades list; skipping order!`);
+							appLogger.warn(`Trade ${openTradeKey} no longer exists in our known open trades listps -e|grep node; skipping order!`);
 
               return;
             }
