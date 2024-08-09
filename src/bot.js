@@ -30,9 +30,9 @@ import {
 import {
 	appConfig,
 	buildTradeIdentifier,
+	convertFee,
 	convertOiWindows,
 	convertTrade,
-	convertTradeInfo,
 	convertTradeInitialAccFees,
 	createLogger,
 	decreaseWindowOi,
@@ -441,12 +441,13 @@ async function fetchTradingVariables() {
   }
 
   async function fetchPairs(pairsCount) {
-    const [depths, maxLeverage, pairs] = await Promise.all([
+		const [depths, maxLeverage, pairs, feesCount] = await Promise.all([
       app.contracts.diamond.methods.getPairDepths([...Array(parseInt(pairsCount)).keys()]).call(),
       app.contracts.diamond.methods.getAllPairsRestrictedMaxLeverage().call(),
       Promise.all(
         [...Array(parseInt(pairsCount)).keys()].map(async (_, pairIndex) => app.contracts.diamond.methods.pairs(pairIndex).call())
       ),
+			app.contracts.diamond.methods.feesCount().call(),
     ]);
 
     app.pairMaxLeverage = new Map(maxLeverage.map((l, idx) => [idx, parseInt(l)]));
@@ -464,6 +465,15 @@ async function fetchTradingVariables() {
     }));
 
     app.spreadsP = pairs.map((p) => p.spreadP);
+
+		app.fees = (
+			await Promise.all([...Array(parseInt(feesCount)).keys()].map((_, feeIndex) => app.contracts.diamond.methods.fees(feeIndex).call()))
+		).map(({ openFeeP, closeFeeP, triggerOrderFeeP, minPositionSizeUsd }) => ({
+			openFeeP: openFeeP,
+			closeFeeP: closeFeeP,
+			triggerOrderFeeP: triggerOrderFeeP,
+			minPositionSizeUsd: minPositionSizeUsd,
+		}));
   }
 
   async function fetchBorrowingFees() {
@@ -677,6 +687,7 @@ function watchLiveTradingEvents() {
           'TradeCollateralUpdated',
           'TriggerOrderCanceled',
           'PendingOrderClosed',
+					'TradePositionUpdated',
         ].indexOf(event.event) > -1
       ) {
         //
@@ -830,7 +841,34 @@ async function synchronizeOpenTrades(event) {
       } else {
         appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
       }
-    } else if (eventName === 'TriggerOrderCanceled') {
+		} else if (eventName === 'TradePositionUpdated') {
+			const { user, index } = eventReturnValues.tradeId;
+			const tradeKey = buildTradeIdentifier(user, index);
+
+			const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
+
+			if (existingKnownOpenTrade !== undefined) {
+				// Update trade values
+				existingKnownOpenTrade.collateralAmount = eventReturnValues.collateralAmount.toString();
+				existingKnownOpenTrade.leverage = eventReturnValues.leverage.toString();
+				existingKnownOpenTrade.openPrice = eventReturnValues.openPrice.toString();
+				existingKnownOpenTrade.tp = eventReturnValues.newTp.toString();
+				existingKnownOpenTrade.sl = eventReturnValues.newSl.toString();
+
+				// Update initial acc fees
+				const { collateralIndex } = existingKnownOpenTrade;
+				const initialAccFees = await app.contracts.diamond.methods.getBorrowingInitialAccFees(collateralIndex, user, index).call();
+				existingKnownOpenTrade.initialAccFees = {
+					accPairFee: initialAccFees.accPairFee + '',
+					accGroupFee: initialAccFees.accGroupFee + '',
+					block: initialAccFees.block + '',
+				};
+
+				appLogger.info(`Synchronize update trade from event ${eventName}: Updated values for ${tradeKey}`);
+			} else {
+				appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
+			}
+		} else if (eventName === 'TriggerOrderCanceled') {
       const { triggerCaller, index, orderType } = eventReturnValues; // this is a pending order Id
 
       const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(triggerCaller, index, orderType);
@@ -1024,7 +1062,11 @@ function watchPricingStream() {
 
             const tp = parseFloat(openTrade.tp) / 1e10;
             const sl = parseFloat(openTrade.sl) / 1e10;
-            liqPrice = getTradeLiquidationPrice(collateralConfig.precision, app.borrowingFeesContext[collateralIndex], openTrade);
+						liqPrice = getTradeLiquidationPrice(
+							collateralConfig.precision,
+							app.borrowingFeesContext[collateralIndex],
+							openTrade,
+							app.fees[parseInt(app.pairs[pairIndex].feeIndex)]);
 
             if (tp !== 0 && ((long && price >= tp) || (!long && price <= tp))) {
               orderType = PENDING_ORDER_TYPE.TP_CLOSE;
@@ -1082,7 +1124,7 @@ function watchPricingStream() {
 
           // If it's not an order type we want to act on yet, just skip it
           if (orderType === -1) {
-						appLogger.debug(`Order ${openTradeKey} checked and nothing to do liqPrice ${liqPrice} actual price ${price}!`);
+						appLogger.debug(`Order ${openTradeKey} checked and nothing to do liqPrice ${liqPrice} for ${long ? 'long' : 'short'} actual price ${price}!`);
             return;
           }
 
@@ -1286,10 +1328,10 @@ function watchPricingStream() {
     }
 	};
 
-  function getTradeLiquidationPrice(precision, borrowingFeesContext, trade) {
-    const { tradeInfo, initialAccFees, pairIndex } = trade;
+	function getTradeLiquidationPrice(precision, borrowingFeesContext, trade, feeContext) {
+		const { initialAccFees, pairIndex } = trade;
 
-    return getLiquidationPrice(convertTrade(trade, precision), convertTradeInfo(tradeInfo), convertTradeInitialAccFees(initialAccFees), {
+		return getLiquidationPrice(convertTrade(trade, precision), convertFee(feeContext), convertTradeInitialAccFees(initialAccFees), {
       currentBlock: app.blocks.latestL2Block,
       openInterest: borrowingFeesContext.pairs[pairIndex].oi,
       pairs: borrowingFeesContext.pairs,
