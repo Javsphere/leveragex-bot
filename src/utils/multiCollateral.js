@@ -1,4 +1,4 @@
-import { ABIS as abis, ABIS, COLLATERAL_CONFIG } from '../constants/index.js';
+import { ABIS as abis, COLLATERAL_CONFIG } from '../constants/index.js';
 import ethers from 'ethers';
 
 export const getEthersContract = (web3Contract, provider) => {
@@ -17,32 +17,6 @@ export const initContracts = async (w3, ctx, networkConfig) => {
     ctx.borrowingFeesContext[collateral.collateralIndex] = { groups: [], pairs: [] };
   }
 };
-
-export const leverageXId = new Map([
-	// BTC
-	[0, 1],
-	// ETH
-	[1, 0],
-	//BNB
-	[47,2],
-	// SOL
-	[33, 3],
-  // TON
-	[107, 4],
-	// XRP
-	[19, 5],
-	//AVAX,
-	[102, 6],
-	// MATIC
-	[4, 7],
-	// NEAR
-	[104, 8],
-	// MATIC
-	[11, 9],
-	// MSFT
-	[62, 10]
-
-]);
 
 export const feedIdToPriceIndex = new Map([
 	// BTC
@@ -66,6 +40,25 @@ export const feedIdToPriceIndex = new Map([
 	// MATIC
 	['ca3eed9b267293f6595901c734c7525ce8ef49adafe8284606ceb307afa2ca5b', 9],
 	// MSFT
-	['d0ca23c1cc005e004ccf1db5bf76aeb6a49218f43dac3d4b275e92de12ded4d1', 10]
-
+	['d0ca23c1cc005e004ccf1db5bf76aeb6a49218f43dac3d4b275e92de12ded4d1', 10],
+	// AAPL
+	['0x49f6b65cb1de6b10eaf75e7c03ca029c306d0357e91b5311b175084a5ad55688', 11],
+	// IBIT
+	['0x9db6bc1e6e9e5e60f6884e1cd8e4399cca9d0454c6e7234ad79680cf139748f5', 12],
+	// MSTR
+	['0xe1e80251e5f5184f2195008382538e847fafc36f751896889dd3d1b1f6111f09', 13],
+	// COIN
+	['0xfee33f2a978bf32dd6b662b65ba8083c6773b494f8401194ec1870c640860245', 14],
+	// TLT
+	['0x9f383d612ac09c7e6ffda24deca1502fce72e0ba58ff473fea411d9727401cc1', 15],
+	// SPY
+	['0x19e09bb805456ada3979a7d1cbb4b6d63babc3a0f8e8a9509f68afa5c4c11cd5', 16],
+	// EUR
+	['0xa995d00bb36a63cef7fd2c287dc105fc8f3d93779f062f09551b0af3e81ec30b', 17],
+	// JPY
+	['0xef2c98c804ba503c6a707e38be4dfbb16683775f195b091252bf24693042fd52', 18],
+	// XAU
+	['0x765d2ba906dbc32ca17cc11f5310a89e9ee1f6420508c63861f2f8ba4ee34bb2', 19],
+	// XAG
+	['0xf2fb02c32b055c805e7238d628e5e9dadef274376114eb1f012337cabe93871e', 20],
 ]);

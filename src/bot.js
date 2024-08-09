@@ -36,6 +36,7 @@ import {
 	convertTradeInitialAccFees,
 	createLogger,
 	decreaseWindowOi,
+	feedIdToPriceIndex,
 	getEthersContract,
 	increaseWindowOi,
 	initContracts,
@@ -962,14 +963,18 @@ function watchPricingStream() {
 		const messageData = JSON.parse(msg.data.toString());
 
 		const pairPrices = new Map();
-		// stocks pricefeed
-		if (messageData.priceCombined !== undefined) {
-			pairPrices.set(messageData.id, +messageData.priceCombined.price * 10 ** messageData.priceCombined.expo);
-			// everything else directly from pyth
-		} else {
-			pairPrices.set(messageData.id, +messageData.price.price * 10 ** messageData.price.expo);
-		}
 
+		const correctId = '0x' + messageData.id;
+		if (feedIdToPriceIndex.get(correctId) !== undefined) {
+
+			// stocks pricefeed
+			if (messageData.priceCombined !== undefined) {
+				pairPrices.set(feedIdToPriceIndex.get(correctId), +messageData.priceCombined.price * 10 ** messageData.priceCombined.expo);
+				// everything else directly from pyth
+			} else {
+				pairPrices.set(feedIdToPriceIndex.get(correctId), +messageData.price.price * 10 ** messageData.price.expo);
+			}
+		}
 
     pricingUpdatesMessageProcessingCount++;
 
