@@ -311,7 +311,7 @@ setInterval(() => {
       .toFormat("d'd'h'h'm'm's's'"),
   };
 
-  appLogger.info(`Execution Stats:`, executionStats);
+	appLogger.info(`Execution Stats: ${JSON.stringify(executionStats)}`);
 }, WEB3_STATUS_REPORT_INTERVAL_MS);
 
 setInterval(async () => {
@@ -923,7 +923,7 @@ async function handleBorrowingFeesEvent(event) {
 
 function watchPricingStream() {
 	appLogger.info(`Connecting to pricing stream... ${process.env.PRICES_URL}`);
-
+	const pairPrices = new Map();
 	if (!NETWORK.feedIds) {
 		throw Error('Missing `feedIds` network configuration.');
 	}
@@ -962,17 +962,17 @@ function watchPricingStream() {
 
 		const messageData = JSON.parse(msg.data.toString());
 
-		const pairPrices = new Map();
-
-		const correctId = '0x' + messageData.id;
+		const correctId = messageData.id;
 		if (feedIdToPriceIndex.get(correctId) !== undefined) {
 
 			// stocks pricefeed
 			if (messageData.priceCombined !== undefined) {
 				pairPrices.set(feedIdToPriceIndex.get(correctId), +messageData.priceCombined.price * 10 ** messageData.priceCombined.expo);
+				appLogger.debug(`Received stock update for feed ${messageData.asset} with price ${pairPrices.get(feedIdToPriceIndex.get(correctId))}!`);
 				// everything else directly from pyth
 			} else {
 				pairPrices.set(feedIdToPriceIndex.get(correctId), +messageData.price.price * 10 ** messageData.price.expo);
+				appLogger.debug(`Received update for feed ${messageData.asset} with price ${pairPrices.get(feedIdToPriceIndex.get(correctId))}!`);
 			}
 		}
 
@@ -1082,6 +1082,7 @@ function watchPricingStream() {
 
           // If it's not an order type we want to act on yet, just skip it
           if (orderType === -1) {
+						appLogger.debug(`Order ${openTradeKey} checked and nothing to do liqPrice ${liqPrice} actual price ${price}!`);
             return;
           }
 

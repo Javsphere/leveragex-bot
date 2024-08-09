@@ -4,9 +4,7 @@ import process from 'process';
 import { SeqTransport } from '@datalust/winston-seq';
 
 const customLogFormat = winston.format.printf(({ timestamp, label, level, message, ...meta }) => {
-	const metaFormatted = Object.getOwnPropertyNames(meta).length > 0 ? ` |> ${JSON.stringify(meta, null, 2)}` : "";
-
-	return `(${timestamp}) [${label}] ${level} ${message}${metaFormatted}`;
+	return `(${timestamp}) [${label}] ${level} ${message}`;
 });
 
 export function createLogger(label, logLevel = 'warn') {
