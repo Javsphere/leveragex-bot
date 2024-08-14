@@ -1006,11 +1006,9 @@ function watchPricingStream() {
 			// stocks pricefeed
 			if (messageData.priceCombined !== undefined) {
 				pairPrices.set(feedIdToPriceIndex.get(correctId), +messageData.priceCombined.price * 10 ** messageData.priceCombined.expo);
-				appLogger.debug(`Received stock update for feed ${messageData.asset} with price ${pairPrices.get(feedIdToPriceIndex.get(correctId))}!`);
 				// everything else directly from pyth
 			} else {
 				pairPrices.set(feedIdToPriceIndex.get(correctId), +messageData.price.price * 10 ** messageData.price.expo);
-				appLogger.debug(`Received update for feed ${messageData.asset} with price ${pairPrices.get(feedIdToPriceIndex.get(correctId))}!`);
 			}
 		}
 
@@ -1040,8 +1038,6 @@ function watchPricingStream() {
 
           const price = pairPrices.get(parseInt(pairIndex));
           if (price === undefined) return;
-
-					appLogger.debug(`Received ${price} update check for pair ${pairIndex}; with price ${price}!`);
 
           const isPendingOpenLimitOrder = openTrade.tradeType + '' !== '0';
           const openTradeKey = buildTradeIdentifier(user, index);
