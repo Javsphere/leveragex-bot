@@ -1189,9 +1189,9 @@ function watchPricingStream() {
                 orderTransaction,
                 process.env.PRIVATE_KEY
               );
-
+							let tx;
               if (DRY_RUN_MODE === false) {
-                await app.currentlySelectedWeb3Client.eth.sendSignedTransaction(signedTransaction.rawTransaction);
+								tx = await app.currentlySelectedWeb3Client.eth.sendSignedTransaction(signedTransaction.rawTransaction);
               } else {
                 appLogger.info(
                   `DRY RUN MODE ACTIVE: skipping actually sending transaction for order: ${triggeredOrderTrackingInfoIdentifier}`,
@@ -1216,7 +1216,7 @@ function watchPricingStream() {
                 }
               }, FAILED_ORDER_TRIGGER_TIMEOUT_MS);
 
-              appLogger.info(`⚡️ Triggered order for ${triggeredOrderTrackingInfoIdentifier}.`);
+							appLogger.info(`⚡️ Triggered order for ${triggeredOrderTrackingInfoIdentifier} with tx ${tx.transactionHash}.`);
             } catch (error) {
               const executionStatsTriggerErrors = executionStats.triggerErrors ?? {};
               const errorReason = error.reason ?? 'UNKNOWN_TRANSACTION_ERROR';
