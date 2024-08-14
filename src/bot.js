@@ -1120,8 +1120,7 @@ function watchPricingStream() {
 
           // If it's not an order type we want to act on yet, just skip it
           if (orderType === -1) {
-						appLogger.debug(`Order ${openTradeKey} checked and nothing to do liqPrice ${liqPrice} for ${long ? 'long' : 'short'} actual price ${price}!`);
-            return;
+						return;
           }
 
           const groupId = parseInt(app.pairs[pairIndex].groupIndex);
