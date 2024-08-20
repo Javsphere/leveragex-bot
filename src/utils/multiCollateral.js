@@ -1,5 +1,7 @@
 import { ABIS as abis, COLLATERAL_CONFIG } from '../constants/index.js';
 import ethers from 'ethers';
+import OracleUpdater from '../abis/JavPriceAggregator.json' with { type: 'json' };
+import Pyth from '../abis/PythOracle.json' with { type: 'json' };
 
 export const getEthersContract = (web3Contract, provider) => {
   return new ethers.Contract(web3Contract.options.address, web3Contract.options.jsonInterface, provider);
@@ -7,6 +9,21 @@ export const getEthersContract = (web3Contract, provider) => {
 
 export const initContracts = async (w3, ctx, networkConfig) => {
   ctx.contracts.diamond = new w3.eth.Contract(abis.DIAMOND, networkConfig.diamondAddress);
+
+	ctx.evmProvider = new ethers.providers.JsonRpcProvider(process.env.RPC);
+	const privKeySingleSig = process.env.PRIVATE_KEY;
+	const signerBaseDev = new ethers.Wallet(privKeySingleSig, ctx.evmProvider);
+	ctx.contracts.pythOrace = new ethers.Contract(
+		process.env.ORACLE_ADDRESS,
+		Pyth,
+		signerBaseDev,
+	);
+
+	ctx.contracts.javOracle = new ethers.Contract(
+		process.env.ORACLE_ADDRESS_JAV,
+		OracleUpdater.abi,
+		signerBaseDev,
+	);
 
   for (const collateral of networkConfig.collaterals) {
     ctx.collaterals[collateral.collateralIndex] = {

@@ -52,6 +52,8 @@ import {
 } from './utils/index.js';
 
 import { WebSocket } from 'ws';
+import axios from 'axios';
+import { parseEther } from 'ethers/lib/utils.js';
 
 const { toHex, BN } = Web3.utils;
 
@@ -124,7 +126,10 @@ const app = {
   diamond: null,
   contracts: {
     diamond: null,
+		pythOrace: null,
+		javOracle: null,
   },
+	evmProvider: null,
   eventSub: null,
   // params
   spreadsP: [],
@@ -194,6 +199,21 @@ async function setCurrentWeb3Client(newWeb3ClientIndex) {
   fetchOpenTrades();
 
   appLogger.info('New web3 client selection completed. Took: ' + (performance.now() - executionStartTime) + 'ms');
+}
+
+async function fetchPythPrices(ids) {
+	try {
+		const response = await axios.get(
+			'https://hermes.pyth.network/v2/updates/price/latest', {
+				params: {
+					ids,
+				},
+			},
+		);
+		return response.data;
+	} catch (error) {
+		appLogger.error(`error in fetchPythPrices ${error?.message}`);
+	}
 }
 
 function createWeb3Provider(providerUrl) {
@@ -456,12 +476,13 @@ async function fetchTradingVariables() {
       onePercentDepthBelowUsd: parseFloat(value.onePercentDepthBelowUsd),
     }));
 
-    app.pairs = pairs.map(({ from, to, spreadP, groupIndex, feeIndex }) => ({
+		app.pairs = pairs.map(({ from, to, spreadP, groupIndex, feeIndex, feedId }) => ({
       from,
       to,
       spreadP: spreadP,
       groupIndex: groupIndex,
       feeIndex: feeIndex,
+			feedId: feedId,
     }));
 
     app.spreadsP = pairs.map((p) => p.spreadP);
@@ -781,6 +802,7 @@ async function synchronizeOpenTrades(event) {
       appLogger.info(`Synchronize open trades from event ${eventName}: Stored active trade ${tradeKey}`);
     } else if (eventName === 'TradeClosed') {
       const { user, index } = eventReturnValues.tradeId;
+			const { orderType } = eventReturnValues;
       const tradeKey = buildTradeIdentifier(user, index);
 
       const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
@@ -791,7 +813,17 @@ async function synchronizeOpenTrades(event) {
       } else {
         appLogger.info(`Synchronize open trades from event ${eventName}: Trade not found for ${tradeKey}`);
       }
-    } else if (eventName === 'TradeTpUpdated' || eventName === 'TradeSlUpdated') {
+
+			const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(user, index, orderType);
+
+			if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifier)) {
+				app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
+				appLogger.info(`Synchronize trigger tracking from event ${eventName}: Trigger deleted for ${triggeredOrderTrackingInfoIdentifier}`);
+			} else {
+				appLogger.info(`Synchronize trigger trades from event ${eventName}: Trade not found for ${triggeredOrderTrackingInfoIdentifier}`);
+			}
+
+		} else if (eventName === 'TradeTpUpdated' || eventName === 'TradeSlUpdated') {
       const { user, index } = eventReturnValues.tradeId;
       const tradeKey = buildTradeIdentifier(user, index);
       const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
@@ -880,20 +912,6 @@ async function synchronizeOpenTrades(event) {
         appLogger.error(
           `Synchronize trigger tracking from event ${eventName}: Trigger not found for ${triggeredOrderTrackingInfoIdentifier}!`
         );
-      }
-
-      return;
-    } else if (eventName === 'PendingOrderClosed') {
-      const { user, index } = eventReturnValues.orderId; // this is a pending order Id
-      const { orderType } = eventReturnValues;
-
-      const pendingOrder = await app.contracts.diamond.methods.getPendingOrder({ user, index }).call();
-
-      const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(pendingOrder.trade.user, pendingOrder.trade.index, orderType);
-
-      if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifier)) {
-        app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
-        appLogger.info(`Synchronize trigger tracking from event ${eventName}: Trigger deleted for ${triggeredOrderTrackingInfoIdentifier}`);
       }
 
       return;
@@ -1190,7 +1208,8 @@ function watchPricingStream() {
                 process.env.PRIVATE_KEY
               );
 							let tx;
-              if (DRY_RUN_MODE === false) {
+							if (DRY_RUN_MODE === false) {
+								await updateOracle(openTrade.pairIndex, messageData);
 								tx = await app.currentlySelectedWeb3Client.eth.sendSignedTransaction(signedTransaction.rawTransaction);
               } else {
                 appLogger.info(
@@ -1322,6 +1341,95 @@ function watchPricingStream() {
       );
     }
 	};
+
+	async function updateOracle(priceId, messageData) {
+
+		appLogger.info(`===Start Update oracle job.===`);
+		try {
+
+			appLogger.info(`Reading from Pyth price feed ...`);
+
+			const [priceUpdatesPyth] = await Promise.all([
+				fetchPythPrices([app.pairs[priceId].feedId]),
+			]);
+
+			if (priceUpdatesPyth) {
+				const groupId = parseInt(app.pairs[priceId].groupIndex);
+				if (!isStocksGroup(groupId)) {
+					appLogger.info(`Pushing prices to pyth...`);
+					await writePricesToSCBasePyth(app.contracts.pythOrace, priceUpdatesPyth);
+					appLogger.info(`Pushing to pyth base ready`);
+				} else {
+					appLogger.info(`Pushing socket stock price to jav base from ...`);
+					const stockToPush = [];
+
+					stockToPush.push({
+						id: messageData.id,
+						price: messageData.priceCombined.price,
+						conf: messageData.priceCombined.conf,
+						expo: messageData.priceCombined.expo,
+						publishTime: messageData.priceCombined.publish_time,
+					});
+
+					await writePricesToSCBaseJav(app.contracts.javOracle, stockToPush);
+					appLogger.info(`Pushing to jav base ready`);
+				}
+			}
+			appLogger.info(`=== Finished Update oracle job.===`);
+
+		} catch (err) {
+			appLogger.error(`error ${err?.message} in pyth price feed`);
+
+		}
+	}
+
+	async function sleep(ms) {
+		return new Promise((resolve) => {
+			setTimeout(resolve, ms);
+		});
+	}
+
+	async function writePricesToSCBasePyth(
+		contract,
+		idToUpdate,
+	) {
+
+		try {
+			const overrides = {
+				gasLimit: 600000,
+				value: parseEther('0.0000000000000001'),
+			};
+			const updateString = '0x' + idToUpdate.binary.data[0];
+			const tx = await contract.updatePriceFeeds([updateString], overrides);
+			appLogger.info(
+				`Transaction Hash: ${tx.hash}`,
+			);
+		} catch (error) {
+			appLogger.error(` error in writePricesToSCBaseTestnet ${error?.message}`);
+		}
+	}
+
+	async function writePricesToSCBaseJav(
+		contract,
+		priceUpdatesBaseTestnet,
+	) {
+
+		try {
+			let tx;
+
+			const overrides = {
+				gasLimit: 150000,
+			};
+			const updateString = '0x' + priceUpdatesBaseTestnet.binary.data[0];
+			tx = await contract.updatePriceFeeds([updateString], overrides);
+			appLogger.info(
+				` Transaction Hash: ${tx.hash}`,
+			);
+
+		} catch (error) {
+			appLogger.error(` error in writePricesToSCBaseTestnet ${error?.code}:${error?.shortMessage}`);
+		}
+	}
 
 	function getTradeLiquidationPrice(precision, borrowingFeesContext, trade, feeContext) {
 		const { initialAccFees, pairIndex } = trade;

@@ -23,7 +23,7 @@ export function createLogger(label, logLevel = 'warn') {
 
 	transports.push(new SeqTransport({
 		serverUrl: 'https://log.defichain-income.com',
-		level: 'debug',
+		level: logLevel,
 		apiKey:
 			process.env.ENV === 'dev'
 				? 'BGGv5tzSLAcqin5V6UXR'
