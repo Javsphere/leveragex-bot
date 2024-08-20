@@ -55,7 +55,22 @@ import { WebSocket } from 'ws';
 import axios from 'axios';
 import { parseEther } from 'ethers/lib/utils.js';
 
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
+
 const { toHex, BN } = Web3.utils;
+
+Sentry.init({
+	dsn: 'https://0a61961d00d549d93c58b3c65914e720@o1353150.ingest.us.sentry.io/4507809226293248',
+	integrations: [
+		nodeProfilingIntegration(),
+	],
+	// Tracing
+	tracesSampleRate: 1.0, //  Capture 100% of the transactions
+
+	// Set sampling rate for profiling - this is relative to tracesSampleRate
+	profilesSampleRate: 1.0,
+});
 
 // Make errors JSON serializable
 Object.defineProperty(Error.prototype, 'toJSON', {
