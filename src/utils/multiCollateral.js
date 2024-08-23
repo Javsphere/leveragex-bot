@@ -12,17 +12,17 @@ export const initContracts = async (w3, ctx, networkConfig) => {
 
 	ctx.evmProvider = new ethers.providers.JsonRpcProvider(process.env.RPC);
 	const privKeySingleSig = process.env.PRIVATE_KEY;
-	const signerBaseDev = new ethers.Wallet(privKeySingleSig, ctx.evmProvider);
+	ctx.signer = new ethers.Wallet(privKeySingleSig, ctx.evmProvider);
 	ctx.contracts.pythOrace = new ethers.Contract(
 		process.env.ORACLE_ADDRESS,
 		Pyth,
-		signerBaseDev,
+		ctx.signer,
 	);
 
 	ctx.contracts.javOracle = new ethers.Contract(
 		process.env.ORACLE_ADDRESS_JAV,
 		OracleUpdater.abi,
-		signerBaseDev,
+		ctx.signer,
 	);
 
   for (const collateral of networkConfig.collaterals) {

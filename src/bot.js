@@ -59,6 +59,7 @@ import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 const { toHex, BN } = Web3.utils;
+const abiCoder = new ethers.utils.AbiCoder();
 
 Sentry.init({
 	dsn: 'https://0a61961d00d549d93c58b3c65914e720@o1353150.ingest.us.sentry.io/4507809226293248',
@@ -144,6 +145,7 @@ const app = {
 		pythOrace: null,
 		javOracle: null,
   },
+	signer: null,
 	evmProvider: null,
   eventSub: null,
   // params
@@ -1376,17 +1378,16 @@ function watchPricingStream() {
 					appLogger.info(`Pushing to pyth base ready`);
 				} else {
 					appLogger.info(`Pushing socket stock price to jav base from ...`);
-					const stockToPush = [];
 
-					stockToPush.push({
-						id: messageData.id,
-						price: messageData.priceCombined.price,
-						conf: messageData.priceCombined.conf,
-						expo: messageData.priceCombined.expo,
-						publishTime: messageData.priceCombined.publish_time,
-					});
+					const updatePriceInfo = abiCoder.encode(
+						['bytes32', 'int64', 'uint64', 'int32', 'uint64'],
+						[messageData.id, messageData.priceCombined.price, messageData.priceCombined.conf, messageData.priceCombined.expo, messageData.priceCombined.publish_time],
+					);
+					const messageHash = ethers.utils.keccak256(updatePriceInfo);
+					const signature = await app.signer.signMessage(ethers.utils.arrayify(messageHash));
+					const signedData = ethers.utils.concat([signature, updatePriceInfo]);
 
-					await writePricesToSCBaseJav(app.contracts.javOracle, stockToPush);
+					await writePricesToSCBaseJav(app.contracts.javOracle, [signedData]);
 					appLogger.info(`Pushing to jav base ready`);
 				}
 			}
@@ -1417,7 +1418,12 @@ function watchPricingStream() {
 			const updateString = '0x' + idToUpdate.binary.data[0];
 			const tx = await contract.updatePriceFeeds([updateString], overrides);
 			appLogger.info(
-				`Transaction Hash: ${tx.hash}`,
+				`writePricesToSCBasePyth Transaction Hash sent : ${tx.hash}`,
+			);
+			const receipt = await tx.wait();
+
+			appLogger.info(
+				`writePricesToSCBasePyth Transaction confirmed in block ${receipt.blockNumber}`,
 			);
 		} catch (error) {
 			appLogger.error(` error in writePricesToSCBaseTestnet ${error?.message}`);
@@ -1426,19 +1432,22 @@ function watchPricingStream() {
 
 	async function writePricesToSCBaseJav(
 		contract,
-		priceUpdatesBaseTestnet,
+		priceUpdatesStocksArray,
 	) {
 
 		try {
-			let tx;
-
 			const overrides = {
-				gasLimit: 150000,
+				gasLimit: 300000,
+				value: parseEther('0.0000000000000001'),
 			};
-			const updateString = '0x' + priceUpdatesBaseTestnet.binary.data[0];
-			tx = await contract.updatePriceFeeds([updateString], overrides);
+			const tx = await contract.updatePriceFeeds(priceUpdatesStocksArray, overrides);
 			appLogger.info(
-				` Transaction Hash: ${tx.hash}`,
+				`writePricesToSCBaseJav Transaction Hash sent : ${tx.hash}`,
+			);
+			const receipt = await tx.wait();
+
+			appLogger.info(
+				`writePricesToSCBaseJav Transaction confirmed in block ${receipt.blockNumber}`,
 			);
 
 		} catch (error) {
