@@ -394,18 +394,20 @@ export const ABIS = {
 		'inputs': [],
 		'name': 'InvalidInputLength',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NotAuthorized',
+		'name': 'NotAllowed',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'Overflow',
+		'name': 'NotInitializing',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
-		'name': 'OwnableInvalidOwner',
-		'type': 'error',
+	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'owner',
+			'type': 'address',
+		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
@@ -414,12 +416,18 @@ export const ABIS = {
 		'inputs': [],
 		'name': 'PairNotListed',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'UUPSUnauthorizedCallContext', 'type': 'error' }, {
-		'inputs': [{
-			'internalType': 'bytes32',
-			'name': 'slot',
-			'type': 'bytes32',
-		}], 'name': 'UUPSUnsupportedProxiableUUID', 'type': 'error',
+	}, { 'inputs': [], 'name': 'SlReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Slippage',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'TpReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'UUPSUnauthorizedCallContext',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'bytes32', 'name': 'slot', 'type': 'bytes32' }],
+		'name': 'UUPSUnsupportedProxiableUUID',
+		'type': 'error',
 	}, { 'inputs': [], 'name': 'WrongAccess', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'WrongFees',
@@ -455,7 +463,7 @@ export const ABIS = {
 		'inputs': [{
 			'components': [{
 				'internalType': 'address',
-				'name': 'jav',
+				'name': 'rewardsToken',
 				'type': 'address',
 			}, { 'internalType': 'address', 'name': 'rewardsDistributor', 'type': 'address' }],
 			'indexed': false,
@@ -930,20 +938,22 @@ export const ABIS = {
 		'inputs': [],
 		'name': 'InvalidInputLength',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NoPendingRewards', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NotAllowed',
+		'name': 'NoPendingRewards',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NotInitializing',
+		'name': 'NotAuthorized',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
-		'inputs': [{
-			'internalType': 'address',
-			'name': 'owner',
-			'type': 'address',
-		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
+	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Overflow',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
+		'name': 'OwnableInvalidOwner',
+		'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
@@ -952,12 +962,18 @@ export const ABIS = {
 		'inputs': [{ 'internalType': 'address', 'name': 'token', 'type': 'address' }],
 		'name': 'SafeERC20FailedOperation',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'UUPSUnauthorizedCallContext', 'type': 'error' }, {
-		'inputs': [{
-			'internalType': 'bytes32',
-			'name': 'slot',
-			'type': 'bytes32',
-		}], 'name': 'UUPSUnsupportedProxiableUUID', 'type': 'error',
+	}, { 'inputs': [], 'name': 'SlReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Slippage',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'TpReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'UUPSUnauthorizedCallContext',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'bytes32', 'name': 'slot', 'type': 'bytes32' }],
+		'name': 'UUPSUnsupportedProxiableUUID',
+		'type': 'error',
 	}, { 'inputs': [], 'name': 'WrongAccess', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'WrongIndex',
@@ -989,7 +1005,7 @@ export const ABIS = {
 		'inputs': [{
 			'components': [{
 				'internalType': 'address',
-				'name': 'jav',
+				'name': 'rewardsToken',
 				'type': 'address',
 			}, { 'internalType': 'address', 'name': 'rewardsDistributor', 'type': 'address' }],
 			'indexed': false,
@@ -1388,28 +1404,36 @@ export const ABIS = {
 		'inputs': [],
 		'name': 'InvalidInputLength',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NotAuthorized',
+		'name': 'NotAllowed',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'Overflow',
+		'name': 'NotInitializing',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
-		'name': 'OwnableInvalidOwner',
-		'type': 'error',
+	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'owner',
+			'type': 'address',
+		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'UUPSUnauthorizedCallContext', 'type': 'error' }, {
-		'inputs': [{
-			'internalType': 'bytes32',
-			'name': 'slot',
-			'type': 'bytes32',
-		}], 'name': 'UUPSUnsupportedProxiableUUID', 'type': 'error',
+	}, { 'inputs': [], 'name': 'SlReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Slippage',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'TpReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'UUPSUnauthorizedCallContext',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'bytes32', 'name': 'slot', 'type': 'bytes32' }],
+		'name': 'UUPSUnsupportedProxiableUUID',
+		'type': 'error',
 	}, { 'inputs': [], 'name': 'WrongAccess', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'WrongFeeTier',
@@ -1441,7 +1465,7 @@ export const ABIS = {
 		'inputs': [{
 			'components': [{
 				'internalType': 'address',
-				'name': 'jav',
+				'name': 'rewardsToken',
 				'type': 'address',
 			}, { 'internalType': 'address', 'name': 'rewardsDistributor', 'type': 'address' }],
 			'indexed': false,
@@ -1760,28 +1784,36 @@ export const ABIS = {
 		'inputs': [],
 		'name': 'InvalidInputLength',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NotAuthorized',
+		'name': 'NotAllowed',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'Overflow',
+		'name': 'NotInitializing',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
-		'name': 'OwnableInvalidOwner',
-		'type': 'error',
+	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'owner',
+			'type': 'address',
+		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'UUPSUnauthorizedCallContext', 'type': 'error' }, {
-		'inputs': [{
-			'internalType': 'bytes32',
-			'name': 'slot',
-			'type': 'bytes32',
-		}], 'name': 'UUPSUnsupportedProxiableUUID', 'type': 'error',
+	}, { 'inputs': [], 'name': 'SlReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Slippage',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'TpReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'UUPSUnauthorizedCallContext',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'bytes32', 'name': 'slot', 'type': 'bytes32' }],
+		'name': 'UUPSUnsupportedProxiableUUID',
+		'type': 'error',
 	}, { 'inputs': [], 'name': 'WrongAccess', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'WrongIndex',
@@ -1817,7 +1849,7 @@ export const ABIS = {
 		'inputs': [{
 			'components': [{
 				'internalType': 'address',
-				'name': 'jav',
+				'name': 'rewardsToken',
 				'type': 'address',
 			}, { 'internalType': 'address', 'name': 'rewardsDistributor', 'type': 'address' }],
 			'indexed': false,
@@ -1926,6 +1958,10 @@ export const ABIS = {
 		'anonymous': false,
 		'inputs': [{
 			'components': [{
+				'internalType': 'address',
+				'name': 'trader',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }, {
 				'internalType': 'uint48',
 				'name': 'windowsDuration',
 				'type': 'uint48',
@@ -1942,13 +1978,17 @@ export const ABIS = {
 			'internalType': 'struct IPriceImpact.OiWindowUpdate',
 			'name': 'oiWindowUpdate',
 			'type': 'tuple',
-		}],
+		}, { 'indexed': false, 'internalType': 'bool', 'name': 'isPartial', 'type': 'bool' }],
 		'name': 'PriceImpactOpenInterestAdded',
 		'type': 'event',
 	}, {
 		'anonymous': false,
 		'inputs': [{
 			'components': [{
+				'internalType': 'address',
+				'name': 'trader',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }, {
 				'internalType': 'uint48',
 				'name': 'windowsDuration',
 				'type': 'uint48',
@@ -1994,15 +2034,15 @@ export const ABIS = {
 		'name': 'Upgraded',
 		'type': 'event',
 	}, {
-		'inputs': [{
-			'internalType': 'uint256',
-			'name': '_openInterestUsd',
-			'type': 'uint256',
-		}, { 'internalType': 'uint256', 'name': '_pairIndex', 'type': 'uint256' }, {
-			'internalType': 'bool',
-			'name': '_long',
-			'type': 'bool',
-		}], 'name': 'addPriceImpactOpenInterest', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
+		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }, {
+			'internalType': 'uint32',
+			'name': '_index',
+			'type': 'uint32',
+		}, { 'internalType': 'uint256', 'name': '_oiDeltaCollateral', 'type': 'uint256' }],
+		'name': 'addPriceImpactOpenInterest',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
 	}, {
 		'inputs': [{
 			'internalType': 'uint48',
@@ -2106,6 +2146,16 @@ export const ABIS = {
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
+		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }, {
+			'internalType': 'uint32',
+			'name': '_index',
+			'type': 'uint32',
+		}],
+		'name': 'getTradeLastWindowOiUsd',
+		'outputs': [{ 'internalType': 'uint128', 'name': '', 'type': 'uint128' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
 		'inputs': [{ 'internalType': 'uint256', 'name': '_openPrice', 'type': 'uint256' }, {
 			'internalType': 'uint256',
 			'name': '_pairIndex',
@@ -2134,15 +2184,11 @@ export const ABIS = {
 		'stateMutability': 'nonpayable',
 		'type': 'function',
 	}, {
-		'inputs': [{
-			'internalType': 'uint256',
-			'name': '_openInterestUsd',
-			'type': 'uint256',
-		}, { 'internalType': 'uint256', 'name': '_pairIndex', 'type': 'uint256' }, {
-			'internalType': 'bool',
-			'name': '_long',
-			'type': 'bool',
-		}, { 'internalType': 'uint48', 'name': '_addTs', 'type': 'uint48' }],
+		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }, {
+			'internalType': 'uint32',
+			'name': '_index',
+			'type': 'uint32',
+		}, { 'internalType': 'uint256', 'name': '_oiDeltaCollateral', 'type': 'uint256' }],
 		'name': 'removePriceImpactOpenInterest',
 		'outputs': [],
 		'stateMutability': 'nonpayable',
@@ -2213,44 +2259,52 @@ export const ABIS = {
 		'inputs': [],
 		'name': 'InvalidInputLength',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'MaxSlippageZero', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'MissingCollaterals',
+		'name': 'MaxSlippageZero',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'MissingCollaterals', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NotAuthorized',
+		'name': 'NotAllowed',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'Overflow',
+		'name': 'NotInitializing',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
-		'name': 'OwnableInvalidOwner',
-		'type': 'error',
+	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'owner',
+			'type': 'address',
+		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'TradeInfoCollateralPriceUsdZero', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'SlReached', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'TradeOpenPriceZero',
+		'name': 'Slippage',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'TradePairNotListed', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'TpReached', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'TradePositionSizeZero',
+		'name': 'TradeInfoCollateralPriceUsdZero',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'TradeSlInvalid', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'TradeOpenPriceZero', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'TradeTpInvalid',
+		'name': 'TradePairNotListed',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'UUPSUnauthorizedCallContext', 'type': 'error' }, {
-		'inputs': [{
-			'internalType': 'bytes32',
-			'name': 'slot',
-			'type': 'bytes32',
-		}], 'name': 'UUPSUnsupportedProxiableUUID', 'type': 'error',
+	}, { 'inputs': [], 'name': 'TradePositionSizeZero', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'TradeSlInvalid',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'TradeTpInvalid', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'UUPSUnauthorizedCallContext',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'bytes32', 'name': 'slot', 'type': 'bytes32' }],
+		'name': 'UUPSUnsupportedProxiableUUID',
+		'type': 'error',
 	}, { 'inputs': [], 'name': 'WrongAccess', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'WrongIndex',
@@ -2282,7 +2336,7 @@ export const ABIS = {
 		'inputs': [{
 			'components': [{
 				'internalType': 'address',
-				'name': 'jav',
+				'name': 'rewardsToken',
 				'type': 'address',
 			}, { 'internalType': 'address', 'name': 'rewardsDistributor', 'type': 'address' }],
 			'indexed': false,
@@ -2406,6 +2460,36 @@ export const ABIS = {
 			'type': 'tuple',
 		}, { 'indexed': false, 'internalType': 'uint120', 'name': 'collateralAmount', 'type': 'uint120' }],
 		'name': 'TradeCollateralUpdated',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'user',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }],
+			'indexed': false,
+			'internalType': 'struct ITradingStorage.Id',
+			'name': 'tradeId',
+			'type': 'tuple',
+		}, {
+			'indexed': false,
+			'internalType': 'uint120',
+			'name': 'collateralAmount',
+			'type': 'uint120',
+		}, { 'indexed': false, 'internalType': 'uint24', 'name': 'leverage', 'type': 'uint24' }, {
+			'indexed': false,
+			'internalType': 'uint64',
+			'name': 'openPrice',
+			'type': 'uint64',
+		}, { 'indexed': false, 'internalType': 'uint64', 'name': 'newTp', 'type': 'uint64' }, {
+			'indexed': false,
+			'internalType': 'uint64',
+			'name': 'newSl',
+			'type': 'uint64',
+		}],
+		'name': 'TradePositionUpdated',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -2853,19 +2937,19 @@ export const ABIS = {
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
-		'inputs': [{ 'internalType': 'address', 'name': '_jav', 'type': 'address' }, {
+		'inputs': [{
 			'internalType': 'address',
-			'name': '_rewardsDistributor',
+			'name': '_rewardsToken',
 			'type': 'address',
-		}, { 'internalType': 'address', 'name': '_borrowingProvider', 'type': 'address' }, {
-			'internalType': 'address[]',
-			'name': '_collaterals',
-			'type': 'address[]',
-		}, { 'internalType': 'uint8[]', 'name': '_collateralsIndexes', 'type': 'uint8[]' }],
-		'name': 'initializeTradingStorage',
-		'outputs': [],
-		'stateMutability': 'nonpayable',
-		'type': 'function',
+		}, { 'internalType': 'address', 'name': '_rewardsDistributor', 'type': 'address' }, {
+			'internalType': 'address',
+			'name': '_borrowingProvider',
+			'type': 'address',
+		}, { 'internalType': 'address[]', 'name': '_collaterals', 'type': 'address[]' }, {
+			'internalType': 'uint8[]',
+			'name': '_collateralsIndexes',
+			'type': 'uint8[]',
+		}], 'name': 'initializeTradingStorage', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
 	}, {
 		'inputs': [{ 'internalType': 'uint8', 'name': '_index', 'type': 'uint8' }],
 		'name': 'isCollateralActive',
@@ -3018,6 +3102,25 @@ export const ABIS = {
 			'internalType': 'struct ITradingStorage.Id',
 			'name': '_tradeId',
 			'type': 'tuple',
+		}, { 'internalType': 'uint120', 'name': '_collateralAmount', 'type': 'uint120' }, {
+			'internalType': 'uint24',
+			'name': '_leverage',
+			'type': 'uint24',
+		}, { 'internalType': 'uint64', 'name': '_openPrice', 'type': 'uint64' }],
+		'name': 'updateTradePosition',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
+		'inputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'user',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }],
+			'internalType': 'struct ITradingStorage.Id',
+			'name': '_tradeId',
+			'type': 'tuple',
 		}, { 'internalType': 'uint64', 'name': '_newSl', 'type': 'uint64' }],
 		'name': 'updateTradeSl',
 		'outputs': [],
@@ -3081,16 +3184,18 @@ export const ABIS = {
 		}], 'name': 'validateTrade', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
 	}, { 'inputs': [], 'stateMutability': 'nonpayable', 'type': 'constructor' }, {
 		'inputs': [],
-		'name': 'AboveGroupMaxOi',
+		'name': 'AboveExposureLimits',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'AboveMax', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'AboveGroupMaxOi', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'AbovePairMaxOi',
+		'name': 'AboveMax',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'target', 'type': 'address' }],
-		'name': 'AddressEmptyCode',
-		'type': 'error',
+	}, { 'inputs': [], 'name': 'AbovePairMaxOi', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'target',
+			'type': 'address',
+		}], 'name': 'AddressEmptyCode', 'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'AddressInsufficientBalance',
@@ -3129,13 +3234,17 @@ export const ABIS = {
 		'inputs': [],
 		'name': 'InitError',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidAddresses', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InsufficientCollateral', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InvalidCollateralIndex',
+		'name': 'InvalidAddresses',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidInitialization', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InvalidCollateralIndex', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InvalidInputLength',
+		'name': 'InvalidInitialization',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidInputLength', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'LiqReached',
 		'type': 'error',
 	}, { 'inputs': [], 'name': 'MaxSlippageZero', 'type': 'error' }, {
 		'inputs': [],
@@ -3177,12 +3286,18 @@ export const ABIS = {
 			'name': 'token',
 			'type': 'address',
 		}], 'name': 'SafeERC20FailedOperation', 'type': 'error',
-	}, { 'inputs': [], 'name': 'UUPSUnauthorizedCallContext', 'type': 'error' }, {
-		'inputs': [{
-			'internalType': 'bytes32',
-			'name': 'slot',
-			'type': 'bytes32',
-		}], 'name': 'UUPSUnsupportedProxiableUUID', 'type': 'error',
+	}, { 'inputs': [], 'name': 'SlReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Slippage',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'TpReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'UUPSUnauthorizedCallContext',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'bytes32', 'name': 'slot', 'type': 'bytes32' }],
+		'name': 'UUPSUnsupportedProxiableUUID',
+		'type': 'error',
 	}, { 'inputs': [], 'name': 'WaitTimeout', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'WrongAccess',
@@ -3222,7 +3337,7 @@ export const ABIS = {
 		'inputs': [{
 			'components': [{
 				'internalType': 'address',
-				'name': 'jav',
+				'name': 'rewardsToken',
 				'type': 'address',
 			}, { 'internalType': 'address', 'name': 'rewardsDistributor', 'type': 'address' }],
 			'indexed': false,
@@ -3329,16 +3444,6 @@ export const ABIS = {
 		'type': 'event',
 	}, {
 		'anonymous': false,
-		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
-			'indexed': true,
-			'internalType': 'uint8',
-			'name': 'collateralIndex',
-			'type': 'uint8',
-		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'amountCollateral', 'type': 'uint256' }],
-		'name': 'TriggerFeeCharged',
-		'type': 'event',
-	}, {
-		'anonymous': false,
 		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'Unpaused',
 		'type': 'event',
@@ -3354,11 +3459,35 @@ export const ABIS = {
 		'stateMutability': 'nonpayable',
 		'type': 'function',
 	}, {
-		'inputs': [{ 'internalType': 'uint32', 'name': '_index', 'type': 'uint32' }],
-		'name': 'closeTradeMarket',
-		'outputs': [],
-		'stateMutability': 'nonpayable',
-		'type': 'function',
+		'inputs': [{ 'internalType': 'uint32', 'name': '_index', 'type': 'uint32' }, {
+			'internalType': 'bytes[][]',
+			'name': '_priceUpdate',
+			'type': 'bytes[][]',
+		}], 'name': 'closeTradeMarket', 'outputs': [], 'stateMutability': 'payable', 'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint32', 'name': '_index', 'type': 'uint32' }, {
+			'internalType': 'uint120',
+			'name': '_collateralDelta',
+			'type': 'uint120',
+		}, { 'internalType': 'uint24', 'name': '_leverageDelta', 'type': 'uint24' }, {
+			'internalType': 'bytes[][]',
+			'name': '_priceUpdate',
+			'type': 'bytes[][]',
+		}], 'name': 'decreasePositionSize', 'outputs': [], 'stateMutability': 'payable', 'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint32', 'name': '_index', 'type': 'uint32' }, {
+			'internalType': 'uint120',
+			'name': '_collateralDelta',
+			'type': 'uint120',
+		}, { 'internalType': 'uint24', 'name': '_leverageDelta', 'type': 'uint24' }, {
+			'internalType': 'uint64',
+			'name': '_expectedPrice',
+			'type': 'uint64',
+		}, { 'internalType': 'uint16', 'name': '_maxSlippageP', 'type': 'uint16' }, {
+			'internalType': 'bytes[][]',
+			'name': '_priceUpdate',
+			'type': 'bytes[][]',
+		}], 'name': 'increasePositionSize', 'outputs': [], 'stateMutability': 'payable', 'type': 'function',
 	}, {
 		'inputs': [{
 			'components': [{
@@ -3397,12 +3526,26 @@ export const ABIS = {
 			'internalType': 'address',
 			'name': '_referrer',
 			'type': 'address',
-		}], 'name': 'openTrade', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
-	}, {
-		'inputs': [{ 'internalType': 'uint256', 'name': '_packed', 'type': 'uint256' }],
-		'name': 'triggerOrder',
+		}, { 'internalType': 'bytes[][]', 'name': '_priceUpdate', 'type': 'bytes[][]' }],
+		'name': 'openTrade',
 		'outputs': [],
-		'stateMutability': 'nonpayable',
+		'stateMutability': 'payable',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint256', 'name': '_packed', 'type': 'uint256' }, {
+			'internalType': 'bytes[][]',
+			'name': '_priceUpdate',
+			'type': 'bytes[][]',
+		}], 'name': 'triggerOrder', 'outputs': [], 'stateMutability': 'payable', 'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint32', 'name': '_index', 'type': 'uint32' }, {
+			'internalType': 'uint24',
+			'name': '_newLeverage',
+			'type': 'uint24',
+		}, { 'internalType': 'bytes[][]', 'name': '_priceUpdate', 'type': 'bytes[][]' }],
+		'name': 'updateLeverage',
+		'outputs': [],
+		'stateMutability': 'payable',
 		'type': 'function',
 	}, {
 		'inputs': [{ 'internalType': 'uint32', 'name': '_index', 'type': 'uint32' }, {
@@ -3470,9 +3613,17 @@ export const ABIS = {
 		'inputs': [],
 		'name': 'InvalidCollateralIndex',
 		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidDecreasePositionSizeInput', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidIncreasePositionSizeInput',
+		'type': 'error',
 	}, { 'inputs': [], 'name': 'InvalidInitialization', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'InvalidInputLength',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NewPositionSizeSmaller',
 		'type': 'error',
 	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
 		'inputs': [],
@@ -3494,12 +3645,18 @@ export const ABIS = {
 		'inputs': [{ 'internalType': 'address', 'name': 'token', 'type': 'address' }],
 		'name': 'SafeERC20FailedOperation',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'UUPSUnauthorizedCallContext', 'type': 'error' }, {
-		'inputs': [{
-			'internalType': 'bytes32',
-			'name': 'slot',
-			'type': 'bytes32',
-		}], 'name': 'UUPSUnsupportedProxiableUUID', 'type': 'error',
+	}, { 'inputs': [], 'name': 'SlReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Slippage',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'TpReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'UUPSUnauthorizedCallContext',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'bytes32', 'name': 'slot', 'type': 'bytes32' }],
+		'name': 'UUPSUnsupportedProxiableUUID',
+		'type': 'error',
 	}, { 'inputs': [], 'name': 'WrongAccess', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'WrongIndex',
@@ -3531,7 +3688,7 @@ export const ABIS = {
 		'inputs': [{
 			'components': [{
 				'internalType': 'address',
-				'name': 'jav',
+				'name': 'rewardsToken',
 				'type': 'address',
 			}, { 'internalType': 'address', 'name': 'rewardsDistributor', 'type': 'address' }],
 			'indexed': false,
@@ -3550,6 +3707,26 @@ export const ABIS = {
 			'type': 'uint8',
 		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'amountCollateral', 'type': 'uint256' }],
 		'name': 'BorrowingFeeCharged',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
+			'indexed': true,
+			'internalType': 'uint8',
+			'name': 'collateralIndex',
+			'type': 'uint8',
+		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'amountCollateral', 'type': 'uint256' }],
+		'name': 'BorrowingProviderFeeCharged',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
+			'indexed': true,
+			'internalType': 'uint8',
+			'name': 'collateralIndex',
+			'type': 'uint8',
+		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'amountCollateral', 'type': 'uint256' }],
+		'name': 'GnsStakingFeeCharged',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -3585,6 +3762,55 @@ export const ABIS = {
 			'type': 'uint8',
 		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'amountCollateral', 'type': 'uint256' }],
 		'name': 'JTokenFeeCharged',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'user',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }],
+			'indexed': false,
+			'internalType': 'struct ITradingStorage.Id',
+			'name': 'orderId',
+			'type': 'tuple',
+		}, { 'indexed': false, 'internalType': 'bool', 'name': 'isIncrease', 'type': 'bool' }, {
+			'indexed': true,
+			'internalType': 'uint8',
+			'name': 'collateralIndex',
+			'type': 'uint8',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
+			'indexed': true,
+			'internalType': 'uint256',
+			'name': 'pairIndex',
+			'type': 'uint256',
+		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'index', 'type': 'uint256' }, {
+			'indexed': false,
+			'internalType': 'uint256',
+			'name': 'marketPrice',
+			'type': 'uint256',
+		}, {
+			'indexed': false,
+			'internalType': 'uint256',
+			'name': 'collateralDelta',
+			'type': 'uint256',
+		}, {
+			'components': [{
+				'internalType': 'uint256',
+				'name': 'newLeverage',
+				'type': 'uint256',
+			}, { 'internalType': 'uint256', 'name': 'newCollateralAmount', 'type': 'uint256' }, {
+				'internalType': 'uint256',
+				'name': 'liqPrice',
+				'type': 'uint256',
+			}, { 'internalType': 'uint256', 'name': 'govFeeCollateral', 'type': 'uint256' }],
+			'indexed': false,
+			'internalType': 'struct IUpdateLeverage.UpdateLeverageValues',
+			'name': 'values',
+			'type': 'tuple',
+		}],
+		'name': 'LeverageUpdateExecuted',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -3756,6 +3982,134 @@ export const ABIS = {
 		'type': 'event',
 	}, {
 		'anonymous': false,
+		'inputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'user',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }],
+			'indexed': false,
+			'internalType': 'struct ITradingStorage.Id',
+			'name': 'orderId',
+			'type': 'tuple',
+		}, { 'indexed': true, 'internalType': 'uint8', 'name': 'collateralIndex', 'type': 'uint8' }, {
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'trader',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'uint256', 'name': 'pairIndex', 'type': 'uint256' }, {
+			'indexed': false,
+			'internalType': 'uint256',
+			'name': 'index',
+			'type': 'uint256',
+		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'marketPrice', 'type': 'uint256' }, {
+			'indexed': false,
+			'internalType': 'uint256',
+			'name': 'collateralDelta',
+			'type': 'uint256',
+		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'leverageDelta', 'type': 'uint256' }, {
+			'components': [{
+				'internalType': 'uint256',
+				'name': 'positionSizeCollateralDelta',
+				'type': 'uint256',
+			}, {
+				'internalType': 'uint256',
+				'name': 'existingPositionSizeCollateral',
+				'type': 'uint256',
+			}, { 'internalType': 'uint256', 'name': 'existingLiqPrice', 'type': 'uint256' }, {
+				'internalType': 'int256',
+				'name': 'existingPnlCollateral',
+				'type': 'int256',
+			}, {
+				'internalType': 'uint256',
+				'name': 'borrowingFeeCollateral',
+				'type': 'uint256',
+			}, { 'internalType': 'uint256', 'name': 'vaultFeeCollateral', 'type': 'uint256' }, {
+				'internalType': 'uint256',
+				'name': 'gnsStakingFeeCollateral',
+				'type': 'uint256',
+			}, {
+				'internalType': 'int256',
+				'name': 'availableCollateralInDiamond',
+				'type': 'int256',
+			}, { 'internalType': 'int256', 'name': 'collateralSentToTrader', 'type': 'int256' }, {
+				'internalType': 'uint120',
+				'name': 'newCollateralAmount',
+				'type': 'uint120',
+			}, { 'internalType': 'uint24', 'name': 'newLeverage', 'type': 'uint24' }],
+			'indexed': false,
+			'internalType': 'struct IUpdatePositionSize.DecreasePositionSizeValues',
+			'name': 'values',
+			'type': 'tuple',
+		}],
+		'name': 'PositionSizeDecreaseExecuted',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'user',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }],
+			'indexed': false,
+			'internalType': 'struct ITradingStorage.Id',
+			'name': 'orderId',
+			'type': 'tuple',
+		}, { 'indexed': true, 'internalType': 'uint8', 'name': 'collateralIndex', 'type': 'uint8' }, {
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'trader',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'uint256', 'name': 'pairIndex', 'type': 'uint256' }, {
+			'indexed': false,
+			'internalType': 'uint256',
+			'name': 'index',
+			'type': 'uint256',
+		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'marketPrice', 'type': 'uint256' }, {
+			'indexed': false,
+			'internalType': 'uint256',
+			'name': 'collateralDelta',
+			'type': 'uint256',
+		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'leverageDelta', 'type': 'uint256' }, {
+			'components': [{
+				'internalType': 'uint256',
+				'name': 'positionSizeCollateralDelta',
+				'type': 'uint256',
+			}, {
+				'internalType': 'uint256',
+				'name': 'existingPositionSizeCollateral',
+				'type': 'uint256',
+			}, {
+				'internalType': 'uint256',
+				'name': 'newPositionSizeCollateral',
+				'type': 'uint256',
+			}, { 'internalType': 'uint256', 'name': 'newCollateralAmount', 'type': 'uint256' }, {
+				'internalType': 'uint256',
+				'name': 'newLeverage',
+				'type': 'uint256',
+			}, { 'internalType': 'uint256', 'name': 'priceAfterImpact', 'type': 'uint256' }, {
+				'internalType': 'int256',
+				'name': 'existingPnlCollateral',
+				'type': 'int256',
+			}, { 'internalType': 'uint256', 'name': 'newOpenPrice', 'type': 'uint256' }, {
+				'internalType': 'uint256',
+				'name': 'borrowingFeeCollateral',
+				'type': 'uint256',
+			}, { 'internalType': 'uint256', 'name': 'openingFeesCollateral', 'type': 'uint256' }, {
+				'internalType': 'uint256',
+				'name': 'existingLiqPrice',
+				'type': 'uint256',
+			}, { 'internalType': 'uint256', 'name': 'newLiqPrice', 'type': 'uint256' }],
+			'indexed': false,
+			'internalType': 'struct IUpdatePositionSize.IncreasePositionSizeValues',
+			'name': 'values',
+			'type': 'tuple',
+		}],
+		'name': 'PositionSizeIncreaseExecuted',
+		'type': 'event',
+	}, {
+		'anonymous': false,
 		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
 			'indexed': true,
 			'internalType': 'uint8',
@@ -3780,35 +4134,25 @@ export const ABIS = {
 		'name': 'SetAdminAddress',
 		'type': 'event',
 	}, {
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "triggerCaller",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint32",
-				"name": "index",
-				"type": "uint32"
-			},
-			{
-				"indexed": false,
-				"internalType": "enum ITradingStorage.PendingOrderType",
-				"name": "orderType",
-				"type": "uint8"
-			},
-			{
-				"indexed": false,
-				"internalType": "enum ITradingProcessing.CancelReason",
-				"name": "cancelReason",
-				"type": "uint8"
-			}
-		],
-		"name": "TriggerOrderCanceled",
-		"type": "event"
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'triggerCaller',
+			'type': 'address',
+		}, { 'indexed': false, 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }, {
+			'indexed': false,
+			'internalType': 'enum ITradingStorage.PendingOrderType',
+			'name': 'orderType',
+			'type': 'uint8',
+		}, {
+			'indexed': false,
+			'internalType': 'enum ITradingProcessing.CancelReason',
+			'name': 'cancelReason',
+			'type': 'uint8',
+		}],
+		'name': 'TriggerOrderCanceled',
+		'type': 'event',
 	}, {
 		'anonymous': false,
 		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'account', 'type': 'address' }],
@@ -4122,30 +4466,38 @@ export const ABIS = {
 		'inputs': [],
 		'name': 'InvalidInputLength',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NotAuthorized',
+		'name': 'NotAllowed',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NotInitializing',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'Overflow',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
-		'inputs': [{
-			'internalType': 'address',
-			'name': 'owner',
-			'type': 'address',
-		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
+		'name': 'OwnableInvalidOwner',
+		'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'UUPSUnauthorizedCallContext', 'type': 'error' }, {
-		'inputs': [{
-			'internalType': 'bytes32',
-			'name': 'slot',
-			'type': 'bytes32',
-		}], 'name': 'UUPSUnsupportedProxiableUUID', 'type': 'error',
+	}, { 'inputs': [], 'name': 'SlReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Slippage',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'TpReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'UUPSUnauthorizedCallContext',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'bytes32', 'name': 'slot', 'type': 'bytes32' }],
+		'name': 'UUPSUnsupportedProxiableUUID',
+		'type': 'error',
 	}, { 'inputs': [], 'name': 'WrongAccess', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'WrongIndex',
@@ -4177,7 +4529,7 @@ export const ABIS = {
 		'inputs': [{
 			'components': [{
 				'internalType': 'address',
-				'name': 'jav',
+				'name': 'rewardsToken',
 				'type': 'address',
 			}, { 'internalType': 'address', 'name': 'rewardsDistributor', 'type': 'address' }],
 			'indexed': false,
@@ -4265,6 +4617,11 @@ export const ABIS = {
 			'name': 'pairIndex',
 			'type': 'uint16',
 		}, { 'indexed': false, 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }, {
+			'indexed': false,
+			'internalType': 'bool',
+			'name': 'long',
+			'type': 'bool',
+		}, {
 			'indexed': false,
 			'internalType': 'uint64',
 			'name': 'initialPairAccFee',
@@ -4536,11 +4893,11 @@ export const ABIS = {
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
-		'inputs': [{
-			'internalType': 'uint8',
-			'name': '_collateralIndex',
-			'type': 'uint8',
-		}, { 'internalType': 'uint16[]', 'name': '_indices', 'type': 'uint16[]' }],
+		'inputs': [{ 'internalType': 'uint8', 'name': '_collateralIndex', 'type': 'uint8' }, {
+			'internalType': 'uint16[]',
+			'name': '_indices',
+			'type': 'uint16[]',
+		}],
 		'name': 'getBorrowingGroups',
 		'outputs': [{
 			'components': [{
@@ -4781,10 +5138,11 @@ export const ABIS = {
 				'internalType': 'uint256',
 				'name': 'collateral',
 				'type': 'uint256',
-			}, { 'internalType': 'uint24', 'name': 'leverage', 'type': 'uint24' }],
-			'internalType': 'struct IBorrowingFees.LiqPriceInput',
-			'name': '_input',
-			'type': 'tuple',
+			}, { 'internalType': 'uint256', 'name': 'leverage', 'type': 'uint256' }, {
+				'internalType': 'bool',
+				'name': 'useBorrowingFees',
+				'type': 'bool',
+			}], 'internalType': 'struct IBorrowingFees.LiqPriceInput', 'name': '_input', 'type': 'tuple',
 		}],
 		'name': 'getTradeLiquidationPrice',
 		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
@@ -4805,6 +5163,20 @@ export const ABIS = {
 			'type': 'bool',
 		}, { 'internalType': 'bool', 'name': '_long', 'type': 'bool' }],
 		'name': 'handleTradeBorrowingCallback',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint8', 'name': '_collateralIndex', 'type': 'uint8' }, {
+			'internalType': 'address',
+			'name': '_trader',
+			'type': 'address',
+		}, { 'internalType': 'uint16', 'name': '_pairIndex', 'type': 'uint16' }, {
+			'internalType': 'uint32',
+			'name': '_index',
+			'type': 'uint32',
+		}, { 'internalType': 'bool', 'name': '_long', 'type': 'bool' }],
+		'name': 'resetTradeBorrowingFees',
 		'outputs': [],
 		'stateMutability': 'nonpayable',
 		'type': 'function',
@@ -4940,28 +5312,36 @@ export const ABIS = {
 		'inputs': [],
 		'name': 'InvalidInputLength',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NotAuthorized',
+		'name': 'NotAllowed',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'Overflow',
+		'name': 'NotInitializing',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
-		'name': 'OwnableInvalidOwner',
-		'type': 'error',
+	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'owner',
+			'type': 'address',
+		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'UUPSUnauthorizedCallContext', 'type': 'error' }, {
-		'inputs': [{
-			'internalType': 'bytes32',
-			'name': 'slot',
-			'type': 'bytes32',
-		}], 'name': 'UUPSUnsupportedProxiableUUID', 'type': 'error',
+	}, { 'inputs': [], 'name': 'SlReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Slippage',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'TpReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'UUPSUnauthorizedCallContext',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'bytes32', 'name': 'slot', 'type': 'bytes32' }],
+		'name': 'UUPSUnsupportedProxiableUUID',
+		'type': 'error',
 	}, { 'inputs': [], 'name': 'WrongAccess', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'WrongCollateralUsdDecimals',
@@ -4993,7 +5373,7 @@ export const ABIS = {
 		'inputs': [{
 			'components': [{
 				'internalType': 'address',
-				'name': 'jav',
+				'name': 'rewardsToken',
 				'type': 'address',
 			}, { 'internalType': 'address', 'name': 'rewardsDistributor', 'type': 'address' }],
 			'indexed': false,
@@ -5059,6 +5439,12 @@ export const ABIS = {
 		'name': 'Upgraded',
 		'type': 'event',
 	}, {
+		'inputs': [{ 'internalType': 'uint8', 'name': '_collateralIndex', 'type': 'uint8' }],
+		'name': 'getCollateralFeed',
+		'outputs': [{ 'internalType': 'bytes32', 'name': '', 'type': 'bytes32' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
 		'inputs': [{ 'internalType': 'uint8', 'name': '_collateralIndex', 'type': 'uint8' }, {
 			'internalType': 'uint256',
 			'name': '_normalizedValue',
@@ -5075,15 +5461,21 @@ export const ABIS = {
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
-		'inputs': [],
-		'name': 'getJavPriceUsd',
+		'inputs': [{ 'internalType': 'uint16', 'name': '_pairIndex', 'type': 'uint16' }],
+		'name': 'getPrice',
 		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
-		'inputs': [{ 'internalType': 'uint16', 'name': '_pairIndex', 'type': 'uint16' }],
-		'name': 'getPrice',
+		'inputs': [],
+		'name': 'getRewardsTokenPriceUsd',
 		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [],
+		'name': 'getRewardsTokenUsdFeed',
+		'outputs': [{ 'internalType': 'bytes32', 'name': '', 'type': 'bytes32' }],
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
@@ -5105,7 +5497,7 @@ export const ABIS = {
 			'internalType': 'contract IJavPriceAggregator',
 			'name': '_alternativeOracle',
 			'type': 'address',
-		}, { 'internalType': 'bytes32', 'name': '_javUsdFeed', 'type': 'bytes32' }, {
+		}, { 'internalType': 'bytes32', 'name': '_rewardsTokenUsdFeed', 'type': 'bytes32' }, {
 			'internalType': 'uint8[]',
 			'name': '_collateralIndices',
 			'type': 'uint8[]',
@@ -5120,5 +5512,16 @@ export const ABIS = {
 			'name': '_value',
 			'type': 'bytes32',
 		}], 'name': 'updateCollateralUsdPriceFeed', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
+	}, {
+		'inputs': [{
+			'internalType': 'bytes[][]',
+			'name': '_priceUpdate',
+			'type': 'bytes[][]',
+		}, { 'internalType': 'address', 'name': '_user', 'type': 'address' }],
+		'name': 'updatePrices',
+		'outputs': [],
+		'stateMutability': 'payable',
+		'type': 'function',
 	}],
+
 };
