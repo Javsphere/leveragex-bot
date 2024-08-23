@@ -43,7 +43,7 @@ export const NETWORKS = {
     chainId: CHAIN_IDS.SEPOLIA,
     gasMode: GAS_MODE.LEGACY,
     gasStationUrl: undefined,
-    diamondAddress: '0xa7323f2860E66b763dd4aF6c9C9Ab9D452e47922',
+		diamondAddress: '0x1c31729b02D9151a61BB1f92f3dae90d99F24257',
     collaterals: [
       {
         symbol: COLLATERAL.WETH,
