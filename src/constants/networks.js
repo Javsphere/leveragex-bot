@@ -55,11 +55,11 @@ export const NETWORKS = {
       },
       {
         symbol: COLLATERAL.tUSDC,
-        collateralIndex: 2,
+				collateralIndex: 3,
       },
 			{
 				symbol: COLLATERAL.tUSDT,
-				collateralIndex: 3,
+				collateralIndex: 2,
 			},
     ],
 		feedIds : [
