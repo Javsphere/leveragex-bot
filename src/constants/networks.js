@@ -26,12 +26,12 @@ export const COLLATERAL_CONFIG = {
     precisionDelta: 1,
   },
   [COLLATERAL.tUSDC]: {
-    decimals: 6,
+		decimals: 18,
 		precision: 1e18,
 		precisionDelta: 1,
   },
 	[COLLATERAL.tUSDT]: {
-		decimals: 6,
+		decimals: 18,
 		precision: 1e18,
 		precisionDelta: 1,
 	},
