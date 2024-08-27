@@ -819,7 +819,6 @@ async function synchronizeOpenTrades(event) {
       appLogger.info(`Synchronize open trades from event ${eventName}: Stored active trade ${tradeKey}`);
     } else if (eventName === 'TradeClosed') {
       const { user, index } = eventReturnValues.tradeId;
-			const { orderType } = eventReturnValues;
       const tradeKey = buildTradeIdentifier(user, index);
 
       const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
@@ -831,6 +830,10 @@ async function synchronizeOpenTrades(event) {
         appLogger.info(`Synchronize open trades from event ${eventName}: Trade not found for ${tradeKey}`);
       }
 
+		} else if (eventName === 'LimitExecuted') {
+
+			const { user, index } = eventReturnValues.t;
+			const { orderType } = eventReturnValues;
 			const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(user, index, orderType);
 
 			if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifier)) {
@@ -1210,10 +1213,11 @@ function watchPricingStream() {
             appLogger.info(`🤞 Trying to trigger ${triggeredOrderTrackingInfoIdentifier}...`);
 
             try {
+							const actualPrice = await getActualPrice(openTrade.pairIndex, openTrade.collateralIndex, messageData);
               const orderTransaction = createTransaction(
                 {
                   to: app.contracts.diamond.options.address,
-                  data: app.contracts.diamond.methods.triggerOrder(packTrigger(orderType, user, index)).encodeABI(),
+									data: app.contracts.diamond.methods.triggerOrder(packTrigger(orderType, user, index), actualPrice).encodeABI(),
                 },
                 true
               );
@@ -1226,7 +1230,6 @@ function watchPricingStream() {
               );
 							let tx;
 							if (DRY_RUN_MODE === false) {
-								await updateOracle(openTrade.pairIndex, messageData);
 								tx = await app.currentlySelectedWeb3Client.eth.sendSignedTransaction(signedTransaction.rawTransaction);
               } else {
                 appLogger.info(
@@ -1359,7 +1362,7 @@ function watchPricingStream() {
     }
 	};
 
-	async function updateOracle(priceId, messageData) {
+	async function getActualPrice(priceId, colId, messageData) {
 
 		appLogger.info(`===Start Update oracle job.===`);
 		try {
@@ -1367,17 +1370,16 @@ function watchPricingStream() {
 			appLogger.info(`Reading from Pyth price feed ...`);
 
 			const [priceUpdatesPyth] = await Promise.all([
-				fetchPythPrices([app.pairs[priceId].feedId]),
+				fetchPythPrices([app.pairs[priceId].feedId, app.pairs[colId].feedId, NETWORK.rewardTokenId]),
 			]);
 
 			if (priceUpdatesPyth) {
 				const groupId = parseInt(app.pairs[priceId].groupIndex);
 				if (!isStocksGroup(groupId)) {
-					appLogger.info(`Pushing prices to pyth...`);
-					await writePricesToSCBasePyth(app.contracts.pythOrace, priceUpdatesPyth);
-					appLogger.info(`Pushing to pyth base ready`);
+					appLogger.info(`Get Price for Pyth Oracle for priceId ${priceId}`);
+					return [['0x' + priceUpdatesPyth.binary.data[0]], []];
 				} else {
-					appLogger.info(`Pushing socket stock price to jav base from ...`);
+					appLogger.info(`Get Price for Jav Oracle for priceId ${priceId}`);
 
 					const updatePriceInfo = abiCoder.encode(
 						['bytes32', 'int64', 'uint64', 'int32', 'uint64'],
@@ -1387,71 +1389,13 @@ function watchPricingStream() {
 					const signature = await app.signer.signMessage(ethers.utils.arrayify(messageHash));
 					const signedData = ethers.utils.concat([signature, updatePriceInfo]);
 
-					await writePricesToSCBaseJav(app.contracts.javOracle, [signedData]);
-					appLogger.info(`Pushing to jav base ready`);
+					return [[signedData], []];
 				}
 			}
-			appLogger.info(`=== Finished Update oracle job.===`);
 
 		} catch (err) {
-			appLogger.error(`error ${err?.message} in pyth price feed`);
+			appLogger.error(`error ${err?.message} in getActualPrice`);
 
-		}
-	}
-
-	async function sleep(ms) {
-		return new Promise((resolve) => {
-			setTimeout(resolve, ms);
-		});
-	}
-
-	async function writePricesToSCBasePyth(
-		contract,
-		idToUpdate,
-	) {
-
-		try {
-			const overrides = {
-				gasLimit: 600000,
-				value: parseEther('0.0000000000000001'),
-			};
-			const updateString = '0x' + idToUpdate.binary.data[0];
-			const tx = await contract.updatePriceFeeds([updateString], overrides);
-			appLogger.info(
-				`writePricesToSCBasePyth Transaction Hash sent : ${tx.hash}`,
-			);
-			const receipt = await tx.wait();
-
-			appLogger.info(
-				`writePricesToSCBasePyth Transaction confirmed in block ${receipt.blockNumber}`,
-			);
-		} catch (error) {
-			appLogger.error(` error in writePricesToSCBaseTestnet ${error?.message}`);
-		}
-	}
-
-	async function writePricesToSCBaseJav(
-		contract,
-		priceUpdatesStocksArray,
-	) {
-
-		try {
-			const overrides = {
-				gasLimit: 300000,
-				value: parseEther('0.0000000000000001'),
-			};
-			const tx = await contract.updatePriceFeeds(priceUpdatesStocksArray, overrides);
-			appLogger.info(
-				`writePricesToSCBaseJav Transaction Hash sent : ${tx.hash}`,
-			);
-			const receipt = await tx.wait();
-
-			appLogger.info(
-				`writePricesToSCBaseJav Transaction confirmed in block ${receipt.blockNumber}`,
-			);
-
-		} catch (error) {
-			appLogger.error(` error in writePricesToSCBaseTestnet ${error?.code}:${error?.shortMessage}`);
 		}
 	}
 
@@ -1504,6 +1448,7 @@ function createTransaction(additionalTransactionProps, isPriority = false) {
     gas: MAX_GAS_PER_TRANSACTION_HEX,
     ...getTransactionGasFees(NETWORK, isPriority),
     ...additionalTransactionProps,
+		value: parseEther('0.0000000000000001'),
   };
 }
 

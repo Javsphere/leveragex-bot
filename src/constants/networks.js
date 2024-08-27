@@ -62,6 +62,7 @@ export const NETWORKS = {
 				collateralIndex: 2,
 			},
     ],
+		rewardTokenId: '0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
 		feedIds : [
 			'0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace', // ETH, " ,
 			'0x2f95862b045670cd22bee3114c39763a4a08beeb663b145d283c31d7d1101c4f', // BTC,
