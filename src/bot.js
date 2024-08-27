@@ -719,6 +719,7 @@ function watchLiveTradingEvents() {
         [
           'TradeStored',
           'TradeClosed',
+					'LimitExecuted',
           'TradeTpUpdated',
           'TradeSlUpdated',
           'OpenLimitUpdated',
