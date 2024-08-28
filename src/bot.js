@@ -1365,7 +1365,6 @@ function watchPricingStream() {
 
 	async function getActualPrice(priceId, colId, messageData) {
 
-		appLogger.info(`===Start Update oracle job.===`);
 		try {
 
 			appLogger.info(`Reading from Pyth price feed ...`);
