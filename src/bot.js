@@ -1370,28 +1370,26 @@ function watchPricingStream() {
 
 			appLogger.info(`Reading from Pyth price feed ...`);
 
-			const [priceUpdatesPyth] = await Promise.all([
-				fetchPythPrices([app.pairs[priceId].feedId, app.pairs[colId].feedId, NETWORK.rewardTokenId]),
-			]);
-
-			if (priceUpdatesPyth) {
-				const groupId = parseInt(app.pairs[priceId].groupIndex);
-				if (!isStocksGroup(groupId)) {
-					appLogger.info(`Get Price for Pyth Oracle for priceId ${priceId}`);
-					return [['0x' + priceUpdatesPyth.binary.data[0]], []];
-				} else {
-					appLogger.info(`Get Price for Jav Oracle for priceId ${priceId}`);
-
-					const updatePriceInfo = abiCoder.encode(
-						['bytes32', 'int64', 'uint64', 'int32', 'uint64'],
-						[messageData.id, messageData.priceCombined.price, messageData.priceCombined.conf, messageData.priceCombined.expo, messageData.priceCombined.publish_time],
-					);
-					const messageHash = ethers.utils.keccak256(updatePriceInfo);
-					const signature = await app.signer.signMessage(ethers.utils.arrayify(messageHash));
-					const signedData = ethers.utils.concat([signature, updatePriceInfo]);
-
-					return [[signedData], []];
-				}
+			const groupId = parseInt(app.pairs[priceId].groupIndex);
+			if (!isStocksGroup(groupId)) {
+				appLogger.info(`Get Price for Pyth Oracle for priceId ${priceId}`);
+				const [priceUpdatesPyth] = await Promise.all([
+					fetchPythPrices([app.pairs[priceId].feedId, app.pairs[colId].feedId, NETWORK.rewardTokenId]),
+				]);
+				return [['0x' + priceUpdatesPyth.binary.data[0]], []];
+			} else {
+				appLogger.info(`Get Price for Jav Oracle for priceId ${priceId}`);
+				const [priceUpdatesJav] = await Promise.all([
+					fetchPythPrices([app.pairs[colId].feedId, NETWORK.rewardTokenId]),
+				]);
+				const updatePriceInfo = abiCoder.encode(
+					['bytes32', 'int64', 'uint64', 'int32', 'uint64'],
+					[messageData.id, messageData.priceCombined.price, messageData.priceCombined.conf, messageData.priceCombined.expo, messageData.priceCombined.publish_time],
+				);
+				const messageHash = ethers.utils.keccak256(updatePriceInfo);
+				const signature = await app.signer.signMessage(ethers.utils.arrayify(messageHash));
+				const signedData = ethers.utils.concat([signature, updatePriceInfo]);
+				return [['0x' + priceUpdatesJav.binary.data[0]], [signedData]];
 			}
 
 		} catch (err) {
