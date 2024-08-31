@@ -731,6 +731,7 @@ export async function fetchOpenPairTradesRaw(
 			const openTrades = trades
 				.filter(
 					(t) =>
+						t.user !== '0x0000000000000000000000000000000000000000' &&
 						includeLimits || (!includeLimits && t.tradeType === 0),
 				)
 				.map(
