@@ -20,21 +20,21 @@ export function createLogger(label, logLevel = 'warn') {
 						customLogFormat)
 		}));
 	}
-
-	transports.push(new SeqTransport({
-		serverUrl: 'https://log.defichain-income.com',
-		level: logLevel,
-		apiKey:
-			process.env.ENV === 'dev'
-				? 'BGGv5tzSLAcqin5V6UXR'
-				: 'WRNIAfJuGR0a6QEuNZmE',
-		onError: (e) => {
-			console.error(e);
-		},
-		handleExceptions: true,
-		handleRejections: true,
-	}));
-
+	if (process.env.ENABLE_SEQ_LOGGING === 'true') {
+		transports.push(new SeqTransport({
+			serverUrl: 'https://log.defichain-income.com',
+			level: logLevel,
+			apiKey:
+				process.env.ENV === 'dev'
+					? 'BGGv5tzSLAcqin5V6UXR'
+					: 'WRNIAfJuGR0a6QEuNZmE',
+			onError: (e) => {
+				console.error(e);
+			},
+			handleExceptions: true,
+			handleRejections: true,
+		}));
+	}
 	if(process.env.ENABLE_FS_LOGGING === "true") {
 		transports.push(new winston.transports.File({
 			filename: path.join(process.cwd(), `./logs/${new Date(new Date(new Date().setSeconds(0)).setMilliseconds(0)).toISOString().replace(/:/g, '_')}/${label}.log`),

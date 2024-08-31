@@ -3,9 +3,8 @@
 // ------------------------------------
 
 import dotenv from 'dotenv';
-import ethers from 'ethers';
+import ethers, { Contract } from 'ethers';
 import {
-	fetchOpenPairTradesRaw,
 	getCurrentOiWindowId,
 	getLiquidationPrice,
 	getSpreadWithPriceImpactP,
@@ -674,7 +673,8 @@ async function fetchOpenTrades() {
       {
         useMulticall: USE_MULTICALL,
         pairBatchSize: 10,
-      }
+			},
+			ethersProvider,
     );
     const allTrades = transformRawTrades(openPairTradesRaw);
 
@@ -683,6 +683,104 @@ async function fetchOpenTrades() {
     return allTrades;
   }
 }
+
+export async function fetchOpenPairTradesRaw(
+	contracts,
+	overrides,
+	provider,
+) {
+	if (!contracts) {
+		return [];
+	}
+
+	const {
+		batchSize = 50,
+		includeLimits = true,
+		useMulticall = false,
+	} = overrides;
+
+	const { gnsMultiCollatDiamond: multiCollatDiamondContract } = contracts;
+
+	try {
+		const multicallCtx = {
+			provider: provider,
+			diamond: new Contract(multiCollatDiamondContract.address, [
+				...multiCollatDiamondContract.interface.fragments,
+			]),
+		};
+
+		if (useMulticall) {
+			await multicallCtx.provider.init(multiCollatDiamondContract.provider);
+		}
+
+		let allOpenPairTrades = [];
+		let running = true;
+		let offset = 0;
+
+		while (running) {
+			const trades = await multiCollatDiamondContract.getAllTrades(
+				offset,
+				offset + batchSize,
+			);
+			const tradeInfos = await multiCollatDiamondContract.getAllTradeInfos(
+				offset,
+				offset + batchSize,
+			);
+			// Array is immer von Länge `batchSize`,
+			// also müssen wir die leeren Trades herausfiltern, die Indizes sind zuverlässig
+			const openTrades = trades
+				.filter(
+					(t) =>
+						includeLimits || (!includeLimits && t.tradeType === 0),
+				)
+				.map(
+					(trade, ix) => ({
+						trade,
+						tradeInfo: tradeInfos[ix],
+						initialAccFees: {
+							accPairFee: 0,
+							accGroupFee: 0,
+							block: 0,
+							__placeholder: 0,
+						},
+					}),
+				);
+
+			const initialAccFeesPromises = openTrades
+				.map(({ trade }) => ({
+					collateralIndex: trade.collateralIndex,
+					user: trade.user,
+					index: trade.index,
+				}))
+				.map(({ collateralIndex, user, index }) =>
+					(useMulticall
+							? multicallCtx.diamond
+							: multiCollatDiamondContract
+					).getBorrowingInitialAccFees(collateralIndex, user, index),
+				);
+
+			const initialAccFees =
+				await (useMulticall
+					? multicallCtx.provider.all(initialAccFeesPromises)
+					: Promise.all(initialAccFeesPromises));
+
+			initialAccFees.forEach((accFees, ix) => {
+				openTrades[ix].initialAccFees = accFees;
+			});
+
+			allOpenPairTrades = allOpenPairTrades.concat(openTrades);
+			offset += batchSize + 1;
+			running =
+				parseInt(trades[trades.length - 1].collateralIndex.toString()) > 0;
+		}
+
+		return allOpenPairTrades;
+	} catch (error) {
+		appLogger.error(`Unexpected error while fetching open pair trades!`);
+		throw error;
+	}
+}
+
 // -----------------------------------------
 // WATCH TRADING EVENTS
 // -----------------------------------------
