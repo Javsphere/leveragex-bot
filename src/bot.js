@@ -1482,7 +1482,7 @@ function watchPricingStream() {
 				]);
 				const updatePriceInfo = abiCoder.encode(
 					['bytes32', 'int64', 'uint64', 'int32', 'uint64'],
-					[messageData.id, messageData.priceCombined.price, messageData.priceCombined.conf, messageData.priceCombined.expo, messageData.priceCombined.publish_time],
+					[`0x${messageData.id}`, +messageData.priceCombined.price, messageData.priceCombined.conf, messageData.priceCombined.expo, messageData.priceCombined.publishTime],
 				);
 				const messageHash = ethers.utils.keccak256(updatePriceInfo);
 				const signature = await app.signer.signMessage(ethers.utils.arrayify(messageHash));
