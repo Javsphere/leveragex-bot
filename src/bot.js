@@ -7,6 +7,7 @@ import ethers, { Contract } from 'ethers';
 import {
 	getCurrentOiWindowId,
 	getLiquidationPrice,
+	getPnl,
 	getSpreadWithPriceImpactP,
 	isCommoditiesOpen,
 	isForexOpen,
@@ -30,11 +31,14 @@ import {
 	appConfig,
 	buildTradeIdentifier,
 	convertFee,
+	convertLiquidationParams,
 	convertOiWindows,
+	convertPairFactors,
+	convertPairSpreadP,
 	convertTrade,
+	convertTradeInfo,
 	convertTradeInitialAccFees,
 	createLogger,
-	decreaseWindowOi,
 	feedIdToPriceIndex,
 	getEthersContract,
 	increaseWindowOi,
@@ -149,6 +153,8 @@ const app = {
   eventSub: null,
   // params
   spreadsP: [],
+	pairFactors: [],
+	groupLiquidationParams: [],
   borrowingFeesContext: {}, // { collateralIndex: { groups: [], pairs: [] } }
   oiWindows: {},
   oiWindowsSettings: { startTs: 0, windowsDuration: 0, windowsCount: 0 },
@@ -477,13 +483,15 @@ async function fetchTradingVariables() {
   }
 
   async function fetchPairs(pairsCount) {
-		const [depths, maxLeverage, pairs, feesCount] = await Promise.all([
+		const [depths, pairFactors, maxLeverage, pairs, feesCount, groupsCount] = await Promise.all([
       app.contracts.diamond.methods.getPairDepths([...Array(parseInt(pairsCount)).keys()]).call(),
+			app.contracts.diamond.methods.getPairFactors([...Array(parseInt(pairsCount)).keys()]).call(),
       app.contracts.diamond.methods.getAllPairsRestrictedMaxLeverage().call(),
       Promise.all(
         [...Array(parseInt(pairsCount)).keys()].map(async (_, pairIndex) => app.contracts.diamond.methods.pairs(pairIndex).call())
       ),
 			app.contracts.diamond.methods.feesCount().call(),
+			app.contracts.diamond.methods.groupsCount().call(),
     ]);
 
     app.pairMaxLeverage = new Map(maxLeverage.map((l, idx) => [idx, parseInt(l)]));
@@ -511,6 +519,16 @@ async function fetchTradingVariables() {
 			triggerOrderFeeP: triggerOrderFeeP,
 			minPositionSizeUsd: minPositionSizeUsd,
 		}));
+
+		app.pairFactors = pairFactors.map((pairFactor) => convertPairFactors(pairFactor));
+
+		app.groupLiquidationParams = (
+			await Promise.all(
+				[...Array(parseInt(groupsCount)).keys()].map((_, groupIndex) =>
+					app.contracts.diamond.methods.getGroupLiquidationParams(groupIndex).call(),
+				),
+			)
+		).map((liquidationParams) => convertLiquidationParams(liquidationParams));
   }
 
   async function fetchBorrowingFees() {
@@ -726,6 +744,11 @@ export async function fetchOpenPairTradesRaw(
 				offset,
 				offset + batchSize,
 			);
+			const tradeLiquidationParams =
+				await multiCollatDiamondContract.getAllTradesLiquidationParams(
+					offset,
+					offset + batchSize,
+				);
 			// Array is immer von Länge `batchSize`,
 			// also müssen wir die leeren Trades herausfiltern, die Indizes sind zuverlässig
 			const openTrades = trades
@@ -738,6 +761,7 @@ export async function fetchOpenPairTradesRaw(
 					(trade, ix) => ({
 						trade,
 						tradeInfo: tradeInfos[ix],
+						liquidationParams: tradeLiquidationParams[ix],
 						initialAccFees: {
 							accPairFee: 0,
 							accGroupFee: 0,
@@ -796,11 +820,15 @@ function watchLiveTradingEvents() {
       if (
         [
           'PriceImpactOpenInterestAdded',
-          'PriceImpactOpenInterestRemoved',
           'PriceImpactOiTransferredPairs',
           'PriceImpactWindowsDurationUpdated',
           'PriceImpactWindowsCountUpdated',
           'PairCustomMaxLeverageUpdated',
+					'GroupLiquidationParamsUpdated',
+					'ProtectionCloseFactorUpdated',
+					'ProtectionCloseFactorBlocksUpdated',
+					'CumulativeFactorUpdated',
+					'OnePercentDepthUpdated',
         ].indexOf(event.event) > -1
       ) {
         //
@@ -826,6 +854,7 @@ function watchLiveTradingEvents() {
           'TriggerOrderCanceled',
           'PendingOrderClosed',
 					'TradePositionUpdated',
+					'TradeMaxClosingSlippagePUpdated',
         ].indexOf(event.event) > -1
       ) {
         //
@@ -846,19 +875,6 @@ async function handleMultiCollatEvents(event) {
       const { pairIndex, windowId, long, openInterestUsd } = event.returnValues.oiWindowUpdate;
 
       increaseWindowOi(app.oiWindows, pairIndex, windowId, long, openInterestUsd);
-
-      appLogger.verbose(`Processed ${event.event}.`);
-    } else if (event.event === 'PriceImpactOpenInterestRemoved') {
-      const { oiWindowUpdate, notOutdated } = event.returnValues;
-
-      decreaseWindowOi(
-        app.oiWindows,
-        oiWindowUpdate.pairIndex,
-        oiWindowUpdate.windowId,
-        oiWindowUpdate.long,
-        oiWindowUpdate.openInterestUsd,
-        notOutdated
-      );
 
       appLogger.verbose(`Processed ${event.event}.`);
     } else if (event.event === 'PriceImpactOiTransferredPairs') {
@@ -885,7 +901,40 @@ async function handleMultiCollatEvents(event) {
       app.pairMaxLeverage.set(index, parseFloat(maxLeverage));
 
       appLogger.info(`${event.event}: Set pairMaxLeverage for pair ${index} to ${maxLeverage}.`);
-    }
+		} else if (event.event === 'GroupLiquidationParamsUpdated') {
+			const { index, params } = event.returnValues;
+
+			app.groupLiquidationParams[index] = convertLiquidationParams(params);
+
+			appLogger.info(`${event.event}: Set groupLiquidationParams for group ${index}.`, app.groupLiquidationParams[index]);
+		} else if (event.event === 'ProtectionCloseFactorUpdated') {
+			const { pairIndex, protectionCloseFactor } = event.returnValues;
+
+			app.pairFactors[pairIndex].protectionCloseFactor = parseFloat(protectionCloseFactor + '') / 1e10;
+
+			appLogger.info(`${event.event}: Set protectionCloseFactor for pair ${pairIndex} to ${protectionCloseFactor + ''}`);
+		} else if (event.event === 'ProtectionCloseFactorBlocksUpdated') {
+			const { pairIndex, protectionCloseFactorBlocks } = event.returnValues;
+
+			app.pairFactors[pairIndex].protectionCloseFactorBlocks = parseInt(protectionCloseFactorBlocks + '');
+
+			appLogger.info(`${event.event}: Set protectionCloseFactorBlocks for pair ${pairIndex} to ${protectionCloseFactorBlocks + ''}`);
+		} else if (event.event === 'CumulativeFactorUpdated') {
+			const { pairIndex, cumulativeFactor } = event.returnValues;
+
+			app.pairFactors[pairIndex].cumulativeFactor = parseFloat(cumulativeFactor + '') / 1e10;
+
+			appLogger.info(`${event.event}: Set cumulativeFactor for pair ${pairIndex} to ${cumulativeFactor + ''}`);
+		} else if (event.event === 'OnePercentDepthUpdated') {
+			const { pairIndex, valueAboveUsd, valueBelowUsd } = event.returnValues;
+
+			app.pairDepths[+pairIndex] = {
+				onePercentDepthAboveUsd: parseFloat(valueAboveUsd),
+				onePercentDepthBelowUsd: parseFloat(valueBelowUsd),
+			};
+
+			appLogger.info(`${event.event}: Set 1% depth for pair ${pairIndex} to ${valueAboveUsd} above, ${valueBelowUsd} below`);
+		}
   } catch (error) {
     appLogger.error('Error occurred when handling BorrowingFees event.', error);
   }
@@ -909,12 +958,12 @@ async function synchronizeOpenTrades(event) {
     }
 
     if (eventName === 'TradeStored') {
-      const { trade, tradeInfo } = eventReturnValues;
+			const { trade, tradeInfo, liquidationParams } = eventReturnValues;
       const { user, index, collateralIndex } = trade;
       const initialAccFees = await app.contracts.diamond.methods.getBorrowingInitialAccFees(collateralIndex, user, index).call();
 
       const tradeKey = buildTradeIdentifier(user, index);
-      const newTrade = transformRawTrade({ trade, tradeInfo, initialAccFees });
+			const newTrade = transformRawTrade({ trade, tradeInfo, initialAccFees, liquidationParams });
       currentKnownOpenTrades.set(tradeKey, newTrade);
       appLogger.info(`Synchronize open trades from event ${eventName}: Stored active trade ${tradeKey}`);
     } else if (eventName === 'TradeClosed') {
@@ -956,6 +1005,18 @@ async function synchronizeOpenTrades(event) {
           existingKnownOpenTrade.sl = eventReturnValues.newSl.toString();
           existingKnownOpenTrade.tradeInfo.slLastUpdatedBlock = event.blockNumber.toString();
         }
+				appLogger.info(`Synchronize update trade from event ${eventName}: Updated values for ${tradeKey}`);
+			} else {
+				appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
+			}
+		} else if (eventName === 'TradeMaxClosingSlippagePUpdated') {
+			const { user, index } = eventReturnValues.tradeId;
+			const tradeKey = buildTradeIdentifier(user, index);
+
+			const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
+
+			if (existingKnownOpenTrade !== undefined) {
+				existingKnownOpenTrade.tradeInfo.maxSlippageP = eventReturnValues.maxClosingSlippageP.toString();
 
         appLogger.info(`Synchronize update trade from event ${eventName}: Updated values for ${tradeKey}`);
       } else {
@@ -1016,23 +1077,27 @@ async function synchronizeOpenTrades(event) {
 					block: initialAccFees.block + '',
 				};
 
+				if (eventReturnValues.isPartialIncrease) {
+					const liquidationParams = await app.contracts.diamond.methods.getTradeLiquidationParams(user, index).call();
+					existingKnownOpenTrade.liquidationParams = {
+						maxLiqSpreadP: liquidationParams.maxLiqSpreadP + '',
+						startLiqThresholdP: liquidationParams.startLiqThresholdP + '',
+						endLiqThresholdP: liquidationParams.endLiqThresholdP + '',
+						startLeverage: liquidationParams.startLeverage + '',
+						endLeverage: liquidationParams.endLeverage + '',
+					};
+				}
+
 				appLogger.info(`Synchronize update trade from event ${eventName}: Updated values for ${tradeKey}`);
 			} else {
 				appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
 			}
 		} else if (eventName === 'TriggerOrderCanceled') {
-      const { triggerCaller, index, orderType } = eventReturnValues; // this is a pending order Id
+			const { triggerCaller, index, orderType, cancelReason } = eventReturnValues; // this is a pending order Id
 
       const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(triggerCaller, index, orderType);
 
-      if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifier)) {
-        app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
-        appLogger.info(`Synchronize trigger tracking from event ${eventName}: Trigger deleted for ${triggeredOrderTrackingInfoIdentifier}`);
-      } else {
-        appLogger.error(
-          `Synchronize trigger tracking from event ${eventName}: Trigger not found for ${triggeredOrderTrackingInfoIdentifier}!`
-        );
-      }
+			appLogger.warn(`Synchronize trigger tracking from event ${eventName}: Order canceled ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}`);
 
       return;
     }
@@ -1187,81 +1252,165 @@ function watchPricingStream() {
             return;
           }
 
-          let orderType = -1;
-          let liqPrice;
+					const groupId = parseInt(app.pairs[pairIndex].groupIndex);
 
-          if (isPendingOpenLimitOrder === false) {
-            // Hotfix openPrice of 0
-            if (parseInt(openTrade.openPrice) === 0) return;
+					let orderType = -1;
 
-            const tp = parseFloat(openTrade.tp) / 1e10;
-            const sl = parseFloat(openTrade.sl) / 1e10;
-						liqPrice = getTradeLiquidationPrice(
-							collateralConfig.precision,
-							app.borrowingFeesContext[collateralIndex],
-							openTrade,
-							app.fees[parseInt(app.pairs[pairIndex].feeIndex)]);
+					////////// Prep converted objects //////////
+					const convertedTrade = convertTrade(openTrade, collateralConfig.precision);
+					const convertedTradeInfo = convertTradeInfo(openTrade.tradeInfo);
+					const convertedInitialAccFees = convertTradeInitialAccFees(openTrade.initialAccFees);
+					const convertedLiquidationParams = convertLiquidationParams(openTrade.liquidationParams);
+					const convertedFee = convertFee(app.fees[parseInt(app.pairs[pairIndex].feeIndex)]);
+					const convertedPairSpreadP = convertPairSpreadP(app.spreadsP[pairIndex]);
+					const borrowingFeesContext = app.borrowingFeesContext[collateralIndex];
+					////////////////////////////////////////////
 
-            if (tp !== 0 && ((long && price >= tp) || (!long && price <= tp))) {
-              orderType = PENDING_ORDER_TYPE.TP_CLOSE;
-            } else if (sl !== 0 && ((long && price <= sl) || (!long && price >= sl))) {
-              orderType = PENDING_ORDER_TYPE.SL_CLOSE;
-            } else if ((long && price <= liqPrice) || (!long && price >= liqPrice)) {
-              orderType = PENDING_ORDER_TYPE.LIQ_CLOSE;
-            } else {
-              //appLogger.debug(`Open trade ${openTradeKey} is not ready for us to act on yet.`);
-            }
-          } else {
-            const leverage = parseFloat(openTrade.leverage) / 1e3;
-            const maxSlippageP = parseFloat(openTrade.tradeInfo.maxSlippageP + '') / 1e3 || 1;
-            const posDai = leverage * (parseFloat(openTrade.collateralAmount) / collateralConfig.precision);
+					if (isPendingOpenLimitOrder === false) {
+						// Hotfix openPrice of 0
+						if (parseInt(openTrade.openPrice) === 0) return;
 
-            const spreadWithPriceImpactP =
-              getSpreadWithPriceImpactP(
-                parseFloat(app.spreadsP[pairIndex]) / 1e10 / 100,
-                openTrade.long,
-                (parseFloat(openTrade.collateralAmount) / collateralConfig.precision) * collateralConfig.price,
-                leverage,
-                app.pairDepths[openTrade.pairIndex],
-                app.oiWindowsSettings,
-                app.oiWindows[openTrade.pairIndex]
-              ) * 100;
+						const spreadCtx = {
+							isOpen: false,
+							isPnlPositive: false,
+							createdBlock: +openTrade.tradeInfo.createdBlock,
+							...app.pairFactors[pairIndex],
+							liquidationParams: convertLiquidationParams(openTrade.liquidationParams),
+							contractsVersion: +openTrade.tradeInfo.contractsVersion,
+							currentBlock: app.blocks.latestL2Block,
+						};
 
-            // oi.long/short/max are already transformed (div 1e10)
-            const maxInterestDai = app.borrowingFeesContext[collateralIndex].pairs[openTrade.pairIndex].oi.max;
-            const interestDai = long
-              ? app.borrowingFeesContext[collateralIndex].pairs[openTrade.pairIndex].oi.long
-              : app.borrowingFeesContext[collateralIndex].pairs[openTrade.pairIndex].oi.short;
+						const calculateSpreadWithPriceImpactP = (spreadCtxToUse) => {
+							return getSpreadWithPriceImpactP(
+								convertedPairSpreadP,
+								openTrade.long,
+								convertedTrade.collateralAmount * collateralConfig.price,
+								convertedTrade.leverage,
+								app.pairDepths[openTrade.pairIndex],
+								app.oiWindowsSettings,
+								app.oiWindows[openTrade.pairIndex],
+								spreadCtxToUse,
+							);
+						};
 
-            const newInterestDai = interestDai + posDai;
-            const wantedPrice = parseFloat(openTrade.openPrice) / 1e10;
+						// Fetch spread + price impact with no protection factor
+						const spreadWithPriceImpactPnoProtection = calculateSpreadWithPriceImpactP(spreadCtx);
 
-            // @todo slippage may hit SL, need to abort
-            if (
-              isValidLeverage(openTrade.pairIndex, leverage) &&
-              newInterestDai <= maxInterestDai &&
-              spreadWithPriceImpactP * leverage <= MAX_OPEN_NEGATIVE_PNL_P &&
-              withinMaxGroupOi(openTrade.pairIndex, long, posDai, app.borrowingFeesContext[collateralIndex]) &&
-              spreadWithPriceImpactP <= maxSlippageP
-            ) {
-              const tradeType = openTrade.tradeType + '';
-              if (
-                (tradeType === '1' && (long ? price <= wantedPrice : price >= wantedPrice)) ||
-                (tradeType === '2' && (long ? price >= wantedPrice : price <= wantedPrice))
-              ) {
-                orderType = tradeType === '1' ? PENDING_ORDER_TYPE.LIMIT_OPEN : PENDING_ORDER_TYPE.STOP_OPEN;
-              } else {
-                //appLogger.debug(`Limit trade ${openTradeKey} is not ready for us to act on yet.`);
-              }
-            }
-          }
+						const [, pnlPercentage] = getPnl(
+							!long ? price * (1 + spreadWithPriceImpactPnoProtection) : price * (1 - spreadWithPriceImpactPnoProtection),
+							convertedTrade,
+							convertedTradeInfo,
+							convertedInitialAccFees,
+							convertedLiquidationParams,
+							true,
+							{
+								maxGainP: 900,
+								fee: convertedFee,
+								currentBlock: app.blocks.latestL2Block,
+								openInterest: borrowingFeesContext.pairs[convertedTrade.pairIndex].oi,
+								pairs: borrowingFeesContext.pairs,
+								groups: borrowingFeesContext.groups,
+								collateralPriceUsd: app.collaterals[convertedTrade.collateralIndex].price,
+								contractsVersion: convertedTradeInfo.contractsVersion,
+								feeMultiplier: 1,
+							},
+						);
 
-          // If it's not an order type we want to act on yet, just skip it
-          if (orderType === -1) {
+						const spreadWithPriceImpactP = calculateSpreadWithPriceImpactP({
+							...spreadCtx,
+							isPnlPositive: pnlPercentage > 0,
+						});
+
+						const tp = convertedTrade.tp;
+						const sl = convertedTrade.sl;
+
+						// inverse direction (!long) because it's a close trade op
+						const priceAfterImpact = !long ? price * (1 + spreadWithPriceImpactP) : price * (1 - spreadWithPriceImpactP);
+
+						const tpDistanceP = tp !== 0 ? (Math.abs(tp - priceAfterImpact) / tp) * 100 : 0;
+						const slDistanceP = sl !== 0 ? (Math.abs(sl - priceAfterImpact) / sl) * 100 : 0;
+
+						const liqPrice = getTradeLiquidationPrice(
+							convertedTrade,
+							convertedTradeInfo,
+							convertedInitialAccFees,
+							convertedLiquidationParams,
+							convertedFee,
+							convertedPairSpreadP,
+							borrowingFeesContext,
+						);
+
+						if (
+							tp !== 0 &&
+							tpDistanceP <= convertedTradeInfo.maxSlippageP && // abs distance from current price and tp can't be above max slippage
+							((long && price >= tp) || (!long && price <= tp))
+						) {
+							orderType = PENDING_ORDER_TYPE.TP_CLOSE;
+						} else if (
+							sl !== 0 &&
+							slDistanceP <= convertedTradeInfo.maxSlippageP && // abs distance from current price and sl can't be above max slippage
+							((long && price <= sl) || (!long && price >= sl))
+						) {
+							orderType = PENDING_ORDER_TYPE.SL_CLOSE;
+						} else if ((long && price <= liqPrice) || (!long && price >= liqPrice)) {
+							orderType = PENDING_ORDER_TYPE.LIQ_CLOSE;
+						} else {
+							//appLogger.debug(`Open trade ${openTradeKey} is not ready for us to act on yet.`);
+						}
+					} else {
+						const posDai = convertedTrade.leverage * convertedTrade.collateralAmount;
+
+						const spreadWithPriceImpactP =
+							getSpreadWithPriceImpactP(
+								convertedPairSpreadP,
+								openTrade.long,
+								convertedTrade.collateralAmount * collateralConfig.price,
+								convertedTrade.leverage,
+								app.pairDepths[openTrade.pairIndex],
+								app.oiWindowsSettings,
+								app.oiWindows[openTrade.pairIndex],
+							) * 100;
+
+						// oi.long/short/max are already transformed (div 1e10)
+						const maxInterestDai = app.borrowingFeesContext[collateralIndex].pairs[openTrade.pairIndex].oi.max;
+						const interestDai = long
+							? app.borrowingFeesContext[collateralIndex].pairs[openTrade.pairIndex].oi.long
+							: app.borrowingFeesContext[collateralIndex].pairs[openTrade.pairIndex].oi.short;
+
+						const newInterestDai = interestDai + posDai;
+						const wantedPrice = convertedTrade.openPrice;
+						const wantedPriceAfterImpact = long ? wantedPrice * (1 + spreadWithPriceImpactP) : wantedPrice * (1 - spreadWithPriceImpactP);
+
+						const openPriceDistanceP = (Math.abs(wantedPrice - price) / wantedPrice) * 100;
+
+						if (
+							isValidLeverage(openTrade.pairIndex, convertedTrade.leverage) &&
+							newInterestDai <= maxInterestDai &&
+							spreadWithPriceImpactP * convertedTrade.leverage <= MAX_OPEN_NEGATIVE_PNL_P &&
+							withinMaxGroupOi(openTrade.pairIndex, long, posDai, app.borrowingFeesContext[collateralIndex]) &&
+							spreadWithPriceImpactP <= convertedTradeInfo.maxSlippageP &&
+							// Ensure that current price isn't too far from open price
+							openPriceDistanceP <= convertedTradeInfo.maxSlippageP &&
+							// Ensure TP isn't hit with wanted price + spread/PI
+							(convertedTrade.tp === 0 ||
+								(convertedTrade.tp > 0 && (long ? wantedPriceAfterImpact < convertedTrade.tp : wantedPriceAfterImpact > convertedTrade.tp)))
+						) {
+							const tradeType = openTrade.tradeType + '';
+							if (
+								(tradeType === '1' && (long ? price <= wantedPrice : price >= wantedPrice)) ||
+								(tradeType === '2' && (long ? price >= wantedPrice : price <= wantedPrice))
+							) {
+								orderType = tradeType === '1' ? PENDING_ORDER_TYPE.LIMIT_OPEN : PENDING_ORDER_TYPE.STOP_OPEN;
+							} else {
+								//appLogger.debug(`Limit trade ${openTradeKey} is not ready for us to act on yet.`);
+							}
+						}
+					}
+
+					// If it's not an order type we want to act on yet, just skip it
+					if (orderType === -1) {
 						return;
-          }
-
-          const groupId = parseInt(app.pairs[pairIndex].groupIndex);
+					}
 
           if (isForexGroup(groupId) && !isForexOpen(new Date())) {
             return;
@@ -1313,6 +1462,8 @@ function watchPricingStream() {
             appLogger.info(`🤞 Trying to trigger ${triggeredOrderTrackingInfoIdentifier}...`);
 
             try {
+							// before we execute limit or liquidation we get the actual prices from oracle
+							// and give them in the trigger order function so directly before trigger price is live
 							const actualPrice = await getActualPrice(openTrade.pairIndex, openTrade.collateralIndex, messageData);
               const orderTransaction = createTransaction(
                 {
@@ -1496,16 +1647,25 @@ function watchPricingStream() {
 		}
 	}
 
-	function getTradeLiquidationPrice(precision, borrowingFeesContext, trade, feeContext) {
-		const { initialAccFees, pairIndex } = trade;
-
-		return getLiquidationPrice(convertTrade(trade, precision), convertFee(feeContext), convertTradeInitialAccFees(initialAccFees), {
-      currentBlock: app.blocks.latestL2Block,
-      openInterest: borrowingFeesContext.pairs[pairIndex].oi,
-      pairs: borrowingFeesContext.pairs,
-      groups: borrowingFeesContext.groups,
-    });
-  }
+	function getTradeLiquidationPrice(
+		convertedTrade,
+		convertedTradeInfo,
+		convertedInitialAccFees,
+		convertedLiquidationParams,
+		convertedFee,
+		convertedPairSpreadP,
+		borrowingFeesContext,
+	) {
+		return getLiquidationPrice(convertedTrade, convertedFee, convertedInitialAccFees, {
+			currentBlock: app.blocks.latestL2Block,
+			pairs: borrowingFeesContext.pairs,
+			groups: borrowingFeesContext.groups,
+			liquidationParams: convertedLiquidationParams,
+			pairSpreadP: convertedPairSpreadP,
+			collateralPriceUsd: app.collaterals[convertedTrade.collateralIndex].price,
+			contractsVersion: convertedTradeInfo.contractsVersion,
+		});
+	}
 
   function isValidLeverage(pairIndex, wantedLeverage) {
     const maxLev = app.pairMaxLeverage.get(pairIndex) ?? 0;
