@@ -1346,14 +1346,17 @@ function watchPricingStream() {
 							((long && price >= tp) || (!long && price <= tp))
 						) {
 							orderType = PENDING_ORDER_TYPE.TP_CLOSE;
+							appLogger.debug(`User ${user} index ${index} set orderType set to TP_CLOSE because long: ${long} & price: ${price} ${long ? '>=' : '<='} tp: ${tp}.`);
 						} else if (
 							sl !== 0 &&
 							slDistanceP <= convertedTradeInfo.maxSlippageP && // abs distance from current price and sl can't be above max slippage
 							((long && price <= sl) || (!long && price >= sl))
 						) {
 							orderType = PENDING_ORDER_TYPE.SL_CLOSE;
+							appLogger.debug(`User ${user} index ${index} set orderType set to SL_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} sl: ${sl}.`);
 						} else if ((long && price <= liqPrice) || (!long && price >= liqPrice)) {
 							orderType = PENDING_ORDER_TYPE.LIQ_CLOSE;
+							appLogger.debug(`User ${user} index ${index} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
 						} else {
 							//appLogger.debug(`Open trade ${openTradeKey} is not ready for us to act on yet.`);
 						}
