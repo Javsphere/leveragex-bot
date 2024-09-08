@@ -60,6 +60,7 @@ import { parseEther } from 'ethers/lib/utils.js';
 
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
+import packageFile from '../package.json' with { type: 'json' };
 
 const { toHex, BN } = Web3.utils;
 const abiCoder = new ethers.utils.AbiCoder();
@@ -174,7 +175,7 @@ const app = {
   },
 };
 
-appLogger.info('Welcome to the LeverageX bot!');
+appLogger.info(`Welcome to the LeverageX bot! - ${packageFile.version}`);
 
 if (!NETWORK) {
   throw new Error(`Invalid chain id: ${CHAIN_ID}`);
