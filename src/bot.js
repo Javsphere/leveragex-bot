@@ -1347,17 +1347,17 @@ function watchPricingStream() {
 							((long && price >= tp) || (!long && price <= tp))
 						) {
 							orderType = PENDING_ORDER_TYPE.TP_CLOSE;
-							appLogger.debug(`User ${user} index ${index} set orderType set to TP_CLOSE because long: ${long} & price: ${price} ${long ? '>=' : '<='} tp: ${tp}.`);
+							appLogger.info(`Trade ${openTradeKey} set orderType set to TP_CLOSE because long: ${long} & price: ${price} ${long ? '>=' : '<='} tp: ${tp}.`);
 						} else if (
 							sl !== 0 &&
 							slDistanceP <= convertedTradeInfo.maxSlippageP && // abs distance from current price and sl can't be above max slippage
 							((long && price <= sl) || (!long && price >= sl))
 						) {
 							orderType = PENDING_ORDER_TYPE.SL_CLOSE;
-							appLogger.debug(`User ${user} index ${index} set orderType set to SL_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} sl: ${sl}.`);
+							appLogger.info(`Trade ${openTradeKey} set orderType set to SL_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} sl: ${sl}.`);
 						} else if ((long && price <= liqPrice) || (!long && price >= liqPrice)) {
 							orderType = PENDING_ORDER_TYPE.LIQ_CLOSE;
-							appLogger.debug(`User ${user} index ${index} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
+							appLogger.info(`Trade ${openTradeKey} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
 						} else {
 							//appLogger.debug(`Open trade ${openTradeKey} is not ready for us to act on yet.`);
 						}
@@ -1405,6 +1405,7 @@ function watchPricingStream() {
 								(tradeType === '2' && (long ? price >= wantedPrice : price <= wantedPrice))
 							) {
 								orderType = tradeType === '1' ? PENDING_ORDER_TYPE.LIMIT_OPEN : PENDING_ORDER_TYPE.STOP_OPEN;
+								appLogger.info(`Trade ${openTradeKey} set orderType set to ${tradeType === '1' ? 'LIMIT_OPEN' : 'STOP_OPEN'} because long: ${long} & price: ${wantedPrice} reached.`);
 							} else {
 								//appLogger.debug(`Limit trade ${openTradeKey} is not ready for us to act on yet.`);
 							}
