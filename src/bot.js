@@ -1099,9 +1099,10 @@ async function synchronizeOpenTrades(event) {
 				appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
 			}
 		} else if (eventName === 'TriggerOrderCanceled') {
-			const { triggerCaller, index, orderType, cancelReason } = eventReturnValues; // this is a pending order Id
+			const { orderType, cancelReason } = eventReturnValues;// this is a pending order Id
+			const { user, index } = eventReturnValues.orderId;
 
-			const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(triggerCaller, index, orderType);
+			const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(user, index, orderType);
 
 			appLogger.warn(`Synchronize trigger tracking from event ${eventName}: Order canceled ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}`);
 
