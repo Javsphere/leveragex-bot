@@ -1,6 +1,6 @@
 {
 	"name": "leveragex-bot",
-	"version": "3.0.4",
+	"version": "3.0.5",
 	"description": "LeverageX Bot for Liquidations and Limit Orders",
 	"main": "bot.js",
 	"type": "module",
@@ -13,7 +13,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@datalust/winston-seq": "^2.0.0",
-		"@gainsnetwork/sdk": "0.2.21",
+		"@gainsnetwork/sdk": "0.2.23",
 		"@sentry/node": "^8.26.0",
 		"@sentry/profiling-node": "^8.26.0",
 		"axios": "^1.7.7",
