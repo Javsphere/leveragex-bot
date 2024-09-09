@@ -1353,7 +1353,7 @@ function watchPricingStream() {
 						) {
 							orderType = PENDING_ORDER_TYPE.TP_CLOSE;
 							if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
-								appLogger.info(`Trade ${openTradeKey} set orderType set to TP_CLOSE because long: ${long} & price: ${price} ${long ? '>=' : '<='} tp: ${tp}.`);
+								appLogger.debug(`Trade ${openTradeKey} set orderType set to TP_CLOSE because long: ${long} & price: ${price} ${long ? '>=' : '<='} tp: ${tp}.`);
 							}
 						} else if (
 							sl !== 0 &&
@@ -1362,12 +1362,12 @@ function watchPricingStream() {
 						) {
 							orderType = PENDING_ORDER_TYPE.SL_CLOSE;
 							if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
-								appLogger.info(`Trade ${openTradeKey} set orderType set to SL_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} sl: ${sl}.`);
+								appLogger.debug(`Trade ${openTradeKey} set orderType set to SL_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} sl: ${sl}.`);
 							}
 						} else if ((long && price <= liqPrice) || (!long && price >= liqPrice)) {
 							orderType = PENDING_ORDER_TYPE.LIQ_CLOSE;
 							if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
-								appLogger.info(`Trade ${openTradeKey} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
+								appLogger.debug(`Trade ${openTradeKey} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
 							}
 						} else {
 							//appLogger.debug(`Open trade ${openTradeKey} is not ready for us to act on yet.`);
@@ -1417,7 +1417,7 @@ function watchPricingStream() {
 							) {
 								orderType = tradeType === '1' ? PENDING_ORDER_TYPE.LIMIT_OPEN : PENDING_ORDER_TYPE.STOP_OPEN;
 								if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
-									appLogger.info(`Trade ${openTradeKey} set orderType set to ${tradeType === '1' ? 'LIMIT_OPEN' : 'STOP_OPEN'} because long: ${long} & price: ${wantedPrice} reached.`);
+									appLogger.debug(`Trade ${openTradeKey} set orderType set to ${tradeType === '1' ? 'LIMIT_OPEN' : 'STOP_OPEN'} because long: ${long} & price: ${wantedPrice} reached.`);
 								}
 							} else {
 								//appLogger.debug(`Limit trade ${openTradeKey} is not ready for us to act on yet.`);
