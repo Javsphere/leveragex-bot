@@ -79,18 +79,18 @@ Sentry.init({
 
 // Make errors JSON serializable
 Object.defineProperty(Error.prototype, 'toJSON', {
-  value: function () {
-    const tempError = {};
-    const errorProperties = Object.getOwnPropertyNames(this);
+	value: function() {
+		const tempError = {};
+		const errorProperties = Object.getOwnPropertyNames(this);
 
-    errorProperties.forEach(function (key) {
-      tempError[key] = this[key];
-    }, this);
+		errorProperties.forEach(function(key) {
+			tempError[key] = this[key];
+		}, this);
 
-    return JSON.stringify(tempError, errorProperties);
-  },
-  configurable: true,
-  writable: true,
+		return JSON.stringify(tempError, errorProperties);
+	},
+	configurable: true,
+	writable: true,
 });
 
 // Load base .env file first
@@ -98,17 +98,17 @@ dotenv.config();
 
 // If there's a specific NODE_ENV set, attempt to load that environment specific .env file
 if (process.env.NODE_ENV) {
-  const environmentSpecificFile = `.env.${process.env.NODE_ENV}`;
+	const environmentSpecificFile = `.env.${process.env.NODE_ENV}`;
 
-  dotenv.config({
-    path: environmentSpecificFile,
-    override: true,
-  });
+	dotenv.config({
+		path: environmentSpecificFile,
+		override: true,
+	});
 }
 
 const appLogger = createLogger('BOT', process.env.LOG_LEVEL);
 let executionStats = {
-  startTime: new Date(),
+	startTime: new Date(),
 };
 
 // -----------------------------------------
@@ -116,69 +116,69 @@ let executionStats = {
 // -----------------------------------------
 
 const {
-  MAX_FEE_PER_GAS_WEI_HEX,
-  MAX_GAS_PER_TRANSACTION_HEX,
-  EVENT_CONFIRMATIONS_MS,
-  FAILED_ORDER_TRIGGER_TIMEOUT_MS,
-  PRIORITY_GWEI_MULTIPLIER,
-  MIN_PRIORITY_GWEI,
-  OPEN_TRADES_REFRESH_MS,
-  GAS_REFRESH_INTERVAL_MS,
-  WEB3_STATUS_REPORT_INTERVAL_MS,
-  USE_MULTICALL,
-  MAX_RETRIES,
-  CHAIN_ID,
-  CHAIN,
-  NETWORK,
-  WEB3_PROVIDER_URLS,
-  DRY_RUN_MODE,
-  FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_MS,
-  COLLATERAL_PRICE_REFRESH_INTERVAL_MS,
+	MAX_FEE_PER_GAS_WEI_HEX,
+	MAX_GAS_PER_TRANSACTION_HEX,
+	EVENT_CONFIRMATIONS_MS,
+	FAILED_ORDER_TRIGGER_TIMEOUT_MS,
+	PRIORITY_GWEI_MULTIPLIER,
+	MIN_PRIORITY_GWEI,
+	OPEN_TRADES_REFRESH_MS,
+	GAS_REFRESH_INTERVAL_MS,
+	WEB3_STATUS_REPORT_INTERVAL_MS,
+	USE_MULTICALL,
+	MAX_RETRIES,
+	CHAIN_ID,
+	CHAIN,
+	NETWORK,
+	WEB3_PROVIDER_URLS,
+	DRY_RUN_MODE,
+	FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_MS,
+	COLLATERAL_PRICE_REFRESH_INTERVAL_MS,
 } = appConfig();
 
 const app = {
-  // web3
-  currentlySelectedWeb3ClientIndex: -1,
-  currentlySelectedWeb3Client: null,
-  web3Clients: [],
-  // contracts
-  collaterals: {},
-  diamond: null,
-  contracts: {
-    diamond: null,
+	// web3
+	currentlySelectedWeb3ClientIndex: -1,
+	currentlySelectedWeb3Client: null,
+	web3Clients: [],
+	// contracts
+	collaterals: {},
+	diamond: null,
+	contracts: {
+		diamond: null,
 		pythOrace: null,
 		javOracle: null,
-  },
+	},
 	signer: null,
 	evmProvider: null,
-  eventSub: null,
-  // params
-  spreadsP: [],
+	eventSub: null,
+	// params
+	spreadsP: [],
 	pairFactors: [],
 	groupLiquidationParams: [],
-  borrowingFeesContext: {}, // { collateralIndex: { groups: [], pairs: [] } }
-  oiWindows: {},
-  oiWindowsSettings: { startTs: 0, windowsDuration: 0, windowsCount: 0 },
-  blocks: {
-    web3ClientBlocks: new Array(WEB3_PROVIDER_URLS.length).fill(0),
-    latestL2Block: 0,
-  },
-  // storage/tracking
-  knownOpenTrades: null,
-  triggeredOrders: new Map(),
-  triggerRetries: new Map(),
-  allowedLink: false,
-  gas: {
-    priorityTransactionMaxPriorityFeePerGas: 50,
-    standardTransactionGasFees: { maxFee: 31, maxPriorityFee: 31 },
-    gasPriceBn: new Web3.utils.BN(0.1 * 1e9),
-  },
+	borrowingFeesContext: {}, // { collateralIndex: { groups: [], pairs: [] } }
+	oiWindows: {},
+	oiWindowsSettings: { startTs: 0, windowsDuration: 0, windowsCount: 0 },
+	blocks: {
+		web3ClientBlocks: new Array(WEB3_PROVIDER_URLS.length).fill(0),
+		latestL2Block: 0,
+	},
+	// storage/tracking
+	knownOpenTrades: null,
+	triggeredOrders: new Map(),
+	triggerRetries: new Map(),
+	allowedLink: false,
+	gas: {
+		priorityTransactionMaxPriorityFeePerGas: 50,
+		standardTransactionGasFees: { maxFee: 31, maxPriorityFee: 31 },
+		gasPriceBn: new Web3.utils.BN(0.1 * 1e9),
+	},
 };
 
 appLogger.info(`Welcome to the LeverageX bot! - ${packageFile.version}`);
 
 if (!NETWORK) {
-  throw new Error(`Invalid chain id: ${CHAIN_ID}`);
+	throw new Error(`Invalid chain id: ${CHAIN_ID}`);
 }
 
 // -----------------------------------------
@@ -186,42 +186,42 @@ if (!NETWORK) {
 // -----------------------------------------
 
 async function setCurrentWeb3Client(newWeb3ClientIndex) {
-  appLogger.info('Switching web3 client to ' + WEB3_PROVIDER_URLS[newWeb3ClientIndex] + ' (#' + newWeb3ClientIndex + ')...');
+	appLogger.info('Switching web3 client to ' + WEB3_PROVIDER_URLS[newWeb3ClientIndex] + ' (#' + newWeb3ClientIndex + ')...');
 
-  const executionStartTime = performance.now();
-  const newWeb3Client = app.web3Clients[newWeb3ClientIndex];
+	const executionStartTime = performance.now();
+	const newWeb3Client = app.web3Clients[newWeb3ClientIndex];
 
-  if (!NETWORK.diamondAddress || NETWORK.diamondAddress?.length < 42) {
-    throw Error('Missing `diamondAddress` network configuration.');
-  }
+	if (!NETWORK.diamondAddress || NETWORK.diamondAddress?.length < 42) {
+		throw Error('Missing `diamondAddress` network configuration.');
+	}
 
-  // update selected index here to prevent race conditions on arbitrum
-  const wasFirstClientSelection = app.currentlySelectedWeb3Client === null;
-  app.currentlySelectedWeb3ClientIndex = newWeb3ClientIndex;
+	// update selected index here to prevent race conditions on arbitrum
+	const wasFirstClientSelection = app.currentlySelectedWeb3Client === null;
+	app.currentlySelectedWeb3ClientIndex = newWeb3ClientIndex;
 
-  // setup contracts + collateral configs
-  await initContracts(newWeb3Client, app, NETWORK);
+	// setup contracts + collateral configs
+	await initContracts(newWeb3Client, app, NETWORK);
 
-  // Update the globally selected provider with this new provider
-  app.currentlySelectedWeb3Client = newWeb3Client;
+	// Update the globally selected provider with this new provider
+	app.currentlySelectedWeb3Client = newWeb3Client;
 
-  // Subscribe to events using the new provider
-  watchLiveTradingEvents();
+	// Subscribe to events using the new provider
+	watchLiveTradingEvents();
 
 	let startFetchingLatestGasPricesPromise = null;
 
 	// If no client was previously selected, start fetching gas prices
-  if (wasFirstClientSelection) {
-    startFetchingLatestGasPricesPromise = startFetchingLatestGasPrices();
-  }
+	if (wasFirstClientSelection) {
+		startFetchingLatestGasPricesPromise = startFetchingLatestGasPrices();
+	}
 
-  await Promise.all([nonceManager.initialize(), startFetchingLatestGasPricesPromise]);
+	await Promise.all([nonceManager.initialize(), startFetchingLatestGasPricesPromise]);
 
-  // Fire and forget refreshing of data using new provider
-  fetchTradingVariables();
-  fetchOpenTrades();
+	// Fire and forget refreshing of data using new provider
+	fetchTradingVariables();
+	fetchOpenTrades();
 
-  appLogger.info('New web3 client selection completed. Took: ' + (performance.now() - executionStartTime) + 'ms');
+	appLogger.info('New web3 client selection completed. Took: ' + (performance.now() - executionStartTime) + 'ms');
 }
 
 async function fetchPythPrices(ids) {
@@ -240,197 +240,197 @@ async function fetchPythPrices(ids) {
 }
 
 function createWeb3Provider(providerUrl) {
-  const provider = new Web3.providers.WebsocketProvider(providerUrl, {
-    clientConfig: {
-      keepalive: true,
-      keepaliveInterval: 30 * 1000,
-    },
-    reconnect: {
-      auto: true,
-      delay: 1000,
-      onTimeout: true,
-    },
-  });
+	const provider = new Web3.providers.WebsocketProvider(providerUrl, {
+		clientConfig: {
+			keepalive: true,
+			keepaliveInterval: 30 * 1000,
+		},
+		reconnect: {
+			auto: true,
+			delay: 1000,
+			onTimeout: true,
+		},
+	});
 
-  provider.on('connect', () => {
-    if (provider.connected) {
-      appLogger.info(`Connected to provider ${providerUrl}`);
-    }
-  });
+	provider.on('connect', () => {
+		if (provider.connected) {
+			appLogger.info(`Connected to provider ${providerUrl}`);
+		}
+	});
 
-  provider.on('reconnect', () => {
-    appLogger.info(`Provider ${providerUrl} is reconnecting...`);
-  });
+	provider.on('reconnect', () => {
+		appLogger.info(`Provider ${providerUrl} is reconnecting...`);
+	});
 
-  provider.on('error', (error) => {
-    appLogger.info(`Provider error: ${providerUrl}`, error);
-  });
+	provider.on('error', (error) => {
+		appLogger.info(`Provider error: ${providerUrl}`, error);
+	});
 
-  return provider;
+	return provider;
 }
 
 function createWeb3Client(providerIndex, providerUrl) {
-  const provider = createWeb3Provider(providerUrl);
-  const web3Client = new Web3(provider);
-  web3Client.eth.handleRevert = true;
-  web3Client.eth.defaultAccount = process.env.PUBLIC_KEY;
-  web3Client.eth.defaultChain = CHAIN;
+	const provider = createWeb3Provider(providerUrl);
+	const web3Client = new Web3(provider);
+	web3Client.eth.handleRevert = true;
+	web3Client.eth.defaultAccount = process.env.PUBLIC_KEY;
+	web3Client.eth.defaultChain = CHAIN;
 
-  web3Client.eth.subscribe('newBlockHeaders').on('data', async (header) => {
-    const newBlockNumber = header.number;
+	web3Client.eth.subscribe('newBlockHeaders').on('data', async (header) => {
+		const newBlockNumber = header.number;
 
-    if (newBlockNumber === null) {
-      appLogger.debug(`Received unfinished block from provider ${providerUrl}; ignoring...`);
+		if (newBlockNumber === null) {
+			appLogger.debug(`Received unfinished block from provider ${providerUrl}; ignoring...`);
 
-      return;
-    }
+			return;
+		}
 
-    if (newBlockNumber > app.blocks.latestL2Block) {
-      app.blocks.latestL2Block = newBlockNumber;
-    }
+		if (newBlockNumber > app.blocks.latestL2Block) {
+			app.blocks.latestL2Block = newBlockNumber;
+		}
 
-    app.blocks.web3ClientBlocks[providerIndex] = newBlockNumber;
+		app.blocks.web3ClientBlocks[providerIndex] = newBlockNumber;
 
-    appLogger.debug(`New block received ${newBlockNumber} from provider ${providerUrl}...`);
+		appLogger.debug(`New block received ${newBlockNumber} from provider ${providerUrl}...`);
 
-    if (app.currentlySelectedWeb3ClientIndex === providerIndex) {
-      return;
-    }
+		if (app.currentlySelectedWeb3ClientIndex === providerIndex) {
+			return;
+		}
 
-    const blockDiff =
-      app.currentlySelectedWeb3ClientIndex === -1
-        ? newBlockNumber
-        : newBlockNumber - app.blocks.web3ClientBlocks[app.currentlySelectedWeb3ClientIndex];
+		const blockDiff =
+			app.currentlySelectedWeb3ClientIndex === -1
+				? newBlockNumber
+				: newBlockNumber - app.blocks.web3ClientBlocks[app.currentlySelectedWeb3ClientIndex];
 
-    // Check if this block is more recent than the currently selected provider's block by the max drift
-    // and, if so, switch now
-    if (blockDiff > MAX_PROVIDER_BLOCK_DRIFT) {
-      appLogger.info(
-        `Switching to provider ${providerUrl} #${providerIndex} because it is ${blockDiff} block(s) ahead of current provider (${newBlockNumber} vs ${
-          app.blocks.web3ClientBlocks[app.currentlySelectedWeb3ClientIndex]
-        })`
-      );
+		// Check if this block is more recent than the currently selected provider's block by the max drift
+		// and, if so, switch now
+		if (blockDiff > MAX_PROVIDER_BLOCK_DRIFT) {
+			appLogger.info(
+				`Switching to provider ${providerUrl} #${providerIndex} because it is ${blockDiff} block(s) ahead of current provider (${newBlockNumber} vs ${
+					app.blocks.web3ClientBlocks[app.currentlySelectedWeb3ClientIndex]
+				})`,
+			);
 
-      setCurrentWeb3Client(providerIndex);
-    }
-  });
+			setCurrentWeb3Client(providerIndex);
+		}
+	});
 
-  return web3Client;
+	return web3Client;
 }
 
 const nonceManager = new NonceManager(
-  process.env.PUBLIC_KEY,
-  () => app.currentlySelectedWeb3Client,
-  createLogger('NONCE_MANAGER', process.env.LOG_LEVEL)
+	process.env.PUBLIC_KEY,
+	() => app.currentlySelectedWeb3Client,
+	createLogger('NONCE_MANAGER', process.env.LOG_LEVEL),
 );
 
 for (let web3ProviderUrlIndex = 0; web3ProviderUrlIndex < WEB3_PROVIDER_URLS.length; web3ProviderUrlIndex++) {
-  app.web3Clients.push(createWeb3Client(web3ProviderUrlIndex, WEB3_PROVIDER_URLS[web3ProviderUrlIndex]));
+	app.web3Clients.push(createWeb3Client(web3ProviderUrlIndex, WEB3_PROVIDER_URLS[web3ProviderUrlIndex]));
 }
 
 let MAX_PROVIDER_BLOCK_DRIFT =
-  (process.env.MAX_PROVIDER_BLOCK_DRIFT ?? '').length > 0 ? parseInt(process.env.MAX_PROVIDER_BLOCK_DRIFT, 10) : 2;
+	(process.env.MAX_PROVIDER_BLOCK_DRIFT ?? '').length > 0 ? parseInt(process.env.MAX_PROVIDER_BLOCK_DRIFT, 10) : 2;
 
 if (MAX_PROVIDER_BLOCK_DRIFT < 1) {
-  appLogger.warn(`MAX_PROVIDER_BLOCK_DRIFT is set to ${MAX_PROVIDER_BLOCK_DRIFT}; setting to minimum of 1.`);
+	appLogger.warn(`MAX_PROVIDER_BLOCK_DRIFT is set to ${MAX_PROVIDER_BLOCK_DRIFT}; setting to minimum of 1.`);
 
-  MAX_PROVIDER_BLOCK_DRIFT = 1;
+	MAX_PROVIDER_BLOCK_DRIFT = 1;
 }
 
 setInterval(() => {
-  if (app.currentlySelectedWeb3ClientIndex === -1) {
-    appLogger.warn('No Web3 client has been selected yet!');
-  } else {
-    appLogger.info(
-      `Current Web3 Client: ${app.currentlySelectedWeb3Client?.currentProvider?.url} (#${app.currentlySelectedWeb3ClientIndex})`
-    );
-  }
+	if (app.currentlySelectedWeb3ClientIndex === -1) {
+		appLogger.warn('No Web3 client has been selected yet!');
+	} else {
+		appLogger.info(
+			`Current Web3 Client: ${app.currentlySelectedWeb3Client?.currentProvider?.url} (#${app.currentlySelectedWeb3ClientIndex})`,
+		);
+	}
 
-  executionStats = {
-    ...executionStats,
-    lastNonce: nonceManager.getLastNonce(),
-    uptime: DateTime.now()
-      .diff(DateTime.fromJSDate(executionStats.startTime), ['days', 'hours', 'minutes', 'seconds'])
-      .toFormat("d'd'h'h'm'm's's'"),
-  };
+	executionStats = {
+		...executionStats,
+		lastNonce: nonceManager.getLastNonce(),
+		uptime: DateTime.now()
+			.diff(DateTime.fromJSDate(executionStats.startTime), ['days', 'hours', 'minutes', 'seconds'])
+			.toFormat('d\'d\'h\'h\'m\'m\'s\'s\''),
+	};
 
 	appLogger.info(`Execution Stats: ${JSON.stringify(executionStats)}`);
 }, WEB3_STATUS_REPORT_INTERVAL_MS);
 
 setInterval(async () => {
-  if (app.currentlySelectedWeb3ClientIndex === -1) {
-    appLogger.warn('No Web3 client has been selected yet, will not refresh collateral prices!');
-  } else {
-    await Promise.all(
-      Object.keys(app.collaterals).map(async (collateralIndex) => {
-        const stack = app.collaterals[collateralIndex];
-        const price = ((await app.contracts.diamond.methods.getCollateralPriceUsd(collateralIndex).call()) + '') / 1e8;
+	if (app.currentlySelectedWeb3ClientIndex === -1) {
+		appLogger.warn('No Web3 client has been selected yet, will not refresh collateral prices!');
+	} else {
+		await Promise.all(
+			Object.keys(app.collaterals).map(async (collateralIndex) => {
+				const stack = app.collaterals[collateralIndex];
+				const price = ((await app.contracts.diamond.methods.getCollateralPriceUsd(collateralIndex).call()) + '') / 1e8;
 
-        if (isNaN(price)) {
-          appLogger.error(`[${stack.symbol}] Collateral Price update returned invalid value`, price);
-        } else {
-          stack.price = price;
-          appLogger.debug(`[${stack.symbol}] Price updated to ${price}, ${app.collaterals[collateralIndex].price}`);
-        }
-      })
-    );
-    appLogger.debug(`Collateral Prices updated!`);
-  }
+				if (isNaN(price)) {
+					appLogger.error(`[${stack.symbol}] Collateral Price update returned invalid value`, price);
+				} else {
+					stack.price = price;
+					appLogger.debug(`[${stack.symbol}] Price updated to ${price}, ${app.collaterals[collateralIndex].price}`);
+				}
+			}),
+		);
+		appLogger.debug(`Collateral Prices updated!`);
+	}
 }, COLLATERAL_PRICE_REFRESH_INTERVAL_MS);
 // -----------------------------------------
 // FETCH DYNAMIC GAS PRICE
 // -----------------------------------------
 
 async function startFetchingLatestGasPrices() {
-  // Wait for the first to complete
-  await doNextLatestGasPricesFetch();
+	// Wait for the first to complete
+	await doNextLatestGasPricesFetch();
 
-  async function doNextLatestGasPricesFetch() {
-    try {
-      await fetchLatestGasPrices();
-    } finally {
-      // No matter what, schedule the next fetch
-      setTimeout(async () => {
-        doNextLatestGasPricesFetch().catch((error) => {
-          appLogger.error(`An error occurred attempting to fetch latest gas prices; will be tried again in ${GAS_REFRESH_INTERVAL_MS}.`, {
-            error,
-          });
-        });
-      }, GAS_REFRESH_INTERVAL_MS);
-    }
-  }
+	async function doNextLatestGasPricesFetch() {
+		try {
+			await fetchLatestGasPrices();
+		} finally {
+			// No matter what, schedule the next fetch
+			setTimeout(async () => {
+				doNextLatestGasPricesFetch().catch((error) => {
+					appLogger.error(`An error occurred attempting to fetch latest gas prices; will be tried again in ${GAS_REFRESH_INTERVAL_MS}.`, {
+						error,
+					});
+				});
+			}, GAS_REFRESH_INTERVAL_MS);
+		}
+	}
 
-  async function fetchLatestGasPrices() {
-    appLogger.verbose('Fetching latest gas prices...');
+	async function fetchLatestGasPrices() {
+		appLogger.verbose('Fetching latest gas prices...');
 
-    if (NETWORK.gasStationUrl) {
-      try {
-        const response = await fetch(NETWORK.gasStationUrl);
-        const gasPriceData = await response.json();
+		if (NETWORK.gasStationUrl) {
+			try {
+				const response = await fetch(NETWORK.gasStationUrl);
+				const gasPriceData = await response.json();
 
-        if (NETWORK.gasMode === GAS_MODE.EIP1559) {
-          app.standardTransactionGasFees = {
-            maxFee: Math.round(gasPriceData.standard.maxFee),
-            maxPriorityFee: Math.round(gasPriceData.standard.maxPriorityFee),
-          };
+				if (NETWORK.gasMode === GAS_MODE.EIP1559) {
+					app.standardTransactionGasFees = {
+						maxFee: Math.round(gasPriceData.standard.maxFee),
+						maxPriorityFee: Math.round(gasPriceData.standard.maxPriorityFee),
+					};
 
-          app.gas.priorityTransactionMaxPriorityFeePerGas = Math.round(
-            Math.max(Math.round(gasPriceData.fast.maxPriorityFee) * PRIORITY_GWEI_MULTIPLIER, MIN_PRIORITY_GWEI)
-          );
-        } else {
-          // TODO: Add support for legacy gas stations here
-        }
-      } catch (error) {
-        appLogger.error('Error while fetching gas prices from gas station!', error);
-      }
-    } else {
-      if (NETWORK.gasMode === GAS_MODE.EIP1559) {
-        // TODO: Add support for EIP1159 provider fetching here
-      } else if (NETWORK.gasMode === GAS_MODE.LEGACY) {
-        app.gas.gasPriceBn = new BN(await app.currentlySelectedWeb3Client.eth.getGasPrice());
-      }
-    }
-  }
+					app.gas.priorityTransactionMaxPriorityFeePerGas = Math.round(
+						Math.max(Math.round(gasPriceData.fast.maxPriorityFee) * PRIORITY_GWEI_MULTIPLIER, MIN_PRIORITY_GWEI),
+					);
+				} else {
+					// TODO: Add support for legacy gas stations here
+				}
+			} catch (error) {
+				appLogger.error('Error while fetching gas prices from gas station!', error);
+			}
+		} else {
+			if (NETWORK.gasMode === GAS_MODE.EIP1559) {
+				// TODO: Add support for EIP1159 provider fetching here
+			} else if (NETWORK.gasMode === GAS_MODE.LEGACY) {
+				app.gas.gasPriceBn = new BN(await app.currentlySelectedWeb3Client.eth.getGasPrice());
+			}
+		}
+	}
 }
 
 // -----------------------------------------
@@ -441,76 +441,76 @@ let fetchTradingVariablesTimerId = null;
 let currentTradingVariablesFetchPromise = null;
 
 async function fetchTradingVariables() {
-  appLogger.info('Fetching trading variables...');
+	appLogger.info('Fetching trading variables...');
 
-  if (fetchTradingVariablesTimerId !== null) {
-    appLogger.debug(`Canceling existing fetchTradingVariables timer id.`);
+	if (fetchTradingVariablesTimerId !== null) {
+		appLogger.debug(`Canceling existing fetchTradingVariables timer id.`);
 
-    clearTimeout(fetchTradingVariablesTimerId);
-    fetchTradingVariablesTimerId = null;
-  }
+		clearTimeout(fetchTradingVariablesTimerId);
+		fetchTradingVariablesTimerId = null;
+	}
 
-  const executionStart = performance.now();
+	const executionStart = performance.now();
 
-  const pairsCount = await app.contracts.diamond.methods.pairsCount().call();
+	const pairsCount = await app.contracts.diamond.methods.pairsCount().call();
 
-  if (currentTradingVariablesFetchPromise !== null) {
-    appLogger.warn(`A current fetchTradingVariables call was already in progress, just awaiting that...`);
+	if (currentTradingVariablesFetchPromise !== null) {
+		appLogger.warn(`A current fetchTradingVariables call was already in progress, just awaiting that...`);
 
-    return await currentTradingVariablesFetchPromise;
-  }
+		return await currentTradingVariablesFetchPromise;
+	}
 
-  try {
-    currentTradingVariablesFetchPromise = Promise.all([fetchPairs(pairsCount), fetchBorrowingFees(), fetchOiWindows(pairsCount)]);
+	try {
+		currentTradingVariablesFetchPromise = Promise.all([fetchPairs(pairsCount), fetchBorrowingFees(), fetchOiWindows(pairsCount)]);
 
-    await currentTradingVariablesFetchPromise;
-    appLogger.info(`Done fetching trading variables; took ${performance.now() - executionStart}ms.`);
+		await currentTradingVariablesFetchPromise;
+		appLogger.info(`Done fetching trading variables; took ${performance.now() - executionStart}ms.`);
 
-    if (FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_MS > 0) {
-      fetchTradingVariablesTimerId = setTimeout(() => {
-        fetchTradingVariablesTimerId = null;
-        fetchTradingVariables();
-      }, FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_MS);
-    }
-  } catch (error) {
-    appLogger.error('Error while fetching trading variables!', { error });
+		if (FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_MS > 0) {
+			fetchTradingVariablesTimerId = setTimeout(() => {
+				fetchTradingVariablesTimerId = null;
+				fetchTradingVariables();
+			}, FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_MS);
+		}
+	} catch (error) {
+		appLogger.error('Error while fetching trading variables!', { error });
 
-    fetchTradingVariablesTimerId = setTimeout(() => {
-      fetchTradingVariablesTimerId = null;
-      fetchTradingVariables();
-    }, 2 * 1000);
-  } finally {
-    currentTradingVariablesFetchPromise = null;
-  }
+		fetchTradingVariablesTimerId = setTimeout(() => {
+			fetchTradingVariablesTimerId = null;
+			fetchTradingVariables();
+		}, 2 * 1000);
+	} finally {
+		currentTradingVariablesFetchPromise = null;
+	}
 
-  async function fetchPairs(pairsCount) {
+	async function fetchPairs(pairsCount) {
 		const [depths, pairFactors, maxLeverage, pairs, feesCount, groupsCount] = await Promise.all([
-      app.contracts.diamond.methods.getPairDepths([...Array(parseInt(pairsCount)).keys()]).call(),
+			app.contracts.diamond.methods.getPairDepths([...Array(parseInt(pairsCount)).keys()]).call(),
 			app.contracts.diamond.methods.getPairFactors([...Array(parseInt(pairsCount)).keys()]).call(),
-      app.contracts.diamond.methods.getAllPairsRestrictedMaxLeverage().call(),
-      Promise.all(
-        [...Array(parseInt(pairsCount)).keys()].map(async (_, pairIndex) => app.contracts.diamond.methods.pairs(pairIndex).call())
-      ),
+			app.contracts.diamond.methods.getAllPairsRestrictedMaxLeverage().call(),
+			Promise.all(
+				[...Array(parseInt(pairsCount)).keys()].map(async (_, pairIndex) => app.contracts.diamond.methods.pairs(pairIndex).call()),
+			),
 			app.contracts.diamond.methods.feesCount().call(),
 			app.contracts.diamond.methods.groupsCount().call(),
-    ]);
+		]);
 
-    app.pairMaxLeverage = new Map(maxLeverage.map((l, idx) => [idx, parseInt(l)]));
-    app.pairDepths = depths.map((value) => ({
-      onePercentDepthAboveUsd: parseFloat(value.onePercentDepthAboveUsd),
-      onePercentDepthBelowUsd: parseFloat(value.onePercentDepthBelowUsd),
-    }));
+		app.pairMaxLeverage = new Map(maxLeverage.map((l, idx) => [idx, parseInt(l)]));
+		app.pairDepths = depths.map((value) => ({
+			onePercentDepthAboveUsd: parseFloat(value.onePercentDepthAboveUsd),
+			onePercentDepthBelowUsd: parseFloat(value.onePercentDepthBelowUsd),
+		}));
 
 		app.pairs = pairs.map(({ from, to, spreadP, groupIndex, feeIndex, feedId }) => ({
-      from,
-      to,
-      spreadP: spreadP,
-      groupIndex: groupIndex,
-      feeIndex: feeIndex,
+			from,
+			to,
+			spreadP: spreadP,
+			groupIndex: groupIndex,
+			feeIndex: feeIndex,
 			feedId: feedId,
-    }));
+		}));
 
-    app.spreadsP = pairs.map((p) => p.spreadP);
+		app.spreadsP = pairs.map((p) => p.spreadP);
 
 		app.fees = (
 			await Promise.all([...Array(parseInt(feesCount)).keys()].map((_, feeIndex) => app.contracts.diamond.methods.fees(feeIndex).call()))
@@ -530,96 +530,101 @@ async function fetchTradingVariables() {
 				),
 			)
 		).map((liquidationParams) => convertLiquidationParams(liquidationParams));
-  }
+	}
 
-  async function fetchBorrowingFees() {
-    await Promise.all(
-      Object.keys(app.collaterals).map(async (collateralIndex) => {
-        const allBorrowingPairs = await app.contracts.diamond.methods.getAllBorrowingPairs(collateralIndex).call();
+	async function fetchBorrowingFees() {
+		await Promise.all(
+			Object.keys(app.collaterals).map(async (collateralIndex) => {
+				const allBorrowingPairs = await app.contracts.diamond.methods.getAllBorrowingPairs(collateralIndex).call();
 
-        const [pairsBorrowingData, rawPairsOpenInterest, pairsBorrowingPairGroup] = [
-          allBorrowingPairs[0],
-          allBorrowingPairs[1],
-          allBorrowingPairs[2],
-        ];
+				const [pairsBorrowingData, rawPairsOpenInterest, pairsBorrowingPairGroup] = [
+					allBorrowingPairs[0],
+					allBorrowingPairs[1],
+					allBorrowingPairs[2],
+				];
 
-        const pairsOpenInterests = rawPairsOpenInterest.map((oi) => transformOi(oi));
+				const pairsOpenInterests = rawPairsOpenInterest.map((oi) => transformOi(oi));
 
-        const borrowingFeesGroupIds = [
-          ...new Set(pairsBorrowingPairGroup.map((value) => value.map((value) => value.groupIndex)).flat()),
-        ].sort((a, b) => a - b);
+				const borrowingFeesGroupIds = [
+					...new Set(pairsBorrowingPairGroup.map((value) => value.map((value) => value.groupIndex)).flat()),
+				].sort((a, b) => a - b);
 
-        const borrowingFeeGroupResults =
-          borrowingFeesGroupIds.length > 0
-            ? await app.contracts.diamond.methods
-                .getBorrowingGroups(collateralIndex, Array.from(Array(+borrowingFeesGroupIds[borrowingFeesGroupIds.length - 1] + 1).keys()))
-                .call()
-            : [[], []];
+				const borrowingFeeGroupResults =
+					borrowingFeesGroupIds.length > 0
+						? await app.contracts.diamond.methods
+							.getBorrowingGroups(collateralIndex, Array.from(Array(+borrowingFeesGroupIds[borrowingFeesGroupIds.length - 1] + 1).keys()))
+							.call()
+						: [[], []];
 
-        const groupsBorrowingData = borrowingFeeGroupResults[0];
-        const groupsOpenInterest = borrowingFeeGroupResults[1].map((oi) => transformOi(oi));
+				const groupsBorrowingData = borrowingFeeGroupResults[0];
+				const groupsOpenInterest = borrowingFeeGroupResults[1].map((oi) => transformOi(oi));
 
-        app.borrowingFeesContext[collateralIndex].pairs = pairsBorrowingData.map(
-          ({ feePerBlock, accFeeLong, accFeeShort, accLastUpdatedBlock, feeExponent }, idx) => ({
-            oi: pairsOpenInterests[idx],
-            feePerBlock: transformFrom1e10(feePerBlock),
-            accFeeLong: transformFrom1e10(accFeeLong),
-            accFeeShort: transformFrom1e10(accFeeShort),
-            accLastUpdatedBlock: parseInt(accLastUpdatedBlock),
-            feeExponent: parseInt(feeExponent),
-            groups: pairsBorrowingPairGroup[idx].map((group) => ({
-              groupIndex: parseInt(group.groupIndex),
-              block: parseInt(group.block),
-              initialAccFeeLong: transformFrom1e10(group.initialAccFeeLong),
-              initialAccFeeShort: transformFrom1e10(group.initialAccFeeShort),
-              prevGroupAccFeeLong: transformFrom1e10(group.prevGroupAccFeeLong),
-              prevGroupAccFeeShort: transformFrom1e10(group.prevGroupAccFeeShort),
-              pairAccFeeLong: transformFrom1e10(group.pairAccFeeLong),
-              pairAccFeeShort: transformFrom1e10(group.pairAccFeeShort),
-            })),
-          })
-        );
+				app.borrowingFeesContext[collateralIndex].pairs = pairsBorrowingData.map(
+					({ feePerBlock, accFeeLong, accFeeShort, accLastUpdatedBlock, feeExponent }, idx) => ({
+						oi: pairsOpenInterests[idx],
+						feePerBlock: transformFrom1e10(feePerBlock),
+						accFeeLong: transformFrom1e10(accFeeLong),
+						accFeeShort: transformFrom1e10(accFeeShort),
+						accLastUpdatedBlock: parseInt(accLastUpdatedBlock),
+						feeExponent: parseInt(feeExponent),
+						groups: pairsBorrowingPairGroup[idx].map((group) => ({
+							groupIndex: parseInt(group.groupIndex),
+							block: parseInt(group.block),
+							initialAccFeeLong: transformFrom1e10(group.initialAccFeeLong),
+							initialAccFeeShort: transformFrom1e10(group.initialAccFeeShort),
+							prevGroupAccFeeLong: transformFrom1e10(group.prevGroupAccFeeLong),
+							prevGroupAccFeeShort: transformFrom1e10(group.prevGroupAccFeeShort),
+							pairAccFeeLong: transformFrom1e10(group.pairAccFeeLong),
+							pairAccFeeShort: transformFrom1e10(group.pairAccFeeShort),
+						})),
+					}),
+				);
 
-        app.borrowingFeesContext[collateralIndex].groups = groupsBorrowingData.map(
-          ({ feePerBlock, accFeeLong, accFeeShort, accLastUpdatedBlock, feeExponent }, idx) => ({
-            oi: groupsOpenInterest[idx],
-            feePerBlock: transformFrom1e10(feePerBlock),
-            accFeeLong: transformFrom1e10(accFeeLong),
-            accFeeShort: transformFrom1e10(accFeeShort),
-            accLastUpdatedBlock: parseInt(accLastUpdatedBlock),
-            feeExponent: parseInt(feeExponent),
-          })
-        );
-      })
-    );
-  }
-  async function fetchOiWindows(pairLength) {
-    const { startTs, windowsDuration, windowsCount } = await app.contracts.diamond.methods.getOiWindowsSettings().call();
+				app.borrowingFeesContext[collateralIndex].groups = groupsBorrowingData.map(
+					({ feePerBlock, accFeeLong, accFeeShort, accLastUpdatedBlock, feeExponent }, idx) => ({
+						oi: groupsOpenInterest[idx],
+						feePerBlock: transformFrom1e10(feePerBlock),
+						accFeeLong: transformFrom1e10(accFeeLong),
+						accFeeShort: transformFrom1e10(accFeeShort),
+						accLastUpdatedBlock: parseInt(accLastUpdatedBlock),
+						feeExponent: parseInt(feeExponent),
+					}),
+				);
+			}),
+		);
+	}
 
-    app.oiWindowsSettings = {
-      startTs: parseFloat(startTs),
-      windowsDuration: parseFloat(windowsDuration),
-      windowsCount: parseFloat(windowsCount),
-    };
+	async function fetchOiWindows(pairLength) {
+		const {
+			startTs,
+			windowsDuration,
+			windowsCount,
+		} = await app.contracts.diamond.methods.getOiWindowsSettings().call();
 
-    const currWindowId = getCurrentOiWindowId(app.oiWindowsSettings);
+		app.oiWindowsSettings = {
+			startTs: parseFloat(startTs),
+			windowsDuration: parseFloat(windowsDuration),
+			windowsCount: parseFloat(windowsCount),
+		};
 
-    // Always fetch max window count
-    const windowsToCheck = [...Array(5).keys()].map((i) => currWindowId - i).filter((v) => v > -1);
+		const currWindowId = getCurrentOiWindowId(app.oiWindowsSettings);
 
-    const oiWindowsTemp = (
-      await Promise.all(
-        [...Array(parseInt(pairLength)).keys()].map((_, pairIndex) =>
-          app.contracts.diamond.methods
-            .getOiWindows(app.oiWindowsSettings.windowsDuration, pairIndex, windowsToCheck)
-            .call()
-            .then((r) => r.map((w) => ({ oiLongUsd: w.oiLongUsd, oiShortUsd: w.oiShortUsd })))
-        )
-      )
-    ).map((pairWindows) => pairWindows.reduce((acc, curr, i) => ({ ...acc, [windowsToCheck[i]]: curr }), {}));
+		// Always fetch max window count
+		const windowsToCheck = [...Array(5).keys()].map((i) => currWindowId - i).filter((v) => v > -1);
 
-    app.oiWindows = convertOiWindows(oiWindowsTemp);
-  }
+		const oiWindowsTemp = (
+			await Promise.all(
+				[...Array(parseInt(pairLength)).keys()].map((_, pairIndex) =>
+					app.contracts.diamond.methods
+						.getOiWindows(app.oiWindowsSettings.windowsDuration, pairIndex, windowsToCheck)
+						.call()
+						.then((r) => r.map((w) => ({ oiLongUsd: w.oiLongUsd, oiShortUsd: w.oiShortUsd }))),
+				),
+			)
+		).map((pairWindows) => pairWindows.reduce((acc, curr, i) => ({ ...acc, [windowsToCheck[i]]: curr }), {}));
+
+		app.oiWindows = convertOiWindows(oiWindowsTemp);
+	}
 }
 
 // -----------------------------------------
@@ -627,80 +632,80 @@ async function fetchTradingVariables() {
 // -----------------------------------------
 
 function buildTriggerIdentifier(user, index, limitType) {
-  return `trigger://${user}/${index}[lt=${limitType}]`;
+	return `trigger://${user}/${index}[lt=${limitType}]`;
 }
 
 let fetchOpenTradesRetryTimerId = null;
 
 async function fetchOpenTrades() {
-  appLogger.info('Fetching open trades...');
-  try {
-    if (app.spreadsP.length === 0) {
-      appLogger.warn('Spreads are not yet loaded; will retry shortly!');
+	appLogger.info('Fetching open trades...');
+	try {
+		if (app.spreadsP.length === 0) {
+			appLogger.warn('Spreads are not yet loaded; will retry shortly!');
 
-      scheduleRetryFetchOpenTrades();
+			scheduleRetryFetchOpenTrades();
 
-      return;
-    }
+			return;
+		}
 
-    const start = performance.now();
+		const start = performance.now();
 
-    const trades = await fetchOpenPairTrades();
-    app.knownOpenTrades = new Map(trades.map((trade) => [buildTradeIdentifier(trade.user, trade.index), trade]));
+		const trades = await fetchOpenPairTrades();
+		app.knownOpenTrades = new Map(trades.map((trade) => [buildTradeIdentifier(trade.user, trade.index), trade]));
 
-    appLogger.info(`Fetched ${app.knownOpenTrades.size} total open trade(s) in ${performance.now() - start}ms.`);
+		appLogger.info(`Fetched ${app.knownOpenTrades.size} total open trade(s) in ${performance.now() - start}ms.`);
 
-    // Check if we're supposed to auto-refresh open trades and if so, schedule the next refresh
-    if (OPEN_TRADES_REFRESH_MS !== 0) {
-      appLogger.debug(`Scheduling auto-refresh of open trades in for ${OPEN_TRADES_REFRESH_MS}ms from now.`);
+		// Check if we're supposed to auto-refresh open trades and if so, schedule the next refresh
+		if (OPEN_TRADES_REFRESH_MS !== 0) {
+			appLogger.debug(`Scheduling auto-refresh of open trades in for ${OPEN_TRADES_REFRESH_MS}ms from now.`);
 
-      setTimeout(() => fetchOpenTrades(), OPEN_TRADES_REFRESH_MS);
-    } else {
-      appLogger.info(
-        `Auto-refresh of open trades is disabled (OPEN_TRADES_REFRESH=0); will only synchronize based on blockchain events from here out!`
-      );
-    }
-  } catch (error) {
-    appLogger.error('Error fetching open trades!', error);
+			setTimeout(() => fetchOpenTrades(), OPEN_TRADES_REFRESH_MS);
+		} else {
+			appLogger.info(
+				`Auto-refresh of open trades is disabled (OPEN_TRADES_REFRESH=0); will only synchronize based on blockchain events from here out!`,
+			);
+		}
+	} catch (error) {
+		appLogger.error('Error fetching open trades!', error);
 
-    scheduleRetryFetchOpenTrades();
-  }
+		scheduleRetryFetchOpenTrades();
+	}
 
-  function scheduleRetryFetchOpenTrades() {
-    if (fetchOpenTradesRetryTimerId !== null) {
-      appLogger.debug('Already scheduled retry fetching open trades; will retry shortly!');
+	function scheduleRetryFetchOpenTrades() {
+		if (fetchOpenTradesRetryTimerId !== null) {
+			appLogger.debug('Already scheduled retry fetching open trades; will retry shortly!');
 
-      return;
-    }
+			return;
+		}
 
-    fetchOpenTradesRetryTimerId = setTimeout(() => {
-      fetchOpenTradesRetryTimerId = null;
-      fetchOpenTrades();
-    }, 2 * 1000);
-  }
+		fetchOpenTradesRetryTimerId = setTimeout(() => {
+			fetchOpenTradesRetryTimerId = null;
+			fetchOpenTrades();
+		}, 2 * 1000);
+	}
 
-  async function fetchOpenPairTrades() {
-    appLogger.info('Fetching open pair trades...');
+	async function fetchOpenPairTrades() {
+		appLogger.info('Fetching open pair trades...');
 
-    const ethersProvider = new ethers.providers.WebSocketProvider(app.currentlySelectedWeb3Client.currentProvider.connection._url);
-    const ethersMultiCollat = getEthersContract(app.contracts.diamond, ethersProvider);
+		const ethersProvider = new ethers.providers.WebSocketProvider(app.currentlySelectedWeb3Client.currentProvider.connection._url);
+		const ethersMultiCollat = getEthersContract(app.contracts.diamond, ethersProvider);
 
-    const openPairTradesRaw = await fetchOpenPairTradesRaw(
-      {
-        gnsMultiCollatDiamond: ethersMultiCollat,
-      },
-      {
-        useMulticall: USE_MULTICALL,
-        pairBatchSize: 10,
+		const openPairTradesRaw = await fetchOpenPairTradesRaw(
+			{
+				gnsMultiCollatDiamond: ethersMultiCollat,
+			},
+			{
+				useMulticall: USE_MULTICALL,
+				pairBatchSize: 10,
 			},
 			ethersProvider,
-    );
-    const allTrades = transformRawTrades(openPairTradesRaw);
+		);
+		const allTrades = transformRawTrades(openPairTradesRaw);
 
-    appLogger.info(`Fetched ${allTrades.length} new open pair trade(s).`);
+		appLogger.info(`Fetched ${allTrades.length} new open pair trade(s).`);
 
-    return allTrades;
-  }
+		return allTrades;
+	}
 }
 
 export async function fetchOpenPairTradesRaw(
@@ -812,96 +817,96 @@ export async function fetchOpenPairTradesRaw(
 // -----------------------------------------
 
 function watchLiveTradingEvents() {
-  try {
-    if (app.eventSub && app.eventSub?.id) {
-      app.eventSub.unsubscribe();
-    }
+	try {
+		if (app.eventSub && app.eventSub?.id) {
+			app.eventSub.unsubscribe();
+		}
 
-    app.eventSub = app.contracts.diamond.events.allEvents({ fromBlock: 'latest' }).on('data', (event) => {
-      if (
-        [
-          'PriceImpactOpenInterestAdded',
-          'PriceImpactOiTransferredPairs',
-          'PriceImpactWindowsDurationUpdated',
-          'PriceImpactWindowsCountUpdated',
-          'PairCustomMaxLeverageUpdated',
+		app.eventSub = app.contracts.diamond.events.allEvents({ fromBlock: 'latest' }).on('data', (event) => {
+			if (
+				[
+					'PriceImpactOpenInterestAdded',
+					'PriceImpactOiTransferredPairs',
+					'PriceImpactWindowsDurationUpdated',
+					'PriceImpactWindowsCountUpdated',
+					'PairCustomMaxLeverageUpdated',
 					'GroupLiquidationParamsUpdated',
 					'ProtectionCloseFactorUpdated',
 					'ProtectionCloseFactorBlocksUpdated',
 					'CumulativeFactorUpdated',
 					'OnePercentDepthUpdated',
-        ].indexOf(event.event) > -1
-      ) {
-        //
-        setTimeout(() => handleMultiCollatEvents(event), EVENT_CONFIRMATIONS_MS);
-        //
-      } else if (
-        ['BorrowingPairAccFeesUpdated', 'BorrowingGroupAccFeesUpdated', 'BorrowingPairOiUpdated', 'BorrowingGroupOiUpdated'].indexOf(
-          event.event
-        ) > -1
-      ) {
-        //
-        setTimeout(() => handleBorrowingFeesEvent(event), EVENT_CONFIRMATIONS_MS);
-        //
-      } else if (
-        [
-          'TradeStored',
-          'TradeClosed',
+				].indexOf(event.event) > -1
+			) {
+				//
+				setTimeout(() => handleMultiCollatEvents(event), EVENT_CONFIRMATIONS_MS);
+				//
+			} else if (
+				['BorrowingPairAccFeesUpdated', 'BorrowingGroupAccFeesUpdated', 'BorrowingPairOiUpdated', 'BorrowingGroupOiUpdated'].indexOf(
+					event.event,
+				) > -1
+			) {
+				//
+				setTimeout(() => handleBorrowingFeesEvent(event), EVENT_CONFIRMATIONS_MS);
+				//
+			} else if (
+				[
+					'TradeStored',
+					'TradeClosed',
 					'LimitExecuted',
-          'TradeTpUpdated',
-          'TradeSlUpdated',
-          'OpenLimitUpdated',
-          'TradeCollateralUpdated',
-          'TriggerOrderCanceled',
-          'PendingOrderClosed',
+					'TradeTpUpdated',
+					'TradeSlUpdated',
+					'OpenLimitUpdated',
+					'TradeCollateralUpdated',
+					'TriggerOrderCanceled',
+					'PendingOrderClosed',
 					'TradePositionUpdated',
 					'TradeMaxClosingSlippagePUpdated',
-        ].indexOf(event.event) > -1
-      ) {
-        //
-        setTimeout(() => synchronizeOpenTrades(event), EVENT_CONFIRMATIONS_MS);
-        //
-      }
-    });
-  } catch {
-    setTimeout(() => {
-      watchLiveTradingEvents();
-    }, 2 * 1000);
-  }
+				].indexOf(event.event) > -1
+			) {
+				//
+				setTimeout(() => synchronizeOpenTrades(event), EVENT_CONFIRMATIONS_MS);
+				//
+			}
+		});
+	} catch {
+		setTimeout(() => {
+			watchLiveTradingEvents();
+		}, 2 * 1000);
+	}
 }
 
 async function handleMultiCollatEvents(event) {
-  try {
-    if (event.event === 'PriceImpactOpenInterestAdded') {
-      const { pairIndex, windowId, long, openInterestUsd } = event.returnValues.oiWindowUpdate;
+	try {
+		if (event.event === 'PriceImpactOpenInterestAdded') {
+			const { pairIndex, windowId, long, openInterestUsd } = event.returnValues.oiWindowUpdate;
 
-      increaseWindowOi(app.oiWindows, pairIndex, windowId, long, openInterestUsd);
+			increaseWindowOi(app.oiWindows, pairIndex, windowId, long, openInterestUsd);
 
-      appLogger.verbose(`Processed ${event.event}.`);
-    } else if (event.event === 'PriceImpactOiTransferredPairs') {
-      const { pairsCount, prevCurrentWindowId, prevEarliestWindowId, newCurrentWindowId } = event.returnValues;
+			appLogger.verbose(`Processed ${event.event}.`);
+		} else if (event.event === 'PriceImpactOiTransferredPairs') {
+			const { pairsCount, prevCurrentWindowId, prevEarliestWindowId, newCurrentWindowId } = event.returnValues;
 
-      app.oiWindows = transferOiWindows(app.oiWindows, pairsCount, prevCurrentWindowId, prevEarliestWindowId, newCurrentWindowId);
+			app.oiWindows = transferOiWindows(app.oiWindows, pairsCount, prevCurrentWindowId, prevEarliestWindowId, newCurrentWindowId);
 
-      appLogger.verbose(`Processed ${event.event}.`);
-    } else if (event.event === 'PriceImpactWindowsDurationUpdated') {
-      const { windowsDuration } = event.returnValues;
+			appLogger.verbose(`Processed ${event.event}.`);
+		} else if (event.event === 'PriceImpactWindowsDurationUpdated') {
+			const { windowsDuration } = event.returnValues;
 
-      updateWindowsDuration(app.oiWindowsSettings, windowsDuration);
+			updateWindowsDuration(app.oiWindowsSettings, windowsDuration);
 
-      appLogger.verbose(`Processed ${event.event}.`);
-    } else if (event.event === 'PriceImpactWindowsCountUpdated') {
-      const { windowsCount } = event.returnValues;
+			appLogger.verbose(`Processed ${event.event}.`);
+		} else if (event.event === 'PriceImpactWindowsCountUpdated') {
+			const { windowsCount } = event.returnValues;
 
-      updateWindowsCount(app.oiWindowsSettings, windowsCount);
+			updateWindowsCount(app.oiWindowsSettings, windowsCount);
 
-      appLogger.verbose(`Processed ${event.event}.`);
-    } else if (event.event === 'PairCustomMaxLeverageUpdated') {
-      const { index, maxLeverage } = event.returnValues;
+			appLogger.verbose(`Processed ${event.event}.`);
+		} else if (event.event === 'PairCustomMaxLeverageUpdated') {
+			const { index, maxLeverage } = event.returnValues;
 
-      app.pairMaxLeverage.set(index, parseFloat(maxLeverage));
+			app.pairMaxLeverage.set(index, parseFloat(maxLeverage));
 
-      appLogger.info(`${event.event}: Set pairMaxLeverage for pair ${index} to ${maxLeverage}.`);
+			appLogger.info(`${event.event}: Set pairMaxLeverage for pair ${index} to ${maxLeverage}.`);
 		} else if (event.event === 'GroupLiquidationParamsUpdated') {
 			const { index, params } = event.returnValues;
 
@@ -936,49 +941,49 @@ async function handleMultiCollatEvents(event) {
 
 			appLogger.info(`${event.event}: Set 1% depth for pair ${pairIndex} to ${valueAboveUsd} above, ${valueBelowUsd} below`);
 		}
-  } catch (error) {
-    appLogger.error('Error occurred when handling BorrowingFees event.', error);
-  }
+	} catch (error) {
+		appLogger.error('Error occurred when handling BorrowingFees event.', error);
+	}
 }
 
 async function synchronizeOpenTrades(event) {
-  try {
-    const currentKnownOpenTrades = app.knownOpenTrades;
+	try {
+		const currentKnownOpenTrades = app.knownOpenTrades;
 
-    const eventName = event.event;
-    const eventReturnValues = event.returnValues;
+		const eventName = event.event;
+		const eventReturnValues = event.returnValues;
 
-    appLogger.info(`Synchronizing open trades based on event ${eventName} from block ${event.blockNumber}...`);
+		appLogger.info(`Synchronizing open trades based on event ${eventName} from block ${event.blockNumber}...`);
 
-    if (currentKnownOpenTrades === null) {
-      appLogger.warn(
-        `Known open trades not yet initialized, cannot synchronize ${eventName} from block ${event.blockNumber} at this time!`
-      );
+		if (currentKnownOpenTrades === null) {
+			appLogger.warn(
+				`Known open trades not yet initialized, cannot synchronize ${eventName} from block ${event.blockNumber} at this time!`,
+			);
 
-      return;
-    }
+			return;
+		}
 
-    if (eventName === 'TradeStored') {
+		if (eventName === 'TradeStored') {
 			const { trade, tradeInfo, liquidationParams } = eventReturnValues;
-      const { user, index, collateralIndex } = trade;
-      const initialAccFees = await app.contracts.diamond.methods.getBorrowingInitialAccFees(collateralIndex, user, index).call();
+			const { user, index, collateralIndex } = trade;
+			const initialAccFees = await app.contracts.diamond.methods.getBorrowingInitialAccFees(collateralIndex, user, index).call();
 
-      const tradeKey = buildTradeIdentifier(user, index);
+			const tradeKey = buildTradeIdentifier(user, index);
 			const newTrade = transformRawTrade({ trade, tradeInfo, initialAccFees, liquidationParams });
-      currentKnownOpenTrades.set(tradeKey, newTrade);
-      appLogger.info(`Synchronize open trades from event ${eventName}: Stored active trade ${tradeKey}`);
-    } else if (eventName === 'TradeClosed') {
-      const { user, index } = eventReturnValues.tradeId;
-      const tradeKey = buildTradeIdentifier(user, index);
+			currentKnownOpenTrades.set(tradeKey, newTrade);
+			appLogger.info(`Synchronize open trades from event ${eventName}: Stored active trade ${tradeKey}`);
+		} else if (eventName === 'TradeClosed') {
+			const { user, index } = eventReturnValues.tradeId;
+			const tradeKey = buildTradeIdentifier(user, index);
 
-      const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
+			const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
 
-      if (existingKnownOpenTrade !== undefined) {
-        currentKnownOpenTrades.delete(tradeKey);
-        appLogger.info(`Synchronize open trades from event ${eventName}: Removed trade for ${tradeKey}`);
-      } else {
-        appLogger.info(`Synchronize open trades from event ${eventName}: Trade not found for ${tradeKey}`);
-      }
+			if (existingKnownOpenTrade !== undefined) {
+				currentKnownOpenTrades.delete(tradeKey);
+				appLogger.info(`Synchronize open trades from event ${eventName}: Removed trade for ${tradeKey}`);
+			} else {
+				appLogger.info(`Synchronize open trades from event ${eventName}: Trade not found for ${tradeKey}`);
+			}
 
 		} else if (eventName === 'LimitExecuted') {
 
@@ -994,18 +999,18 @@ async function synchronizeOpenTrades(event) {
 			}
 
 		} else if (eventName === 'TradeTpUpdated' || eventName === 'TradeSlUpdated') {
-      const { user, index } = eventReturnValues.tradeId;
-      const tradeKey = buildTradeIdentifier(user, index);
-      const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
+			const { user, index } = eventReturnValues.tradeId;
+			const tradeKey = buildTradeIdentifier(user, index);
+			const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
 
-      if (existingKnownOpenTrade !== undefined) {
-        if (eventName === 'TradeTpUpdated') {
-          existingKnownOpenTrade.tp = eventReturnValues.newTp.toString();
-          existingKnownOpenTrade.tradeInfo.tpLastUpdatedBlock = event.blockNumber.toString();
-        } else {
-          existingKnownOpenTrade.sl = eventReturnValues.newSl.toString();
-          existingKnownOpenTrade.tradeInfo.slLastUpdatedBlock = event.blockNumber.toString();
-        }
+			if (existingKnownOpenTrade !== undefined) {
+				if (eventName === 'TradeTpUpdated') {
+					existingKnownOpenTrade.tp = eventReturnValues.newTp.toString();
+					existingKnownOpenTrade.tradeInfo.tpLastUpdatedBlock = event.blockNumber.toString();
+				} else {
+					existingKnownOpenTrade.sl = eventReturnValues.newSl.toString();
+					existingKnownOpenTrade.tradeInfo.slLastUpdatedBlock = event.blockNumber.toString();
+				}
 				appLogger.info(`Synchronize update trade from event ${eventName}: Updated values for ${tradeKey}`);
 			} else {
 				appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
@@ -1019,42 +1024,42 @@ async function synchronizeOpenTrades(event) {
 			if (existingKnownOpenTrade !== undefined) {
 				existingKnownOpenTrade.tradeInfo.maxSlippageP = eventReturnValues.maxClosingSlippageP.toString();
 
-        appLogger.info(`Synchronize update trade from event ${eventName}: Updated values for ${tradeKey}`);
-      } else {
-        appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
-      }
-    } else if (eventName === 'OpenLimitUpdated') {
-      const { trader, index, newPrice, newTp, newSl, maxSlippageP } = eventReturnValues;
-      const blockNumber = event.blockNumber.toString();
-      const tradeKey = buildTradeIdentifier(trader, index);
+				appLogger.info(`Synchronize update trade from event ${eventName}: Updated values for ${tradeKey}`);
+			} else {
+				appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
+			}
+		} else if (eventName === 'OpenLimitUpdated') {
+			const { trader, index, newPrice, newTp, newSl, maxSlippageP } = eventReturnValues;
+			const blockNumber = event.blockNumber.toString();
+			const tradeKey = buildTradeIdentifier(trader, index);
 
-      const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
+			const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
 
-      if (existingKnownOpenTrade !== undefined) {
-        existingKnownOpenTrade.openPrice = newPrice.toString();
-        existingKnownOpenTrade.tp = newTp.toString();
-        existingKnownOpenTrade.sl = newSl.toString();
-        existingKnownOpenTrade.tradeInfo.maxSlippageP = maxSlippageP.toString();
-        existingKnownOpenTrade.tradeInfo.tpLastUpdatedBlock = blockNumber;
-        existingKnownOpenTrade.tradeInfo.slLastUpdatedBlock = blockNumber;
-        existingKnownOpenTrade.tradeInfo.createdBlock = blockNumber;
+			if (existingKnownOpenTrade !== undefined) {
+				existingKnownOpenTrade.openPrice = newPrice.toString();
+				existingKnownOpenTrade.tp = newTp.toString();
+				existingKnownOpenTrade.sl = newSl.toString();
+				existingKnownOpenTrade.tradeInfo.maxSlippageP = maxSlippageP.toString();
+				existingKnownOpenTrade.tradeInfo.tpLastUpdatedBlock = blockNumber;
+				existingKnownOpenTrade.tradeInfo.slLastUpdatedBlock = blockNumber;
+				existingKnownOpenTrade.tradeInfo.createdBlock = blockNumber;
 
-        appLogger.info(`Synchronize update trade from event ${eventName}: Updated values for ${tradeKey}`);
-      } else {
-        appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
-      }
-    } else if (eventName === 'TradeCollateralUpdated') {
-      const { user, index } = eventReturnValues.tradeId;
-      const tradeKey = buildTradeIdentifier(user, index);
+				appLogger.info(`Synchronize update trade from event ${eventName}: Updated values for ${tradeKey}`);
+			} else {
+				appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
+			}
+		} else if (eventName === 'TradeCollateralUpdated') {
+			const { user, index } = eventReturnValues.tradeId;
+			const tradeKey = buildTradeIdentifier(user, index);
 
-      const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
+			const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
 
-      if (existingKnownOpenTrade !== undefined) {
-        existingKnownOpenTrade.collateralAmount = eventReturnValues.collateralAmount.toString();
-        appLogger.info(`Synchronize update trade from event ${eventName}: Updated collateral for ${tradeKey}`);
-      } else {
-        appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
-      }
+			if (existingKnownOpenTrade !== undefined) {
+				existingKnownOpenTrade.collateralAmount = eventReturnValues.collateralAmount.toString();
+				appLogger.info(`Synchronize update trade from event ${eventName}: Updated collateral for ${tradeKey}`);
+			} else {
+				appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
+			}
 		} else if (eventName === 'TradePositionUpdated') {
 			const { user, index } = eventReturnValues.tradeId;
 			const tradeKey = buildTradeIdentifier(user, index);
@@ -1096,67 +1101,67 @@ async function synchronizeOpenTrades(event) {
 		} else if (eventName === 'TriggerOrderCanceled') {
 			const { triggerCaller, index, orderType, cancelReason } = eventReturnValues; // this is a pending order Id
 
-      const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(triggerCaller, index, orderType);
+			const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(triggerCaller, index, orderType);
 
 			appLogger.warn(`Synchronize trigger tracking from event ${eventName}: Order canceled ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}`);
 
-      return;
-    }
+			return;
+		}
 
-    executionStats = {
-      ...executionStats,
-      totalEventsProcessed: (executionStats?.totalEventsProcessed ?? 0) + 1,
-      lastEventBlockNumber: event.blockNumber,
-      lastEventProcessed: new Date(),
-    };
-  } catch (error) {
-    appLogger.error('Error occurred when refreshing trades.', error);
-  }
+		executionStats = {
+			...executionStats,
+			totalEventsProcessed: (executionStats?.totalEventsProcessed ?? 0) + 1,
+			lastEventBlockNumber: event.blockNumber,
+			lastEventProcessed: new Date(),
+		};
+	} catch (error) {
+		appLogger.error('Error occurred when refreshing trades.', error);
+	}
 }
 
 async function handleBorrowingFeesEvent(event) {
-  try {
-    if (event.event === 'BorrowingPairAccFeesUpdated') {
-      const { collateralIndex, pairIndex, accFeeLong, accFeeShort } = event.returnValues;
-      const pairBorrowingFees = app.borrowingFeesContext[collateralIndex].pairs[pairIndex];
+	try {
+		if (event.event === 'BorrowingPairAccFeesUpdated') {
+			const { collateralIndex, pairIndex, accFeeLong, accFeeShort } = event.returnValues;
+			const pairBorrowingFees = app.borrowingFeesContext[collateralIndex].pairs[pairIndex];
 
-      if (pairBorrowingFees) {
-        pairBorrowingFees.accFeeLong = parseFloat(accFeeLong) / 1e10;
-        pairBorrowingFees.accFeeShort = parseFloat(accFeeShort) / 1e10;
-        pairBorrowingFees.accLastUpdateBlock = parseInt(event.blockNumber);
-      }
-    } else if (event.event === 'BorrowingGroupAccFeesUpdated') {
-      const { collateralIndex, groupIndex, accFeeLong, accFeeShort } = event.returnValues;
+			if (pairBorrowingFees) {
+				pairBorrowingFees.accFeeLong = parseFloat(accFeeLong) / 1e10;
+				pairBorrowingFees.accFeeShort = parseFloat(accFeeShort) / 1e10;
+				pairBorrowingFees.accLastUpdateBlock = parseInt(event.blockNumber);
+			}
+		} else if (event.event === 'BorrowingGroupAccFeesUpdated') {
+			const { collateralIndex, groupIndex, accFeeLong, accFeeShort } = event.returnValues;
 
-      const groupBorrowingFees = app.borrowingFeesContext[collateralIndex].groups[groupIndex];
+			const groupBorrowingFees = app.borrowingFeesContext[collateralIndex].groups[groupIndex];
 
-      if (groupBorrowingFees) {
-        groupBorrowingFees.accFeeLong = parseFloat(accFeeLong) / 1e10;
-        groupBorrowingFees.accFeeShort = parseFloat(accFeeShort) / 1e10;
-        groupBorrowingFees.accLastUpdateBlock = parseInt(event.blockNumber);
-      }
-    } else if (event.event === 'BorrowingGroupOiUpdated') {
-      const { collateralIndex, groupIndex, newOiLong, newOiShort } = event.returnValues;
+			if (groupBorrowingFees) {
+				groupBorrowingFees.accFeeLong = parseFloat(accFeeLong) / 1e10;
+				groupBorrowingFees.accFeeShort = parseFloat(accFeeShort) / 1e10;
+				groupBorrowingFees.accLastUpdateBlock = parseInt(event.blockNumber);
+			}
+		} else if (event.event === 'BorrowingGroupOiUpdated') {
+			const { collateralIndex, groupIndex, newOiLong, newOiShort } = event.returnValues;
 
-      const groupBorrowingFees = app.borrowingFeesContext[collateralIndex].groups[groupIndex].oi;
+			const groupBorrowingFees = app.borrowingFeesContext[collateralIndex].groups[groupIndex].oi;
 
-      if (groupBorrowingFees) {
-        groupBorrowingFees.long = parseFloat(newOiLong) / 1e10;
-        groupBorrowingFees.short = parseFloat(newOiShort) / 1e10;
-      }
-    } else if (event.event === 'BorrowingPairOiUpdated') {
-      const { collateralIndex, pairIndex, newOiLong, newOiShort } = event.returnValues;
+			if (groupBorrowingFees) {
+				groupBorrowingFees.long = parseFloat(newOiLong) / 1e10;
+				groupBorrowingFees.short = parseFloat(newOiShort) / 1e10;
+			}
+		} else if (event.event === 'BorrowingPairOiUpdated') {
+			const { collateralIndex, pairIndex, newOiLong, newOiShort } = event.returnValues;
 
-      const pairBorrowingFees = app.borrowingFeesContext[collateralIndex].pairs[pairIndex].oi;
+			const pairBorrowingFees = app.borrowingFeesContext[collateralIndex].pairs[pairIndex].oi;
 
-      if (pairBorrowingFees) {
-        pairBorrowingFees.long = parseFloat(newOiLong) / 1e10;
-        pairBorrowingFees.short = parseFloat(newOiShort) / 1e10;
-      }
-    }
-  } catch (error) {
-    appLogger.error('Error occurred when handling BorrowingFees event.', error);
-  }
+			if (pairBorrowingFees) {
+				pairBorrowingFees.long = parseFloat(newOiLong) / 1e10;
+				pairBorrowingFees.short = parseFloat(newOiShort) / 1e10;
+			}
+		}
+	} catch (error) {
+		appLogger.error('Error occurred when handling BorrowingFees event.', error);
+	}
 }
 
 // ---------------------------------------------
@@ -1171,7 +1176,7 @@ function watchPricingStream() {
 	}
 
 	let socket = new WebSocket(process.env.PRICES_URL);
-  let pricingUpdatesMessageProcessingCount = 0;
+	let pricingUpdatesMessageProcessingCount = 0;
 
 	socket.onopen = () => {
 		appLogger.info('Pricing stream connected.');
@@ -1188,19 +1193,19 @@ function watchPricingStream() {
 		socket.close();
 	};
 	socket.onmessage = (msg) => {
-    const currentKnownOpenTrades = app.knownOpenTrades;
+		const currentKnownOpenTrades = app.knownOpenTrades;
 
-    if (currentKnownOpenTrades === null) {
-      appLogger.debug('Known open trades not yet loaded; unable to begin any processing yet!');
+		if (currentKnownOpenTrades === null) {
+			appLogger.debug('Known open trades not yet loaded; unable to begin any processing yet!');
 
-      return;
-    }
+			return;
+		}
 
-    if (app.spreadsP.length === 0) {
-      appLogger.debug('Spreads are not yet loaded; unable to process any trades!');
+		if (app.spreadsP.length === 0) {
+			appLogger.debug('Spreads are not yet loaded; unable to process any trades!');
 
-      return;
-    }
+			return;
+		}
 
 		const messageData = JSON.parse(msg.data.toString());
 
@@ -1216,42 +1221,42 @@ function watchPricingStream() {
 			}
 		}
 
-    pricingUpdatesMessageProcessingCount++;
+		pricingUpdatesMessageProcessingCount++;
 
-    handleOnMessageAsync()
-      .catch((error) => {
-        appLogger.error('Unhandled error occurred when handling pricing stream message!', { error });
-      })
-      .finally(() => {
-        pricingUpdatesMessageProcessingCount--;
-      });
+		handleOnMessageAsync()
+			.catch((error) => {
+				appLogger.error('Unhandled error occurred when handling pricing stream message!', { error });
+			})
+			.finally(() => {
+				pricingUpdatesMessageProcessingCount--;
+			});
 
-    async function handleOnMessageAsync() {
-      // appLogger.debug(`Beginning processing new "pricingUpdated" message}...`);
-      // appLogger.debug(`Received "charts" message, checking if any of the ${currentKnownOpenTrades.size} known open trades should be acted upon...`, { knownOpenTradesCount: currentKnownOpenTrades.size });
+		async function handleOnMessageAsync() {
+			// appLogger.debug(`Beginning processing new "pricingUpdated" message}...`);
+			// appLogger.debug(`Received "charts" message, checking if any of the ${currentKnownOpenTrades.size} known open trades should be acted upon...`, { knownOpenTradesCount: currentKnownOpenTrades.size });
 
-      await Promise.allSettled(
-        [...currentKnownOpenTrades.values()].map(async (openTrade) => {
-          const { user, pairIndex, index, long, collateralIndex } = openTrade;
+			await Promise.allSettled(
+				[...currentKnownOpenTrades.values()].map(async (openTrade) => {
+					const { user, pairIndex, index, long, collateralIndex } = openTrade;
 
-          const collateralConfig = app.collaterals[collateralIndex];
-          if (collateralConfig === undefined) {
-            appLogger.error('Unknown collateral config, this should not be happening!');
-            return;
-          }
+					const collateralConfig = app.collaterals[collateralIndex];
+					if (collateralConfig === undefined) {
+						appLogger.error('Unknown collateral config, this should not be happening!');
+						return;
+					}
 
-          const price = pairPrices.get(parseInt(pairIndex));
-          if (price === undefined) return;
+					const price = pairPrices.get(parseInt(pairIndex));
+					if (price === undefined) return;
 
-          const isPendingOpenLimitOrder = openTrade.tradeType + '' !== '0';
-          const openTradeKey = buildTradeIdentifier(user, index);
-          // Under certain conditions (forex/stock market just opened, server restart, etc) the price is not
-          // available, so we need to make sure we skip any processing in that case
-          if ((price ?? 0) <= 0) {
-            appLogger.debug(`Received ${price} for close price for pair ${pairIndex}; skipping processing of ${openTradeKey}!`);
+					const isPendingOpenLimitOrder = openTrade.tradeType + '' !== '0';
+					const openTradeKey = buildTradeIdentifier(user, index);
+					// Under certain conditions (forex/stock market just opened, server restart, etc) the price is not
+					// available, so we need to make sure we skip any processing in that case
+					if ((price ?? 0) <= 0) {
+						appLogger.debug(`Received ${price} for close price for pair ${pairIndex}; skipping processing of ${openTradeKey}!`);
 
-            return;
-          }
+						return;
+					}
 
 					const groupId = parseInt(app.pairs[pairIndex].groupIndex);
 
@@ -1347,17 +1352,23 @@ function watchPricingStream() {
 							((long && price >= tp) || (!long && price <= tp))
 						) {
 							orderType = PENDING_ORDER_TYPE.TP_CLOSE;
-							appLogger.info(`Trade ${openTradeKey} set orderType set to TP_CLOSE because long: ${long} & price: ${price} ${long ? '>=' : '<='} tp: ${tp}.`);
+							if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
+								appLogger.info(`Trade ${openTradeKey} set orderType set to TP_CLOSE because long: ${long} & price: ${price} ${long ? '>=' : '<='} tp: ${tp}.`);
+							}
 						} else if (
 							sl !== 0 &&
 							slDistanceP <= convertedTradeInfo.maxSlippageP && // abs distance from current price and sl can't be above max slippage
 							((long && price <= sl) || (!long && price >= sl))
 						) {
 							orderType = PENDING_ORDER_TYPE.SL_CLOSE;
-							appLogger.info(`Trade ${openTradeKey} set orderType set to SL_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} sl: ${sl}.`);
+							if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
+								appLogger.info(`Trade ${openTradeKey} set orderType set to SL_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} sl: ${sl}.`);
+							}
 						} else if ((long && price <= liqPrice) || (!long && price >= liqPrice)) {
 							orderType = PENDING_ORDER_TYPE.LIQ_CLOSE;
-							appLogger.info(`Trade ${openTradeKey} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
+							if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
+								appLogger.info(`Trade ${openTradeKey} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
+							}
 						} else {
 							//appLogger.debug(`Open trade ${openTradeKey} is not ready for us to act on yet.`);
 						}
@@ -1405,7 +1416,9 @@ function watchPricingStream() {
 								(tradeType === '2' && (long ? price >= wantedPrice : price <= wantedPrice))
 							) {
 								orderType = tradeType === '1' ? PENDING_ORDER_TYPE.LIMIT_OPEN : PENDING_ORDER_TYPE.STOP_OPEN;
-								appLogger.info(`Trade ${openTradeKey} set orderType set to ${tradeType === '1' ? 'LIMIT_OPEN' : 'STOP_OPEN'} because long: ${long} & price: ${wantedPrice} reached.`);
+								if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
+									appLogger.info(`Trade ${openTradeKey} set orderType set to ${tradeType === '1' ? 'LIMIT_OPEN' : 'STOP_OPEN'} because long: ${long} & price: ${wantedPrice} reached.`);
+								}
 							} else {
 								//appLogger.debug(`Limit trade ${openTradeKey} is not ready for us to act on yet.`);
 							}
@@ -1417,205 +1430,205 @@ function watchPricingStream() {
 						return;
 					}
 
-          if (isForexGroup(groupId) && !isForexOpen(new Date())) {
-            return;
-          }
+					if (isForexGroup(groupId) && !isForexOpen(new Date())) {
+						return;
+					}
 
-          if (isStocksGroup(groupId) && !isStocksOpen(new Date())) {
-            return;
-          }
+					if (isStocksGroup(groupId) && !isStocksOpen(new Date())) {
+						return;
+					}
 
-          if (isIndicesGroup(groupId) && !isIndicesOpen(new Date())) {
-            return;
-          }
+					if (isIndicesGroup(groupId) && !isIndicesOpen(new Date())) {
+						return;
+					}
 
-          if (isCommoditiesGroup(groupId) && !isCommoditiesOpen(new Date())) {
-            return;
-          }
+					if (isCommoditiesGroup(groupId) && !isCommoditiesOpen(new Date())) {
+						return;
+					}
 
-          const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(user, index, orderType);
+					const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(user, index, orderType);
 
-          // Make sure this order hasn't already been triggered
-          if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifier)) {
-            appLogger.debug(`Order ${triggeredOrderTrackingInfoIdentifier} has already been triggered by us and is pending!`);
+					// Make sure this order hasn't already been triggered
+					if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifier)) {
+						appLogger.debug(`Order ${triggeredOrderTrackingInfoIdentifier} has already been triggered by us and is pending!`);
 
-            return;
-          }
+						return;
+					}
 
-          if (!canRetry(triggeredOrderTrackingInfoIdentifier)) return;
+					if (!canRetry(triggeredOrderTrackingInfoIdentifier)) return;
 
-          const triggeredOrderDetails = {
-            cleanupTimerId: null,
-            transactionSent: false,
-            error: null,
-          };
+					const triggeredOrderDetails = {
+						cleanupTimerId: null,
+						transactionSent: false,
+						error: null,
+					};
 
-          // Track that we're triggering this order any other price updates that come in will not try to process
-          // it at the same time
-          app.triggeredOrders.set(triggeredOrderTrackingInfoIdentifier, triggeredOrderDetails);
+					// Track that we're triggering this order any other price updates that come in will not try to process
+					// it at the same time
+					app.triggeredOrders.set(triggeredOrderTrackingInfoIdentifier, triggeredOrderDetails);
 
-          try {
-            // Make sure the trade is still known to us at this point because it's possible that the trade was
-            // removed from known open trades asynchronously which is why we check again here even though we're
-            // looping through the set of what we thought were the known open trades here
-            if (!currentKnownOpenTrades.has(openTradeKey)) {
+					try {
+						// Make sure the trade is still known to us at this point because it's possible that the trade was
+						// removed from known open trades asynchronously which is why we check again here even though we're
+						// looping through the set of what we thought were the known open trades here
+						if (!currentKnownOpenTrades.has(openTradeKey)) {
 							appLogger.warn(`Trade ${openTradeKey} no longer exists in our known open trades listps -e|grep node; skipping order!`);
 
-              return;
-            }
+							return;
+						}
 
-            appLogger.info(`🤞 Trying to trigger ${triggeredOrderTrackingInfoIdentifier}...`);
+						appLogger.info(`🤞 Trying to trigger ${triggeredOrderTrackingInfoIdentifier}...`);
 
-            try {
+						try {
 							// before we execute limit or liquidation we get the actual prices from oracle
 							// and give them in the trigger order function so directly before trigger price is live
 							const actualPrice = await getActualPrice(openTrade.pairIndex, openTrade.collateralIndex, messageData);
-              const orderTransaction = createTransaction(
-                {
-                  to: app.contracts.diamond.options.address,
+							const orderTransaction = createTransaction(
+								{
+									to: app.contracts.diamond.options.address,
 									data: app.contracts.diamond.methods.triggerOrder(packTrigger(orderType, user, index), actualPrice).encodeABI(),
-                },
-                true
-              );
+								},
+								true,
+							);
 
-              // NOTE: technically this should execute synchronously because we're supplying all necessary details on
-              // the transaction object up front
-              const signedTransaction = await app.currentlySelectedWeb3Client.eth.accounts.signTransaction(
-                orderTransaction,
-                process.env.PRIVATE_KEY
-              );
+							// NOTE: technically this should execute synchronously because we're supplying all necessary details on
+							// the transaction object up front
+							const signedTransaction = await app.currentlySelectedWeb3Client.eth.accounts.signTransaction(
+								orderTransaction,
+								process.env.PRIVATE_KEY,
+							);
 							let tx;
 							if (DRY_RUN_MODE === false) {
 								tx = await app.currentlySelectedWeb3Client.eth.sendSignedTransaction(signedTransaction.rawTransaction);
-              } else {
-                appLogger.info(
-                  `DRY RUN MODE ACTIVE: skipping actually sending transaction for order: ${triggeredOrderTrackingInfoIdentifier}`,
-                  orderTransaction
-                );
-              }
+							} else {
+								appLogger.info(
+									`DRY RUN MODE ACTIVE: skipping actually sending transaction for order: ${triggeredOrderTrackingInfoIdentifier}`,
+									orderTransaction,
+								);
+							}
 
-              triggeredOrderDetails.transactionSent = true;
+							triggeredOrderDetails.transactionSent = true;
 
-              // If we successfully send the transaction, we set up a timer to make sure we've heard about its
-              // eventual completion and, if not, we clean up tracking and log that we didn't hear back
-              triggeredOrderDetails.cleanupTimerId = setTimeout(() => {
-                if (app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier)) {
-                  appLogger.warn(
-                    `❕ Never heard back from the blockchain about triggered order ${triggeredOrderTrackingInfoIdentifier}; removed from tracking.`
-                  );
+							// If we successfully send the transaction, we set up a timer to make sure we've heard about its
+							// eventual completion and, if not, we clean up tracking and log that we didn't hear back
+							triggeredOrderDetails.cleanupTimerId = setTimeout(() => {
+								if (app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier)) {
+									appLogger.warn(
+										`❕ Never heard back from the blockchain about triggered order ${triggeredOrderTrackingInfoIdentifier}; removed from tracking.`,
+									);
 
-                  executionStats = {
-                    ...executionStats,
-                    missedTriggers: (executionStats.missedTriggers ?? 0) + 1,
-                  };
-                }
-              }, FAILED_ORDER_TRIGGER_TIMEOUT_MS);
+									executionStats = {
+										...executionStats,
+										missedTriggers: (executionStats.missedTriggers ?? 0) + 1,
+									};
+								}
+							}, FAILED_ORDER_TRIGGER_TIMEOUT_MS);
 
 							appLogger.info(`⚡️ Triggered order for ${triggeredOrderTrackingInfoIdentifier} with tx ${tx.transactionHash}.`);
-            } catch (error) {
-              const executionStatsTriggerErrors = executionStats.triggerErrors ?? {};
-              const errorReason = error.reason ?? 'UNKNOWN_TRANSACTION_ERROR';
+						} catch (error) {
+							const executionStatsTriggerErrors = executionStats.triggerErrors ?? {};
+							const errorReason = error.reason ?? 'UNKNOWN_TRANSACTION_ERROR';
 
-              executionStatsTriggerErrors[errorReason] = (executionStatsTriggerErrors[errorReason] ?? 0) + 1;
+							executionStatsTriggerErrors[errorReason] = (executionStatsTriggerErrors[errorReason] ?? 0) + 1;
 
-              executionStats = {
-                ...executionStats,
-                triggerErrors: executionStatsTriggerErrors,
-              };
+							executionStats = {
+								...executionStats,
+								triggerErrors: executionStatsTriggerErrors,
+							};
 
-              switch (errorReason) {
-                case 'PendingTrigger()':
-                  // The trade has been triggered by others, delay removing it and maybe we'll have a
-                  // chance to try again if original trigger fails
-                  appLogger.warn(
-                    `Order ${triggeredOrderTrackingInfoIdentifier} was already triggered; will remove from triggered tracking shortly and it may be tried again if original trigger didn't hit!`
-                  );
+							switch (errorReason) {
+								case 'PendingTrigger()':
+									// The trade has been triggered by others, delay removing it and maybe we'll have a
+									// chance to try again if original trigger fails
+									appLogger.warn(
+										`Order ${triggeredOrderTrackingInfoIdentifier} was already triggered; will remove from triggered tracking shortly and it may be tried again if original trigger didn't hit!`,
+									);
 
-                  // Wait a bit and then clean from triggered orders list so it might get tried again
-                  triggeredOrderDetails.cleanupTimerId = setTimeout(() => {
-                    if (!app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier)) {
-                      appLogger.debug(
-                        `Tried to clean up triggered order ${triggeredOrderTrackingInfoIdentifier} which previously failed due to "${errorReason}", but it was already removed.`
-                      );
-                    }
-                  }, FAILED_ORDER_TRIGGER_TIMEOUT_MS / 2);
+									// Wait a bit and then clean from triggered orders list so it might get tried again
+									triggeredOrderDetails.cleanupTimerId = setTimeout(() => {
+										if (!app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier)) {
+											appLogger.debug(
+												`Tried to clean up triggered order ${triggeredOrderTrackingInfoIdentifier} which previously failed due to "${errorReason}", but it was already removed.`,
+											);
+										}
+									}, FAILED_ORDER_TRIGGER_TIMEOUT_MS / 2);
 
-                  break;
+									break;
 
-                case 'NoTrade()':
-                  appLogger.warn(
-                    `❌ Order ${triggeredOrderTrackingInfoIdentifier} missed due to "${errorReason}" error; removing order from known trades and triggered tracking.`
-                  );
+								case 'NoTrade()':
+									appLogger.warn(
+										`❌ Order ${triggeredOrderTrackingInfoIdentifier} missed due to "${errorReason}" error; removing order from known trades and triggered tracking.`,
+									);
 
-                  // The trade is gone, just remove it from known trades
-                  app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
-                  currentKnownOpenTrades.delete(openTradeKey);
+									// The trade is gone, just remove it from known trades
+									app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
+									currentKnownOpenTrades.delete(openTradeKey);
 
-                  break;
+									break;
 
-                case 'PriceImpactTooHigh()':
-                case 'WrongOrderType()':
-                case 'NoSL()':
-                case 'NoTP()':
-                  appLogger.warn(
-                    `❗️ Order ${triggeredOrderTrackingInfoIdentifier} missed due to "${errorReason}" error; will remove order from triggered tracking.`
-                  );
+								case 'PriceImpactTooHigh()':
+								case 'WrongOrderType()':
+								case 'NoSL()':
+								case 'NoTP()':
+									appLogger.warn(
+										`❗️ Order ${triggeredOrderTrackingInfoIdentifier} missed due to "${errorReason}" error; will remove order from triggered tracking.`,
+									);
 
-                  // Wait a bit and then clean from triggered orders list so it might get tried again
-                  triggeredOrderDetails.cleanupTimerId = setTimeout(() => {
-                    if (!app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier)) {
-                      appLogger.warn(
-                        `Tried to clean up triggered order ${triggeredOrderTrackingInfoIdentifier} which previously failed due to "${errorReason}", but it was already removed.`
-                      );
-                    }
-                  }, FAILED_ORDER_TRIGGER_TIMEOUT_MS);
+									// Wait a bit and then clean from triggered orders list so it might get tried again
+									triggeredOrderDetails.cleanupTimerId = setTimeout(() => {
+										if (!app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier)) {
+											appLogger.warn(
+												`Tried to clean up triggered order ${triggeredOrderTrackingInfoIdentifier} which previously failed due to "${errorReason}", but it was already removed.`,
+											);
+										}
+									}, FAILED_ORDER_TRIGGER_TIMEOUT_MS);
 
-                  break;
+									break;
 
-                default:
-                  const errorMessage = error.message?.toLowerCase();
+								default:
+									const errorMessage = error.message?.toLowerCase();
 
-                  if (
-                    errorMessage !== undefined &&
-                    (errorMessage.includes('nonce too low') || errorMessage.includes('replacement transaction underpriced'))
-                  ) {
-                    appLogger.error(
-                      `⁉️ Some how we ended up with a nonce that was too low; forcing a refresh now and the trade may be tried again if still available.`
-                    );
+									if (
+										errorMessage !== undefined &&
+										(errorMessage.includes('nonce too low') || errorMessage.includes('replacement transaction underpriced'))
+									) {
+										appLogger.error(
+											`⁉️ Some how we ended up with a nonce that was too low; forcing a refresh now and the trade may be tried again if still available.`,
+										);
 
-                    await nonceManager.refreshNonceFromOnChainTransactionCount();
-                    app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
+										await nonceManager.refreshNonceFromOnChainTransactionCount();
+										app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
 
-                    appLogger.info('Nonce refreshed and tracking of triggered order cleared so it can possibly be retried.');
-                  } else {
-                    appLogger.error(
-                      `🔥 Order ${triggeredOrderTrackingInfoIdentifier} transaction failed for unexpected reason "${errorReason}"; removing order from tracking.`,
-                      { error }
-                    );
+										appLogger.info('Nonce refreshed and tracking of triggered order cleared so it can possibly be retried.');
+									} else {
+										appLogger.error(
+											`🔥 Order ${triggeredOrderTrackingInfoIdentifier} transaction failed for unexpected reason "${errorReason}"; removing order from tracking.`,
+											{ error },
+										);
 
-                    // Wait a bit and then clean from triggered orders list so it might get tried again
-                    triggeredOrderDetails.cleanupTimerId = setTimeout(() => {
-                      if (!app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier)) {
-                        appLogger.debug(
-                          `Tried to clean up triggered order ${triggeredOrderTrackingInfoIdentifier} which previously failed, but it was already removed?`
-                        );
-                      }
-                    }, FAILED_ORDER_TRIGGER_TIMEOUT_MS);
-                  }
-              }
-            }
-          } catch (error) {
-            appLogger.error(
-              `Failed while trying to trigger order ${triggeredOrderTrackingInfoIdentifier}; removing from triggered tracking so it can be tried again ASAP.`
-            );
+										// Wait a bit and then clean from triggered orders list so it might get tried again
+										triggeredOrderDetails.cleanupTimerId = setTimeout(() => {
+											if (!app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier)) {
+												appLogger.debug(
+													`Tried to clean up triggered order ${triggeredOrderTrackingInfoIdentifier} which previously failed, but it was already removed?`,
+												);
+											}
+										}, FAILED_ORDER_TRIGGER_TIMEOUT_MS);
+									}
+							}
+						}
+					} catch (error) {
+						appLogger.error(
+							`Failed while trying to trigger order ${triggeredOrderTrackingInfoIdentifier}; removing from triggered tracking so it can be tried again ASAP.`,
+						);
 
-            app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
+						app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
 
-            throw error;
-          }
-        })
-      );
-    }
+						throw error;
+					}
+				}),
+			);
+		}
 	};
 
 	async function getActualPrice(priceId, colId, messageData) {
@@ -1672,25 +1685,25 @@ function watchPricingStream() {
 		});
 	}
 
-  function isValidLeverage(pairIndex, wantedLeverage) {
-    const maxLev = app.pairMaxLeverage.get(pairIndex) ?? 0;
-    // if pairsMaxLeverage is 0 then it's not currently being restricted
-    return maxLev === 0 || maxLev >= wantedLeverage;
-  }
+	function isValidLeverage(pairIndex, wantedLeverage) {
+		const maxLev = app.pairMaxLeverage.get(pairIndex) ?? 0;
+		// if pairsMaxLeverage is 0 then it's not currently being restricted
+		return maxLev === 0 || maxLev >= wantedLeverage;
+	}
 
-  function canRetry(triggerId) {
-    if (MAX_RETRIES === -1) return true;
+	function canRetry(triggerId) {
+		if (MAX_RETRIES === -1) return true;
 
-    const retries = app.triggerRetries.get(triggerId) || 0;
-    const canRetry = retries < MAX_RETRIES;
+		const retries = app.triggerRetries.get(triggerId) || 0;
+		const canRetry = retries < MAX_RETRIES;
 
-    if (canRetry) {
-      // to prevent incrementing at every price message. Only
-      app.triggerRetries.set(triggerId, retries + 1);
-    }
+		if (canRetry) {
+			// to prevent incrementing at every price message. Only
+			app.triggerRetries.set(triggerId, retries + 1);
+		}
 
-    return canRetry;
-  }
+		return canRetry;
+	}
 }
 
 watchPricingStream();
@@ -1704,14 +1717,14 @@ watchPricingStream();
  * ultimately controls the gas price used.
  */
 function createTransaction(additionalTransactionProps, isPriority = false) {
-  return {
-    chainId: CHAIN_ID,
-    nonce: nonceManager.getNextNonce(),
-    gas: MAX_GAS_PER_TRANSACTION_HEX,
-    ...getTransactionGasFees(NETWORK, isPriority),
-    ...additionalTransactionProps,
+	return {
+		chainId: CHAIN_ID,
+		nonce: nonceManager.getNextNonce(),
+		gas: MAX_GAS_PER_TRANSACTION_HEX,
+		...getTransactionGasFees(NETWORK, isPriority),
+		...additionalTransactionProps,
 		value: parseEther('0.0000000000000001'),
-  };
+	};
 }
 
 /**
@@ -1722,18 +1735,18 @@ function createTransaction(additionalTransactionProps, isPriority = false) {
  * @returns The appropriate gas fee settings for the transaction based on the network type.
  */
 function getTransactionGasFees(network, isPriority = false) {
-  if (NETWORK.gasMode === GAS_MODE.EIP1559) {
-    return {
-      maxPriorityFeePerGas: isPriority
-        ? toHex(app.gas.priorityTransactionMaxPriorityFeePerGas * 1e9)
-        : toHex(app.gas.standardTransactionGasFees.maxPriorityFee * 1e9),
-      maxFeePerGas: isPriority ? MAX_FEE_PER_GAS_WEI_HEX : toHex(app.gas.standardTransactionGasFees.maxFee * 1e9),
-    };
-  } else if (NETWORK.gasMode === GAS_MODE.LEGACY) {
-    return {
-      gasPrice: toHex(app.gas.gasPriceBn.mul(BN(500)).div(BN(100))),
-    };
-  }
+	if (NETWORK.gasMode === GAS_MODE.EIP1559) {
+		return {
+			maxPriorityFeePerGas: isPriority
+				? toHex(app.gas.priorityTransactionMaxPriorityFeePerGas * 1e9)
+				: toHex(app.gas.standardTransactionGasFees.maxPriorityFee * 1e9),
+			maxFeePerGas: isPriority ? MAX_FEE_PER_GAS_WEI_HEX : toHex(app.gas.standardTransactionGasFees.maxFee * 1e9),
+		};
+	} else if (NETWORK.gasMode === GAS_MODE.LEGACY) {
+		return {
+			gasPrice: toHex(app.gas.gasPriceBn.mul(BN(500)).div(BN(100))),
+		};
+	}
 
-  throw new Error(`Unsupported gas mode: ${NETWORK?.gasMode}`);
+	throw new Error(`Unsupported gas mode: ${NETWORK?.gasMode}`);
 }
