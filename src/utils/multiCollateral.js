@@ -40,8 +40,8 @@ export const feedIdToPriceIndex = new Map([
 	['5de33a9112c2b700b8d30b8a3402c103578ccfa2765696471cc672bd5cf6ac52', 7],
 	// NEAR
 	['c415de8d2eba7db216527dff4b60e8f3a5311c740dadb233e13e12547e226750', 8],
-	// MATIC
-	['ca3eed9b267293f6595901c734c7525ce8ef49adafe8284606ceb307afa2ca5b', 9],
+	// POL
+	['ffd11c5a1cfd42f80afb2df4d9f264c15f956d68153335374ec10722edd70472', 9],
 	// MSFT
 	['d0ca23c1cc005e004ccf1db5bf76aeb6a49218f43dac3d4b275e92de12ded4d1', 10],
 	// AAPL
