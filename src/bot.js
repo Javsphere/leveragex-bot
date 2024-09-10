@@ -11,7 +11,6 @@ import {
 	getSpreadWithPriceImpactP,
 	isCommoditiesOpen,
 	isForexOpen,
-	isIndicesOpen,
 	isStocksOpen,
 	withinMaxGroupOi,
 } from '@gainsnetwork/sdk';
@@ -22,7 +21,6 @@ import {
 	GAS_MODE,
 	isCommoditiesGroup,
 	isForexGroup,
-	isIndicesGroup,
 	isStocksGroup,
 	MAX_OPEN_NEGATIVE_PNL_P,
 	PENDING_ORDER_TYPE,
@@ -465,6 +463,12 @@ async function fetchTradingVariables() {
 
 		await currentTradingVariablesFetchPromise;
 		appLogger.info(`Done fetching trading variables; took ${performance.now() - executionStart}ms.`);
+		appLogger.debug(`Trading variables: app.collaterals: ${JSON.stringify(app.collaterals)}.`);
+		appLogger.debug(`Trading variables: app.fees ${JSON.stringify(app.fees)}.`);
+		appLogger.debug(`Trading variables: app.pairs ${JSON.stringify(app.pairs)}.`);
+		appLogger.debug(`Trading variables: app.borrowingFeesContext ${JSON.stringify(app.borrowingFeesContext)}.`);
+		appLogger.debug(`Trading variables: app.groupLiquidationParams ${JSON.stringify(app.groupLiquidationParams)}.`);
+		appLogger.debug(`Trading variables: app.spreadsP ${JSON.stringify(app.spreadsP)}.`);
 
 		if (FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_MS > 0) {
 			fetchTradingVariablesTimerId = setTimeout(() => {
@@ -552,7 +556,7 @@ async function fetchTradingVariables() {
 				const borrowingFeeGroupResults =
 					borrowingFeesGroupIds.length > 0
 						? await app.contracts.diamond.methods
-							.getBorrowingGroups(collateralIndex, Array.from(Array(+borrowingFeesGroupIds[borrowingFeesGroupIds.length - 1] + 1).keys()))
+							.getBorrowingGroups(collateralIndex, borrowingFeesGroupIds.map(Number))
 							.call()
 						: [[], []];
 
@@ -1436,10 +1440,6 @@ function watchPricingStream() {
 					}
 
 					if (isStocksGroup(groupId) && !isStocksOpen(new Date())) {
-						return;
-					}
-
-					if (isIndicesGroup(groupId) && !isIndicesOpen(new Date())) {
 						return;
 					}
 
