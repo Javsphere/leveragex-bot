@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import ethers, { Contract } from 'ethers';
 import {
 	getCurrentOiWindowId,
+	getLiqPnlThresholdP,
 	getLiquidationPrice,
 	getPnl,
 	getSpreadWithPriceImpactP,
@@ -1345,6 +1346,8 @@ function watchPricingStream() {
 							borrowingFeesContext,
 						);
 
+						const liqFactor = getLiqPnlThresholdP(convertedLiquidationParams, convertedTrade.leverage);
+
 						if (
 							tp !== 0 &&
 							tpDistanceP <= convertedTradeInfo.maxSlippageP && // abs distance from current price and tp can't be above max slippage
@@ -1367,14 +1370,15 @@ function watchPricingStream() {
 							orderType = PENDING_ORDER_TYPE.LIQ_CLOSE;
 							if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
 								const logLiqId = `${Math.random().toString(36).slice(2, 7)}-LIQ_CLOSE_LOG`;
-								appLogger.info(`${logLiqId}: convertedTrade: ${JSON.stringify(convertedTrade)}.`);
-								appLogger.info(`${logLiqId} convertedTradeInfo ${JSON.stringify(convertedTradeInfo)}.`);
-								appLogger.info(`${logLiqId}: convertedInitialAccFees ${JSON.stringify(convertedInitialAccFees)}.`);
-								appLogger.info(`${logLiqId}: convertedLiquidationParams ${JSON.stringify(convertedLiquidationParams)}.`);
-								appLogger.info(`${logLiqId}: convertedFee ${JSON.stringify(convertedFee)}.`);
-								appLogger.info(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(convertedPairSpreadP)}.`);
-								appLogger.info(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(borrowingFeesContext)}.`);
-								appLogger.info(`${logLiqId}: Trade ${openTradeKey} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
+								appLogger.debug(`${logLiqId}: liqFactor: ${liqFactor}.`);
+								appLogger.debug(`${logLiqId}: convertedTrade: ${JSON.stringify(convertedTrade)}.`);
+								appLogger.debug(`${logLiqId}  convertedTradeInfo ${JSON.stringify(convertedTradeInfo)}.`);
+								appLogger.debug(`${logLiqId}: convertedInitialAccFees ${JSON.stringify(convertedInitialAccFees)}.`);
+								appLogger.debug(`${logLiqId}: convertedLiquidationParams ${JSON.stringify(convertedLiquidationParams)}.`);
+								appLogger.debug(`${logLiqId}: convertedFee ${JSON.stringify(convertedFee)}.`);
+								appLogger.debug(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(convertedPairSpreadP)}.`);
+								appLogger.debug(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(borrowingFeesContext)}.`);
+								appLogger.debug(`${logLiqId}: Trade ${openTradeKey} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
 							}
 						} else {
 							//appLogger.debug(`Open trade ${openTradeKey} is not ready for us to act on yet.`);
