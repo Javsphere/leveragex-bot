@@ -1346,8 +1346,6 @@ function watchPricingStream() {
 							borrowingFeesContext,
 						);
 
-						const liqFactor = getLiqPnlThresholdP(convertedLiquidationParams, convertedTrade.leverage);
-
 						if (
 							tp !== 0 &&
 							tpDistanceP <= convertedTradeInfo.maxSlippageP && // abs distance from current price and tp can't be above max slippage
@@ -1368,18 +1366,6 @@ function watchPricingStream() {
 							}
 						} else if ((long && price <= liqPrice) || (!long && price >= liqPrice)) {
 							orderType = PENDING_ORDER_TYPE.LIQ_CLOSE;
-							if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
-								const logLiqId = `${Math.random().toString(36).slice(2, 7)}-LIQ_CLOSE_LOG`;
-								appLogger.debug(`${logLiqId}: liqFactor: ${liqFactor}.`);
-								appLogger.debug(`${logLiqId}: convertedTrade: ${JSON.stringify(convertedTrade)}.`);
-								appLogger.debug(`${logLiqId}  convertedTradeInfo ${JSON.stringify(convertedTradeInfo)}.`);
-								appLogger.debug(`${logLiqId}: convertedInitialAccFees ${JSON.stringify(convertedInitialAccFees)}.`);
-								appLogger.debug(`${logLiqId}: convertedLiquidationParams ${JSON.stringify(convertedLiquidationParams)}.`);
-								appLogger.debug(`${logLiqId}: convertedFee ${JSON.stringify(convertedFee)}.`);
-								appLogger.debug(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(convertedPairSpreadP)}.`);
-								appLogger.debug(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(borrowingFeesContext)}.`);
-								appLogger.debug(`${logLiqId}: Trade ${openTradeKey} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
-							}
 						} else {
 							//appLogger.debug(`Open trade ${openTradeKey} is not ready for us to act on yet.`);
 						}
@@ -1485,6 +1471,29 @@ function watchPricingStream() {
 						}
 
 						appLogger.info(`🤞 Trying to trigger ${triggeredOrderTrackingInfoIdentifier}...`);
+
+						if (orderType === PENDING_ORDER_TYPE.LIQ_CLOSE) {
+							const liqPrice = getTradeLiquidationPrice(
+								convertedTrade,
+								convertedTradeInfo,
+								convertedInitialAccFees,
+								convertedLiquidationParams,
+								convertedFee,
+								convertedPairSpreadP,
+								borrowingFeesContext,
+							);
+							const liqFactor = getLiqPnlThresholdP(convertedLiquidationParams, convertedTrade.leverage);
+							const logLiqId = `${Math.random().toString(36).slice(2, 7)}-LIQ_CLOSE_LOG`;
+							appLogger.debug(`${logLiqId}: liqFactor: ${liqFactor}.`);
+							appLogger.debug(`${logLiqId}: convertedTrade: ${JSON.stringify(convertedTrade)}.`);
+							appLogger.debug(`${logLiqId}  convertedTradeInfo ${JSON.stringify(convertedTradeInfo)}.`);
+							appLogger.debug(`${logLiqId}: convertedInitialAccFees ${JSON.stringify(convertedInitialAccFees)}.`);
+							appLogger.debug(`${logLiqId}: convertedLiquidationParams ${JSON.stringify(convertedLiquidationParams)}.`);
+							appLogger.debug(`${logLiqId}: convertedFee ${JSON.stringify(convertedFee)}.`);
+							appLogger.debug(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(convertedPairSpreadP)}.`);
+							appLogger.debug(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(borrowingFeesContext)}.`);
+							appLogger.debug(`${logLiqId}: Trade ${triggeredOrderTrackingInfoIdentifier} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
+						}
 
 						try {
 							// before we execute limit or liquidation we get the actual prices from oracle
