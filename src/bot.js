@@ -463,12 +463,6 @@ async function fetchTradingVariables() {
 
 		await currentTradingVariablesFetchPromise;
 		appLogger.info(`Done fetching trading variables; took ${performance.now() - executionStart}ms.`);
-		appLogger.debug(`Trading variables: app.collaterals: ${JSON.stringify(app.collaterals)}.`);
-		appLogger.debug(`Trading variables: app.fees ${JSON.stringify(app.fees)}.`);
-		appLogger.debug(`Trading variables: app.pairs ${JSON.stringify(app.pairs)}.`);
-		appLogger.debug(`Trading variables: app.borrowingFeesContext ${JSON.stringify(app.borrowingFeesContext)}.`);
-		appLogger.debug(`Trading variables: app.groupLiquidationParams ${JSON.stringify(app.groupLiquidationParams)}.`);
-		appLogger.debug(`Trading variables: app.spreadsP ${JSON.stringify(app.spreadsP)}.`);
 
 		if (FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_MS > 0) {
 			fetchTradingVariablesTimerId = setTimeout(() => {
@@ -1358,7 +1352,7 @@ function watchPricingStream() {
 						) {
 							orderType = PENDING_ORDER_TYPE.TP_CLOSE;
 							if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
-								appLogger.debug(`Trade ${openTradeKey} set orderType set to TP_CLOSE because long: ${long} & price: ${price} ${long ? '>=' : '<='} tp: ${tp}.`);
+								appLogger.info(`Trade ${openTradeKey} set orderType set to TP_CLOSE because long: ${long} & price: ${price} ${long ? '>=' : '<='} tp: ${tp}.`);
 							}
 						} else if (
 							sl !== 0 &&
@@ -1367,12 +1361,20 @@ function watchPricingStream() {
 						) {
 							orderType = PENDING_ORDER_TYPE.SL_CLOSE;
 							if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
-								appLogger.debug(`Trade ${openTradeKey} set orderType set to SL_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} sl: ${sl}.`);
+								appLogger.info(`Trade ${openTradeKey} set orderType set to SL_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} sl: ${sl}.`);
 							}
 						} else if ((long && price <= liqPrice) || (!long && price >= liqPrice)) {
 							orderType = PENDING_ORDER_TYPE.LIQ_CLOSE;
 							if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
-								appLogger.debug(`Trade ${openTradeKey} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
+								const logLiqId = `${Math.random().toString(36).slice(2, 7)}-LIQ_CLOSE_LOG`;
+								appLogger.info(`${logLiqId}: convertedTrade: ${JSON.stringify(convertedTrade)}.`);
+								appLogger.info(`${logLiqId} convertedTradeInfo ${JSON.stringify(convertedTradeInfo)}.`);
+								appLogger.info(`${logLiqId}: convertedInitialAccFees ${JSON.stringify(convertedInitialAccFees)}.`);
+								appLogger.info(`${logLiqId}: convertedLiquidationParams ${JSON.stringify(convertedLiquidationParams)}.`);
+								appLogger.info(`${logLiqId}: convertedFee ${JSON.stringify(convertedFee)}.`);
+								appLogger.info(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(convertedPairSpreadP)}.`);
+								appLogger.info(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(borrowingFeesContext)}.`);
+								appLogger.info(`${logLiqId}: Trade ${openTradeKey} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
 							}
 						} else {
 							//appLogger.debug(`Open trade ${openTradeKey} is not ready for us to act on yet.`);
