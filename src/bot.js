@@ -38,7 +38,6 @@ import {
 	convertTradeInfo,
 	convertTradeInitialAccFees,
 	createLogger,
-	feedIdToPriceIndex,
 	getEthersContract,
 	increaseWindowOi,
 	initContracts,
@@ -551,7 +550,7 @@ async function fetchTradingVariables() {
 				const borrowingFeeGroupResults =
 					borrowingFeesGroupIds.length > 0
 						? await app.contracts.diamond.methods
-							.getBorrowingGroups(collateralIndex, borrowingFeesGroupIds.map(Number))
+							.getBorrowingGroups(collateralIndex, Array.from(Array(+borrowingFeesGroupIds[borrowingFeesGroupIds.length - 1] + 1).keys()))
 							.call()
 						: [[], []];
 
@@ -1209,16 +1208,13 @@ function watchPricingStream() {
 
 		const messageData = JSON.parse(msg.data.toString());
 
-		const correctId = messageData.id;
-		if (feedIdToPriceIndex.get(correctId) !== undefined) {
-
-			// stocks pricefeed
-			if (messageData.priceCombined !== undefined) {
-				pairPrices.set(feedIdToPriceIndex.get(correctId), +messageData.priceCombined.price * 10 ** messageData.priceCombined.expo);
-				// everything else directly from pyth
-			} else {
-				pairPrices.set(feedIdToPriceIndex.get(correctId), +messageData.price.price * 10 ** messageData.price.expo);
-			}
+		const index = app.pairs.findIndex(pair => pair.feedId === '0x' + messageData.id);
+		// stocks pricefeed
+		if (messageData.priceCombined !== undefined) {
+			pairPrices.set(index, +messageData.priceCombined.price * 10 ** messageData.priceCombined.expo);
+			// everything else directly from pyth
+		} else {
+			pairPrices.set(index, +messageData.price.price * 10 ** messageData.price.expo);
 		}
 
 		pricingUpdatesMessageProcessingCount++;
@@ -1655,23 +1651,25 @@ function watchPricingStream() {
 
 			const groupId = parseInt(app.pairs[priceId].groupIndex);
 			if (!isStocksGroup(groupId)) {
-				appLogger.info(`Get Price for Pyth Oracle for priceId ${priceId}`);
 				const [priceUpdatesPyth] = await Promise.all([
 					fetchPythPrices([app.pairs[priceId].feedId, app.pairs[colId].feedId, NETWORK.rewardTokenId]),
 				]);
+				appLogger.info(`Prices get for pair ${priceId} with value ${+priceUpdatesPyth.parsed[0].price.price * 10 ** priceUpdatesPyth.parsed[0].price.expo}`);
 				return [['0x' + priceUpdatesPyth.binary.data[0]], []];
 			} else {
 				appLogger.info(`Get Price for Jav Oracle for priceId ${priceId}`);
 				const [priceUpdatesJav] = await Promise.all([
 					fetchPythPrices([app.pairs[colId].feedId, NETWORK.rewardTokenId]),
 				]);
+				const priceCombined = messageData.priceCombined;
 				const updatePriceInfo = abiCoder.encode(
 					['bytes32', 'int64', 'uint64', 'int32', 'uint64'],
-					[`0x${messageData.id}`, +messageData.priceCombined.price, messageData.priceCombined.conf, messageData.priceCombined.expo, messageData.priceCombined.publishTime],
+					[`0x${messageData.id}`, +priceCombined.price, priceCombined.conf, priceCombined.expo, priceCombined.publishTime],
 				);
 				const messageHash = ethers.utils.keccak256(updatePriceInfo);
 				const signature = await app.signer.signMessage(ethers.utils.arrayify(messageHash));
 				const signedData = ethers.utils.concat([signature, updatePriceInfo]);
+				appLogger.info(`Prices get and signed for pair ${priceId} with value ${+messageData.priceCombined.price * 10 ** messageData.priceCombined.expo}`);
 				return [['0x' + priceUpdatesJav.binary.data[0]], [signedData]];
 			}
 
