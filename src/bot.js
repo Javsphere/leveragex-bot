@@ -970,6 +970,10 @@ async function synchronizeOpenTrades(event) {
 			const newTrade = transformRawTrade({ trade, tradeInfo, initialAccFees, liquidationParams });
 			currentKnownOpenTrades.set(tradeKey, newTrade);
 			appLogger.info(`Synchronize open trades from event ${eventName}: Stored active trade ${tradeKey}`);
+
+			const webhookText = `Trade OPENED with id ${tradeKey} - ${newTrade.leverage / 1e3}x ${newTrade.long ? 'long' : 'short'} with ${newTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} on ${app.pairs[newTrade.pairIndex].from}/${app.pairs[newTrade.pairIndex].to} at ${newTrade.openPrice / 1e10}$`;
+			await slackWebhook(webhookText, 'new');
+
 		} else if (eventName === 'TradeClosed') {
 			const { user, index } = eventReturnValues.tradeId;
 			const tradeKey = buildTradeIdentifier(user, index);
@@ -983,6 +987,9 @@ async function synchronizeOpenTrades(event) {
 				appLogger.info(`Synchronize open trades from event ${eventName}: Trade not found for ${tradeKey}`);
 			}
 
+			const webhookText = `Trade CLOSED with id ${tradeKey}`;
+			await slackWebhook(webhookText, 'close');
+
 		} else if (eventName === 'LimitExecuted') {
 
 			const { user, index } = eventReturnValues.t;
@@ -994,6 +1001,13 @@ async function synchronizeOpenTrades(event) {
 				appLogger.info(`Synchronize trigger tracking from event ${eventName}: Trigger deleted for ${triggeredOrderTrackingInfoIdentifier}`);
 			} else {
 				appLogger.info(`Synchronize trigger trades from event ${eventName}: Trade not found for ${triggeredOrderTrackingInfoIdentifier}`);
+			}
+
+			const webhookText = `Trade LIMIT EXECUTED with id ${triggeredOrderTrackingInfoIdentifier}`;
+			if (orderType === 6) {
+				await slackWebhook(webhookText, 'liq');
+			} else {
+				await slackWebhook(webhookText, 'limit');
 			}
 
 		} else if (eventName === 'TradeTpUpdated' || eventName === 'TradeSlUpdated') {
@@ -1116,6 +1130,33 @@ async function synchronizeOpenTrades(event) {
 	} catch (error) {
 		appLogger.error('Error occurred when refreshing trades.', error);
 	}
+}
+
+async function slackWebhook(text, type) {
+	const url = 'https://hooks.slack.com/services/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';
+
+	let emoji = 'ghost';
+	if (type === 'new' || type === 'limit') {
+		emoji = 'white_check_mark';
+	} else if (type === 'liq') {
+		emoji = 'money_with_wings';
+	} else if (type === 'close') {
+		emoji = 'saluting_face';
+	}
+
+	const payload = {
+		channel: '#levx-sepolia',
+		username: 'webhookbot',
+		text: text,
+		icon_emoji: `:${emoji}:`,
+	};
+	axios.post(url, payload)
+		.then(response => {
+			appLogger.info('SlackWebhook posted:', response.data);
+		})
+		.catch(error => {
+			appLogger.warn('Error slackWebhook message:', error);
+		});
 }
 
 async function handleBorrowingFeesEvent(event) {
