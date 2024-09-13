@@ -20,6 +20,7 @@ import { DateTime } from 'luxon';
 import fetch from 'node-fetch';
 import {
 	GAS_MODE,
+	getPendingOrderTypeByValue,
 	isCommoditiesGroup,
 	isForexGroup,
 	isStocksGroup,
@@ -851,6 +852,7 @@ function watchLiveTradingEvents() {
 					'TradeStored',
 					'TradeClosed',
 					'LimitExecuted',
+					'MarketExecuted',
 					'TradeTpUpdated',
 					'TradeSlUpdated',
 					'OpenLimitUpdated',
@@ -971,9 +973,6 @@ async function synchronizeOpenTrades(event) {
 			currentKnownOpenTrades.set(tradeKey, newTrade);
 			appLogger.info(`Synchronize open trades from event ${eventName}: Stored active trade ${tradeKey}`);
 
-			const webhookText = `Trade OPENED with id ${tradeKey} - ${newTrade.leverage / 1e3}x ${newTrade.long ? 'long' : 'short'} with ${newTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} on ${app.pairs[newTrade.pairIndex].from}/${app.pairs[newTrade.pairIndex].to} at ${newTrade.openPrice / 1e10}$`;
-			await slackWebhook(webhookText, 'new');
-
 		} else if (eventName === 'TradeClosed') {
 			const { user, index } = eventReturnValues.tradeId;
 			const tradeKey = buildTradeIdentifier(user, index);
@@ -987,13 +986,21 @@ async function synchronizeOpenTrades(event) {
 				appLogger.info(`Synchronize open trades from event ${eventName}: Trade not found for ${tradeKey}`);
 			}
 
-			const webhookText = `Trade CLOSED with id ${tradeKey}`;
-			await slackWebhook(webhookText, 'close');
-
 		} else if (eventName === 'LimitExecuted') {
 
-			const { user, index } = eventReturnValues.t;
-			const { orderType } = eventReturnValues;
+			const {
+				user,
+				index,
+				openPrice,
+				sl,
+				tp,
+				long,
+				pairIndex,
+				collateralAmount,
+				collateralIndex,
+				leverage,
+			} = eventReturnValues.t;
+			const { orderType, collateralPriceUsd, amountSentToTrader, price } = eventReturnValues;
 			const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(user, index, orderType);
 
 			if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifier)) {
@@ -1003,12 +1010,37 @@ async function synchronizeOpenTrades(event) {
 				appLogger.info(`Synchronize trigger trades from event ${eventName}: Trade not found for ${triggeredOrderTrackingInfoIdentifier}`);
 			}
 
-			const webhookText = `Trade LIMIT EXECUTED with id ${triggeredOrderTrackingInfoIdentifier}`;
-			if (orderType === '6') {
-				await slackWebhook(webhookText, 'liq');
+			const orderTypeText = getPendingOrderTypeByValue(+orderType);
+			const webhookText = `Trade EXECUTED type ${orderTypeText} with id ${triggeredOrderTrackingInfoIdentifier} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol}: ${collateralAmount / 1e18 * collateralPriceUsd / 1e8}$
+			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${openPrice / 1e10}$ / executed ${price / 1e10}$ profit ${+amountSentToTrader === 0 ? '-100' : ((+amountSentToTrader / 1e18 - collateralAmount / 1e18) / (collateralAmount / 1e18) * 100)}% => ${+amountSentToTrader === 0 ? `-${collateralAmount / 1e18}` : (amountSentToTrader / 1e18 - collateralAmount / 1e18)} ${app.collaterals[collateralIndex].symbol}`;
+
+			await slackWebhook(orderType === '6' ? '💸 ' : (orderType === '2' || orderType === '3' ? '🚀  ' : '🤝 ') + webhookText);
+
+		} else if (eventName === 'MarketExecuted') {
+
+			const {
+				user,
+				index,
+				openPrice,
+				long,
+				pairIndex,
+				collateralAmount,
+				collateralIndex,
+				leverage,
+			} = eventReturnValues.t;
+			const { collateralPriceUsd, amountSentToTrader, price, open } = eventReturnValues;
+
+			let webhookText;
+			const tradeKey = buildTradeIdentifier(user, index);
+			if (open) {
+				webhookText = `🚀  Trade OPENED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} : ${collateralAmount / 1e18 * collateralPriceUsd / 1e8}$ on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} at ${openPrice / 1e10}$`;
 			} else {
-				await slackWebhook(webhookText, 'limit');
+				webhookText = `🤝 Trade CLOSED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol}: ${collateralAmount / 1e18 * collateralPriceUsd / 1e8}$
+			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${openPrice / 1e10}$ / executed ${price / 1e10}$ profit ${+amountSentToTrader === 0 ? '-100' : ((+amountSentToTrader / 1e18 - collateralAmount / 1e18) / (collateralAmount / 1e18) * 100)}% 	=> ${+amountSentToTrader === 0 ? `-${collateralAmount / 1e18}` : (amountSentToTrader / 1e18 - collateralAmount / 1e18)} ${app.collaterals[collateralIndex].symbol}`;
+
 			}
+
+			await slackWebhook(webhookText);
 
 		} else if (eventName === 'TradeTpUpdated' || eventName === 'TradeSlUpdated') {
 			const { user, index } = eventReturnValues.tradeId;
@@ -1118,6 +1150,10 @@ async function synchronizeOpenTrades(event) {
 
 			appLogger.warn(`Synchronize trigger tracking from event ${eventName}: Order canceled ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}`);
 
+			const webhookText = `Trade TRIGGER CANCELED with id ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}`;
+
+			await slackWebhook('❌ ' + webhookText);
+
 			return;
 		}
 
@@ -1132,23 +1168,14 @@ async function synchronizeOpenTrades(event) {
 	}
 }
 
-async function slackWebhook(text, type) {
+async function slackWebhook(text) {
 	const url = 'https://hooks.slack.com/services/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';
-
-	let emoji = 'ghost';
-	if (type === 'new' || type === 'limit') {
-		emoji = 'white_check_mark';
-	} else if (type === 'liq') {
-		emoji = 'money_with_wings';
-	} else if (type === 'close') {
-		emoji = 'saluting_face';
-	}
 
 	const payload = {
 		channel: '#levx-sepolia',
 		username: 'webhookbot',
 		text: text,
-		icon_emoji: `:${emoji}:`,
+		icon_emoji: `:roboter:`,
 	};
 	axios.post(url, payload)
 		.then(response => {
@@ -1389,18 +1416,12 @@ function watchPricingStream() {
 							((long && price >= tp) || (!long && price <= tp))
 						) {
 							orderType = PENDING_ORDER_TYPE.TP_CLOSE;
-							if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
-								appLogger.info(`Trade ${openTradeKey} set orderType set to TP_CLOSE because long: ${long} & price: ${price} ${long ? '>=' : '<='} tp: ${tp}.`);
-							}
 						} else if (
 							sl !== 0 &&
 							slDistanceP <= convertedTradeInfo.maxSlippageP && // abs distance from current price and sl can't be above max slippage
 							((long && price <= sl) || (!long && price >= sl))
 						) {
 							orderType = PENDING_ORDER_TYPE.SL_CLOSE;
-							if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
-								appLogger.info(`Trade ${openTradeKey} set orderType set to SL_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} sl: ${sl}.`);
-							}
 						} else if ((long && price <= liqPrice) || (!long && price >= liqPrice)) {
 							orderType = PENDING_ORDER_TYPE.LIQ_CLOSE;
 						} else {
@@ -1450,9 +1471,6 @@ function watchPricingStream() {
 								(tradeType === '2' && (long ? price >= wantedPrice : price <= wantedPrice))
 							) {
 								orderType = tradeType === '1' ? PENDING_ORDER_TYPE.LIMIT_OPEN : PENDING_ORDER_TYPE.STOP_OPEN;
-								if (!app.triggeredOrders.has(buildTriggerIdentifier(user, index, orderType))) {
-									appLogger.debug(`Trade ${openTradeKey} set orderType set to ${tradeType === '1' ? 'LIMIT_OPEN' : 'STOP_OPEN'} because long: ${long} & price: ${wantedPrice} reached.`);
-								}
 							} else {
 								//appLogger.debug(`Limit trade ${openTradeKey} is not ready for us to act on yet.`);
 							}
@@ -1530,6 +1548,17 @@ function watchPricingStream() {
 							appLogger.debug(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(convertedPairSpreadP)}.`);
 							appLogger.debug(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(borrowingFeesContext)}.`);
 							appLogger.debug(`${logLiqId}: Trade ${triggeredOrderTrackingInfoIdentifier} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
+						}
+
+						if (orderType === PENDING_ORDER_TYPE.TP_CLOSE) {
+							appLogger.info(`Trade ${openTradeKey} set orderType set to TP_CLOSE because long: ${long} & price: ${price} ${long ? '>=' : '<='} tp: ${convertedTrade.tp}.`);
+						}
+
+						if (orderType === PENDING_ORDER_TYPE.SL_CLOSE) {
+							appLogger.info(`Trade ${openTradeKey} set orderType set to SL_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} sl: ${convertedTrade.sl}.`);
+						}
+						if (orderType === PENDING_ORDER_TYPE.LIMIT_OPEN || orderType === PENDING_ORDER_TYPE.STOP_OPEN) {
+							appLogger.debug(`Trade ${openTradeKey} set orderType set to ${orderType === PENDING_ORDER_TYPE.LIMIT_OPEN ? 'LIMIT_OPEN' : 'STOP_OPEN'} because long: ${long} & price: ${price} reached.`);
 						}
 
 						try {

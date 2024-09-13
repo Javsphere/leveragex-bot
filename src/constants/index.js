@@ -22,5 +22,9 @@ export const PENDING_ORDER_TYPE = {
   LIQ_CLOSE: 6,
 };
 
+export function getPendingOrderTypeByValue(value) {
+	return Object.keys(PENDING_ORDER_TYPE).find(key => PENDING_ORDER_TYPE[key] === value);
+}
+
 export * from './abis.js';
 export * from './networks.js';
