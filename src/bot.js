@@ -44,6 +44,8 @@ import {
 	initContracts,
 	NonceManager,
 	packTrigger,
+	round2,
+	round5,
 	transferOiWindows,
 	transformFrom1e10,
 	transformOi,
@@ -1011,8 +1013,8 @@ async function synchronizeOpenTrades(event) {
 			}
 
 			const orderTypeText = getPendingOrderTypeByValue(+orderType);
-			const webhookText = `Trade EXECUTED type ${orderTypeText} with id ${triggeredOrderTrackingInfoIdentifier} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol}: ${collateralAmount / 1e18 * collateralPriceUsd / 1e8}$
-			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${openPrice / 1e10}$ / executed ${price / 1e10}$ profit ${+amountSentToTrader === 0 ? '-100' : ((+amountSentToTrader / 1e18 - collateralAmount / 1e18) / (collateralAmount / 1e18) * 100)}% => ${+amountSentToTrader === 0 ? `-${collateralAmount / 1e18}` : (amountSentToTrader / 1e18 - collateralAmount / 1e18)} ${app.collaterals[collateralIndex].symbol}`;
+			const webhookText = `Trade EXECUTED type ${orderTypeText} with id ${triggeredOrderTrackingInfoIdentifier} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / 1e18 * collateralPriceUsd / 1e8)}$
+			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round5(openPrice / 1e10)}$ / executed ${round5(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / 1e18 - collateralAmount / 1e18) / (collateralAmount / 1e18) * 100)}% => ${+amountSentToTrader === 0 ? `-${collateralAmount / 1e18}` : (amountSentToTrader / 1e18 - collateralAmount / 1e18)} ${app.collaterals[collateralIndex].symbol}`;
 
 			await slackWebhook(orderType === '6' ? '💸 ' : (orderType === '2' || orderType === '3' ? '🚀  ' : '🤝 ') + webhookText);
 
@@ -1033,10 +1035,10 @@ async function synchronizeOpenTrades(event) {
 			let webhookText;
 			const tradeKey = buildTradeIdentifier(user, index);
 			if (open) {
-				webhookText = `🚀  Trade OPENED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} : ${collateralAmount / 1e18 * collateralPriceUsd / 1e8}$ on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} at ${openPrice / 1e10}$`;
+				webhookText = `🚀  Trade OPENED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} : ${round2(collateralAmount / 1e18 * collateralPriceUsd / 1e8)}$ on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} at ${round2(openPrice / 1e10)}$`;
 			} else {
-				webhookText = `🤝 Trade CLOSED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol}: ${collateralAmount / 1e18 * collateralPriceUsd / 1e8}$
-			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${openPrice / 1e10}$ / executed ${price / 1e10}$ profit ${+amountSentToTrader === 0 ? '-100' : ((+amountSentToTrader / 1e18 - collateralAmount / 1e18) / (collateralAmount / 1e18) * 100)}% 	=> ${+amountSentToTrader === 0 ? `-${collateralAmount / 1e18}` : (amountSentToTrader / 1e18 - collateralAmount / 1e18)} ${app.collaterals[collateralIndex].symbol}`;
+				webhookText = `🤝 Trade CLOSED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / 1e18 * collateralPriceUsd / 1e8)}$
+			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round5(openPrice / 1e10)}$ / executed ${round5(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / 1e18 - collateralAmount / 1e18) / (collateralAmount / 1e18) * 100)}% 	=> ${+amountSentToTrader === 0 ? `-${collateralAmount / 1e18}` : round5(amountSentToTrader / 1e18 - collateralAmount / 1e18)} ${app.collaterals[collateralIndex].symbol}`;
 
 			}
 
@@ -1169,15 +1171,13 @@ async function synchronizeOpenTrades(event) {
 }
 
 async function slackWebhook(text) {
-	const url = 'https://hooks.slack.com/services/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';
-
 	const payload = {
 		channel: '#levx-sepolia',
 		username: 'webhookbot',
 		text: text,
-		icon_emoji: `:roboter:`,
+		icon_emoji: `:robot_face:`,
 	};
-	axios.post(url, payload)
+	axios.post(process.env.WEBHOOK_URL, payload)
 		.then(response => {
 			appLogger.info('SlackWebhook posted:', response.data);
 		})

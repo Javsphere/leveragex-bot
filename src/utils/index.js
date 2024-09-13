@@ -201,6 +201,14 @@ export const appConfig = () => {
   };
 };
 
+export function round2(num: number): number {
+	return Math.floor(num * 100) / 100;
+}
+
+export function round5(num: number): number {
+	return Math.floor(num * 1000) / 1000;
+}
+
 export * from './logger.js';
 export * from './NonceManager.js';
 export * from './multiCollateral.js';
