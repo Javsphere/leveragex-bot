@@ -1412,12 +1412,12 @@ function watchPricingStream() {
 							borrowingFeesContext,
 						);
 
-						// check if valid liqPrice, somtimes direct after trade placed can trigger
-						if (openTrade.long && liqPrice >= openTrade.openPrice) {
-							appLogger.warn(`LIQ-PRICE ${liqPrice} for LONG cannot be bigger then open price ${openTrade.openPrice}!`);
+						// check if valid liqPrice, sometimes direct after trade placed can trigger
+						if (convertedTrade.long === true && liqPrice >= openTrade.openPrice / 1e10) {
+							appLogger.warn(`LIQ-PRICE ${liqPrice} for LONG cannot be bigger then open price ${openTrade.openPrice / 1e10}!`);
 							return;
-						} else if (!openTrade.long && liqPrice <= openTrade.openPrice) {
-							appLogger.warn(`LIQ-PRICE ${liqPrice} for SHORT cannot be smaller then open price ${openTrade.openPrice}!`);
+						} else if (convertedTrade.long === false && liqPrice <= openTrade.openPrice / 1e10) {
+							appLogger.warn(`LIQ-PRICE ${liqPrice} for SHORT cannot be smaller then open price ${openTrade.openPrice / 1e10}!`);
 							return;
 						}
 
