@@ -718,6 +718,7 @@ export async function fetchOpenPairTradesRaw(
 	if (!contracts) {
 		return [];
 	}
+	const empty = '0x0000000000000000000000000000000000000000';
 
 	const {
 		batchSize = 50,
@@ -762,8 +763,7 @@ export async function fetchOpenPairTradesRaw(
 			const openTrades = trades
 				.filter(
 					(t) =>
-						t.user !== '0x0000000000000000000000000000000000000000' &&
-						includeLimits || (!includeLimits && t.tradeType === 0),
+						t.user !== empty && includeLimits || (!includeLimits && t.tradeType === 0),
 				)
 				.map(
 					(trade, ix) => ({
@@ -803,8 +803,7 @@ export async function fetchOpenPairTradesRaw(
 
 			allOpenPairTrades = allOpenPairTrades.concat(openTrades);
 			offset += batchSize + 1;
-			running =
-				parseInt(trades[trades.length - 1].collateralIndex.toString()) > 0;
+			running = (trades[trades.length - 1]).user !== empty;
 		}
 
 		return allOpenPairTrades;
