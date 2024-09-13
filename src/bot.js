@@ -1038,7 +1038,7 @@ async function synchronizeOpenTrades(event) {
 
 			let webhookText;
 			if (open) {
-				webhookText = `🚀 Trade OPENED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} : ${round2(collateralAmount / 1e18 * collateralPriceUsd / 1e8)}$ on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} at ${round2(openPrice / 1e10)}$`;
+				webhookText = `🚀 Trade OPENED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} : ${round2(collateralAmount / 1e18 * collateralPriceUsd / 1e8)}$ on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} at ${round8(openPrice / 1e10)}$`;
 			} else {
 				webhookText = `🤝 Trade CLOSED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / 1e18 * collateralPriceUsd / 1e8)}$
 			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round8(openPrice / 1e10)}$ / executed ${round8(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / 1e18 - collateralAmount / 1e18) / (collateralAmount / 1e18) * 100)}% 	=> ${+amountSentToTrader === 0 ? `-${collateralAmount / 1e18}` : round5(amountSentToTrader / 1e18 - collateralAmount / 1e18)} ${app.collaterals[collateralIndex].symbol}`;
@@ -1411,6 +1411,15 @@ function watchPricingStream() {
 							convertedPairSpreadP,
 							borrowingFeesContext,
 						);
+
+						// check if valid liqPrice, somtimes direct after trade placed can trigger
+						if (openTrade.long && liqPrice >= openTrade.openPrice) {
+							appLogger.warn(`LIQ-PRICE ${liqPrice} for LONG cannot be bigger then open price ${openTrade.openPrice}!`);
+							return;
+						} else if (!openTrade.long && liqPrice <= openTrade.openPrice) {
+							appLogger.warn(`LIQ-PRICE ${liqPrice} for SHORT cannot be smaller then open price ${openTrade.openPrice}!`);
+							return;
+						}
 
 						if (
 							tp !== 0 &&
