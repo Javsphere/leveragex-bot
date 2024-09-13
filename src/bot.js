@@ -1004,7 +1004,7 @@ async function synchronizeOpenTrades(event) {
 			}
 
 			const webhookText = `Trade LIMIT EXECUTED with id ${triggeredOrderTrackingInfoIdentifier}`;
-			if (orderType === 6) {
+			if (orderType === '6') {
 				await slackWebhook(webhookText, 'liq');
 			} else {
 				await slackWebhook(webhookText, 'limit');
@@ -1133,7 +1133,7 @@ async function synchronizeOpenTrades(event) {
 }
 
 async function slackWebhook(text, type) {
-	const url = 'https://hooks.slack.com/services/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';
+	const url = 'https://hooks.slack.com/services/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';
 
 	let emoji = 'ghost';
 	if (type === 'new' || type === 'limit') {
