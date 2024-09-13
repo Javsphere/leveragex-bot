@@ -206,7 +206,11 @@ export function round2(num) {
 }
 
 export function round5(num) {
-	return Math.floor(num * 10000) / 10000;
+	return Math.floor(num * 100000) / 100000;
+}
+
+export function round8(num) {
+	return Math.floor(num * 100000000) / 100000000;
 }
 
 export * from './logger.js';

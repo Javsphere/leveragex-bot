@@ -46,6 +46,7 @@ import {
 	packTrigger,
 	round2,
 	round5,
+	round8,
 	transferOiWindows,
 	transformFrom1e10,
 	transformOi,
@@ -1014,7 +1015,7 @@ async function synchronizeOpenTrades(event) {
 
 			const orderTypeText = getPendingOrderTypeByValue(+orderType);
 			const webhookText = `Trade EXECUTED type ${orderTypeText} with id ${triggeredOrderTrackingInfoIdentifier} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / 1e18 * collateralPriceUsd / 1e8)}$
-			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round5(openPrice / 1e10)}$ / executed ${round5(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / 1e18 - collateralAmount / 1e18) / (collateralAmount / 1e18) * 100)}% => ${+amountSentToTrader === 0 ? `-${collateralAmount / 1e18}` : (amountSentToTrader / 1e18 - collateralAmount / 1e18)} ${app.collaterals[collateralIndex].symbol}`;
+			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round8(openPrice / 1e10)}$ / executed ${round8(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / 1e18 - collateralAmount / 1e18) / (collateralAmount / 1e18) * 100)}% => ${+amountSentToTrader === 0 ? `-${collateralAmount / 1e18}` : (amountSentToTrader / 1e18 - collateralAmount / 1e18)} ${app.collaterals[collateralIndex].symbol}`;
 
 			await slackWebhook((orderType === '6' ? '💸 ' : (orderType === '2' || orderType === '3' ? '🚀  ' : '🤝 ')) + webhookText);
 
@@ -1040,7 +1041,7 @@ async function synchronizeOpenTrades(event) {
 				webhookText = `🚀 Trade OPENED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} : ${round2(collateralAmount / 1e18 * collateralPriceUsd / 1e8)}$ on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} at ${round2(openPrice / 1e10)}$`;
 			} else {
 				webhookText = `🤝 Trade CLOSED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / 1e18 * collateralPriceUsd / 1e8)}$
-			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round5(openPrice / 1e10)}$ / executed ${round5(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / 1e18 - collateralAmount / 1e18) / (collateralAmount / 1e18) * 100)}% 	=> ${+amountSentToTrader === 0 ? `-${collateralAmount / 1e18}` : round5(amountSentToTrader / 1e18 - collateralAmount / 1e18)} ${app.collaterals[collateralIndex].symbol}`;
+			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round8(openPrice / 1e10)}$ / executed ${round8(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / 1e18 - collateralAmount / 1e18) / (collateralAmount / 1e18) * 100)}% 	=> ${+amountSentToTrader === 0 ? `-${collateralAmount / 1e18}` : round5(amountSentToTrader / 1e18 - collateralAmount / 1e18)} ${app.collaterals[collateralIndex].symbol}`;
 			}
 
 			await slackWebhook(webhookText);
