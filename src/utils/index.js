@@ -201,11 +201,11 @@ export const appConfig = () => {
   };
 };
 
-export function round2(num: number): number {
+export function round2(num) {
 	return Math.floor(num * 100) / 100;
 }
 
-export function round5(num: number): number {
+export function round5(num) {
 	return Math.floor(num * 1000) / 1000;
 }
 
