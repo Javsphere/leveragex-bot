@@ -12,7 +12,6 @@ import {
 	getSpreadWithPriceImpactP,
 	isCommoditiesOpen,
 	isForexOpen,
-	isStocksOpen,
 	withinMaxGroupOi,
 } from '@gainsnetwork/sdk';
 import Web3 from 'web3';
@@ -1496,9 +1495,9 @@ function watchPricingStream() {
 						return;
 					}
 
-					if (isStocksGroup(groupId) && !isStocksOpen(new Date())) {
+					/*if (isStocksGroup(groupId) && !isStocksOpen(new Date())) {
 						return;
-					}
+					}*/
 
 					if (isCommoditiesGroup(groupId) && !isCommoditiesOpen(new Date())) {
 						return;
