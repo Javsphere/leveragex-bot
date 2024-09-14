@@ -1259,6 +1259,19 @@ function watchPricingStream() {
 		appLogger.error('Pricing stream websocket error occurred!', { error });
 		socket.close();
 	};
+
+	function logAllParametersForLiquidation(logLiqId, liqFactor, convertedTrade, convertedTradeInfo, convertedInitialAccFees, convertedLiquidationParams, convertedFee, convertedPairSpreadP, borrowingFeesContext, triggeredOrderTrackingInfoIdentifier, long, price, liqPrice) {
+		appLogger.debug(`${logLiqId}: liqFactor: ${liqFactor}.`);
+		appLogger.debug(`${logLiqId}: convertedTrade: ${JSON.stringify(convertedTrade)}.`);
+		appLogger.debug(`${logLiqId}  convertedTradeInfo ${JSON.stringify(convertedTradeInfo)}.`);
+		appLogger.debug(`${logLiqId}: convertedInitialAccFees ${JSON.stringify(convertedInitialAccFees)}.`);
+		appLogger.debug(`${logLiqId}: convertedLiquidationParams ${JSON.stringify(convertedLiquidationParams)}.`);
+		appLogger.debug(`${logLiqId}: convertedFee ${JSON.stringify(convertedFee)}.`);
+		appLogger.debug(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(convertedPairSpreadP)}.`);
+		appLogger.debug(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(borrowingFeesContext)}.`);
+		appLogger.debug(`${logLiqId}: Trade ${triggeredOrderTrackingInfoIdentifier} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
+	}
+
 	socket.onmessage = (msg) => {
 		const currentKnownOpenTrades = app.knownOpenTrades;
 
@@ -1412,10 +1425,18 @@ function watchPricingStream() {
 
 						// check if valid liqPrice, sometimes direct after trade placed can trigger
 						if (convertedTrade.long === true && liqPrice >= openTrade.openPrice / 1e10) {
-							appLogger.warn(`LIQ-PRICE ${liqPrice} for LONG cannot be bigger then open price ${openTrade.openPrice / 1e10}!`);
+							const trackId = buildTradeIdentifier(user, index);
+							appLogger.warn(`LIQ-PRICE ${liqPrice} of trade ${trackId} for ${openTrade.leverage}x LONG on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} cannot be bigger then open price ${openTrade.openPrice / 1e10}!`);
+							const liqFactor = getLiqPnlThresholdP(convertedLiquidationParams, convertedTrade.leverage);
+							const logLiqId = `${Math.random().toString(36).slice(2, 7)}-LIQ_CLOSE_WARN_LOG`;
+							logAllParametersForLiquidation(logLiqId, liqFactor, convertedTrade, convertedTradeInfo, convertedInitialAccFees, convertedLiquidationParams, convertedFee, convertedPairSpreadP, borrowingFeesContext, triggeredOrderTrackingInfoIdentifier, long, price, liqPrice);
 							return;
 						} else if (convertedTrade.long === false && liqPrice <= openTrade.openPrice / 1e10) {
-							appLogger.warn(`LIQ-PRICE ${liqPrice} for SHORT cannot be smaller then open price ${openTrade.openPrice / 1e10}!`);
+							const trackId = buildTradeIdentifier(user, index);
+							appLogger.warn(`LIQ-PRICE ${liqPrice} of trade ${trackId} for ${openTrade.leverage}x SHORT on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} cannot be smaller then open price ${openTrade.openPrice / 1e10}!`);
+							const liqFactor = getLiqPnlThresholdP(convertedLiquidationParams, convertedTrade.leverage);
+							const logLiqId = `${Math.random().toString(36).slice(2, 7)}-LIQ_CLOSE_WARN_LOG`;
+							logAllParametersForLiquidation(logLiqId, liqFactor, convertedTrade, convertedTradeInfo, convertedInitialAccFees, convertedLiquidationParams, convertedFee, convertedPairSpreadP, borrowingFeesContext, triggeredOrderTrackingInfoIdentifier, long, price, liqPrice);
 							return;
 						}
 
@@ -1548,15 +1569,7 @@ function watchPricingStream() {
 							);
 							const liqFactor = getLiqPnlThresholdP(convertedLiquidationParams, convertedTrade.leverage);
 							const logLiqId = `${Math.random().toString(36).slice(2, 7)}-LIQ_CLOSE_LOG`;
-							appLogger.debug(`${logLiqId}: liqFactor: ${liqFactor}.`);
-							appLogger.debug(`${logLiqId}: convertedTrade: ${JSON.stringify(convertedTrade)}.`);
-							appLogger.debug(`${logLiqId}  convertedTradeInfo ${JSON.stringify(convertedTradeInfo)}.`);
-							appLogger.debug(`${logLiqId}: convertedInitialAccFees ${JSON.stringify(convertedInitialAccFees)}.`);
-							appLogger.debug(`${logLiqId}: convertedLiquidationParams ${JSON.stringify(convertedLiquidationParams)}.`);
-							appLogger.debug(`${logLiqId}: convertedFee ${JSON.stringify(convertedFee)}.`);
-							appLogger.debug(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(convertedPairSpreadP)}.`);
-							appLogger.debug(`${logLiqId}: convertedPairSpreadP ${JSON.stringify(borrowingFeesContext)}.`);
-							appLogger.debug(`${logLiqId}: Trade ${triggeredOrderTrackingInfoIdentifier} set orderType set to LIQ_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} liq price: ${liqPrice}.`);
+							logAllParametersForLiquidation(logLiqId, liqFactor, convertedTrade, convertedTradeInfo, convertedInitialAccFees, convertedLiquidationParams, convertedFee, convertedPairSpreadP, borrowingFeesContext, triggeredOrderTrackingInfoIdentifier, long, price, liqPrice);
 						}
 
 						if (orderType === PENDING_ORDER_TYPE.TP_CLOSE) {
