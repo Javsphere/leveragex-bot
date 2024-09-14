@@ -1425,18 +1425,20 @@ function watchPricingStream() {
 
 						// check if valid liqPrice, sometimes direct after trade placed can trigger
 						if (convertedTrade.long === true && liqPrice >= openTrade.openPrice / 1e10) {
-							const trackId = buildTradeIdentifier(user, index);
-							appLogger.warn(`LIQ-PRICE ${liqPrice} of trade ${trackId} for ${openTrade.leverage}x LONG on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} cannot be bigger then open price ${openTrade.openPrice / 1e10}!`);
+							/*const trackId = buildTradeIdentifier(user, index);
+							appLogger.warn(`LIQ-PRICE ${liqPrice} of trade ${trackId} for ${openTrade.leverage / 1e3}x LONG on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} cannot be bigger then open price ${openTrade.openPrice / 1e10}!`);
 							const liqFactor = getLiqPnlThresholdP(convertedLiquidationParams, convertedTrade.leverage);
 							const logLiqId = `${Math.random().toString(36).slice(2, 7)}-LIQ_CLOSE_WARN_LOG`;
 							logAllParametersForLiquidation(logLiqId, liqFactor, convertedTrade, convertedTradeInfo, convertedInitialAccFees, convertedLiquidationParams, convertedFee, convertedPairSpreadP, borrowingFeesContext, triggeredOrderTrackingInfoIdentifier, long, price, liqPrice);
+							*/
 							return;
 						} else if (convertedTrade.long === false && liqPrice <= openTrade.openPrice / 1e10) {
-							const trackId = buildTradeIdentifier(user, index);
-							appLogger.warn(`LIQ-PRICE ${liqPrice} of trade ${trackId} for ${openTrade.leverage}x SHORT on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} cannot be smaller then open price ${openTrade.openPrice / 1e10}!`);
+							/*const trackId = buildTradeIdentifier(user, index);
+							appLogger.warn(`LIQ-PRICE ${liqPrice} of trade ${trackId} for ${openTrade.leverage / 1e3}x SHORT on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} cannot be smaller then open price ${openTrade.openPrice / 1e10}!`);
 							const liqFactor = getLiqPnlThresholdP(convertedLiquidationParams, convertedTrade.leverage);
 							const logLiqId = `${Math.random().toString(36).slice(2, 7)}-LIQ_CLOSE_WARN_LOG`;
 							logAllParametersForLiquidation(logLiqId, liqFactor, convertedTrade, convertedTradeInfo, convertedInitialAccFees, convertedLiquidationParams, convertedFee, convertedPairSpreadP, borrowingFeesContext, triggeredOrderTrackingInfoIdentifier, long, price, liqPrice);
+							*/
 							return;
 						}
 
