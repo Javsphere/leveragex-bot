@@ -13,7 +13,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@datalust/winston-seq": "^2.0.0",
-		"@gainsnetwork/sdk": "0.2.23",
+		"@gainsnetwork/sdk": "0.2.26-rc1",
 		"@sentry/node": "^8.26.0",
 		"@sentry/profiling-node": "^8.26.0",
 		"axios": "^1.7.7",

@@ -1,6 +1,7 @@
-import { pack } from '@gainsnetwork/sdk';
+import { getBorrowingFee, pack } from '@gainsnetwork/sdk';
 import Web3 from 'web3';
 import { CHAIN_IDS, NETWORKS } from '../constants/index.js';
+import { ContractsVersion } from '@gainsnetwork/sdk/lib/contracts/types/index.js';
 
 export const transformRawTrades = (rawTrades) => rawTrades?.map((t) => transformRawTrade(t));
 
@@ -211,6 +212,203 @@ export function round5(num) {
 
 export function round8(num) {
 	return Math.floor(num * 100000000) / 100000000;
+}
+
+
+export function getLiquidationPrice(
+	trade,
+	fee,
+	initialAccFees,
+	context,
+) {
+	const closingFee = getClosingFee(
+		trade.collateralAmount,
+		trade.leverage,
+		trade.pairIndex,
+		fee,
+		context.collateralPriceUsd,
+	);
+	const borrowingFee = getBorrowingFee(
+		trade.collateralAmount * trade.leverage,
+		trade.pairIndex,
+		trade.long,
+		initialAccFees,
+		context,
+	);
+	const liqThresholdP = getLiqPnlThresholdP(
+		context.liquidationParams,
+		trade.leverage,
+	);
+
+	let collateralThreshold = trade.collateralAmount * liqThresholdP;
+	let totalFees = borrowingFee + closingFee;
+
+	let liqPriceDistance =
+		(trade.openPrice * (collateralThreshold - totalFees)) /
+		trade.collateralAmount /
+		trade.leverage;
+
+	if (
+		context?.contractsVersion !== undefined &&
+		context.contractsVersion >= ContractsVersion.V9_2 &&
+		context?.liquidationParams?.maxLiqSpreadP !== undefined &&
+		context.liquidationParams.maxLiqSpreadP > 0
+	) {
+		const closingSpreadP = getSpreadP(
+			context.pairSpreadP,
+			true,
+			context.liquidationParams,
+		);
+
+		liqPriceDistance -= trade.openPrice * closingSpreadP;
+	}
+
+	return trade.long
+		? Math.max(trade.openPrice - liqPriceDistance, 0)
+		: Math.max(trade.openPrice + liqPriceDistance, 0);
+}
+
+export function getLiqPnlThresholdP(
+	liquidationParams,
+	leverage,
+) {
+	if (
+		liquidationParams === undefined ||
+		leverage === undefined ||
+		liquidationParams.maxLiqSpreadP === 0 ||
+		liquidationParams.startLiqThresholdP === 0 ||
+		liquidationParams.endLiqThresholdP === 0 ||
+		liquidationParams.startLeverage === 0 ||
+		liquidationParams.endLeverage === 0
+	) {
+		return 0.9;
+	}
+
+	if (leverage < liquidationParams.startLeverage) {
+		return liquidationParams.startLiqThresholdP;
+	}
+
+	if (leverage > liquidationParams.endLeverage) {
+		return liquidationParams.endLiqThresholdP;
+	}
+
+	return (
+		liquidationParams.startLiqThresholdP -
+		((leverage - liquidationParams.startLeverage) *
+			(liquidationParams.startLiqThresholdP -
+				liquidationParams.endLiqThresholdP)) /
+		(liquidationParams.endLeverage - liquidationParams.startLeverage)
+	);
+}
+
+function getClosingFee(
+	posDai,
+	leverage,
+	pairIndex,
+	pairFee,
+	collateralPriceUsd,
+	feeMultiplier,
+) {
+	if (
+		posDai === undefined ||
+		leverage === undefined ||
+		pairIndex === undefined ||
+		pairFee === undefined
+	) {
+		return 0;
+	}
+
+	const { closeFeeP, triggerOrderFeeP, minPositionSizeUsd } = pairFee;
+
+	return (
+		(closeFeeP + triggerOrderFeeP) *
+		(feeMultiplier ? feeMultiplier : 1) *
+		Math.max(
+			collateralPriceUsd && collateralPriceUsd > 0
+				? minPositionSizeUsd / collateralPriceUsd
+				: 0,
+			posDai * leverage,
+		)
+	);
+}
+
+function getSpreadP(
+	pairSpreadP,
+	isLiquidation,
+	liquidationParams,
+) {
+	if (pairSpreadP === undefined || pairSpreadP === 0) {
+		return 0;
+	}
+
+	const spreadP = pairSpreadP / 2;
+
+	return isLiquidation === true &&
+	liquidationParams !== undefined &&
+	liquidationParams.maxLiqSpreadP > 0 &&
+	spreadP > liquidationParams.maxLiqSpreadP
+		? liquidationParams.maxLiqSpreadP
+		: spreadP;
+}
+
+export function getPnl(
+	price,
+	trade,
+	tradeInfo,
+	initialAccFees,
+	liquidationParams,
+	useFees,
+	context,
+) {
+	if (!price) {
+		return;
+	}
+	const posCollat = trade.collateralAmount;
+	const { openPrice, leverage } = trade;
+	const { maxGainP, fee } = context;
+	const maxGain =
+		maxGainP === undefined ? Infinity : (maxGainP / 100) * posCollat;
+
+	let pnlCollat = trade.long
+		? ((price - openPrice) / openPrice) * leverage * posCollat
+		: ((openPrice - price) / openPrice) * leverage * posCollat;
+
+	pnlCollat = pnlCollat > maxGain ? maxGain : pnlCollat;
+
+	if (useFees) {
+		pnlCollat -= getBorrowingFee(
+			posCollat * trade.leverage,
+			trade.pairIndex,
+			trade.long,
+			initialAccFees,
+			context,
+		);
+	}
+
+	let pnlPercentage = (pnlCollat / posCollat) * 100;
+
+	// Can be liquidated
+	if (
+		pnlPercentage <=
+		getLiqPnlThresholdP(liquidationParams, leverage) * -100
+	) {
+		pnlPercentage = -100;
+	} else {
+		pnlCollat -= getClosingFee(
+			posCollat,
+			trade.leverage,
+			trade.pairIndex,
+			fee,
+			context.collateralPriceUsd,
+			context.feeMultiplier,
+		);
+		pnlPercentage = (pnlCollat / posCollat) * 100;
+	}
+
+	pnlPercentage = pnlPercentage < -100 ? -100 : pnlPercentage;
+	pnlCollat = (posCollat * pnlPercentage) / 100;
+
+	return [pnlCollat, pnlPercentage];
 }
 
 export * from './logger.js';
