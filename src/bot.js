@@ -168,6 +168,7 @@ const app = {
 	knownOpenTrades: null,
 	triggeredOrders: new Map(),
 	triggerRetries: new Map(),
+	missedLiquidations: new Map(),
 	allowedLink: false,
 	gas: {
 		priorityTransactionMaxPriorityFeePerGas: 50,
@@ -353,6 +354,7 @@ setInterval(() => {
 		uptime: DateTime.now()
 			.diff(DateTime.fromJSDate(executionStats.startTime), ['days', 'hours', 'minutes', 'seconds'])
 			.toFormat('d\'d\'h\'h\'m\'m\'s\'s\''),
+		'missedLiquidationsLiqPriceWrong': app.missedLiquidations,
 	};
 
 	appLogger.info(`Execution Stats: ${JSON.stringify(executionStats)}`);
@@ -1003,12 +1005,18 @@ async function synchronizeOpenTrades(event) {
 			} = eventReturnValues.t;
 			const { orderType, collateralPriceUsd, amountSentToTrader, price } = eventReturnValues;
 			const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(user, index, orderType);
+			const tradeKey = buildTradeIdentifier(user, index);
 
 			if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifier)) {
 				app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
 				appLogger.info(`Synchronize trigger tracking from event ${eventName}: Trigger deleted for ${triggeredOrderTrackingInfoIdentifier}`);
 			} else {
 				appLogger.info(`Synchronize trigger trades from event ${eventName}: Trade not found for ${triggeredOrderTrackingInfoIdentifier}`);
+			}
+
+			if (app.missedLiquidations.has(tradeKey)) {
+				app.missedLiquidations.delete(tradeKey);
+				appLogger.info(`Synchronize trigger tracking from event ${eventName}: Missed Liquidations deleted for ${tradeKey}`);
 			}
 
 			const orderTypeText = getPendingOrderTypeByValue(+orderType);
@@ -1033,6 +1041,11 @@ async function synchronizeOpenTrades(event) {
 			const tradeKey = buildTradeIdentifier(user, index);
 
 			appLogger.info(`Synchronize trigger tracking from event ${eventName}: Trade synced ${tradeKey}`);
+
+			if (app.missedLiquidations.has(tradeKey)) {
+				app.missedLiquidations.delete(tradeKey);
+				appLogger.info(`Synchronize trigger tracking from event ${eventName}: Missed Liquidations deleted for ${tradeKey}`);
+			}
 
 			let webhookText;
 			if (open) {
@@ -1423,23 +1436,15 @@ function watchPricingStream() {
 							borrowingFeesContext,
 						);
 
-						// check if valid liqPrice, sometimes direct after trade placed can trigger
-						if (convertedTrade.long === true && liqPrice >= openTrade.openPrice / 1e10) {
-							/*const trackId = buildTradeIdentifier(user, index);
-							appLogger.warn(`LIQ-PRICE ${liqPrice} of trade ${trackId} for ${openTrade.leverage / 1e3}x LONG on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} cannot be bigger then open price ${openTrade.openPrice / 1e10}!`);
-							const liqFactor = getLiqPnlThresholdP(convertedLiquidationParams, convertedTrade.leverage);
-							const logLiqId = `${Math.random().toString(36).slice(2, 7)}-LIQ_CLOSE_WARN_LOG`;
-							logAllParametersForLiquidation(logLiqId, liqFactor, convertedTrade, convertedTradeInfo, convertedInitialAccFees, convertedLiquidationParams, convertedFee, convertedPairSpreadP, borrowingFeesContext, triggeredOrderTrackingInfoIdentifier, long, price, liqPrice);
-							*/
-							return;
-						} else if (convertedTrade.long === false && liqPrice <= openTrade.openPrice / 1e10) {
-							/*const trackId = buildTradeIdentifier(user, index);
-							appLogger.warn(`LIQ-PRICE ${liqPrice} of trade ${trackId} for ${openTrade.leverage / 1e3}x SHORT on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} cannot be smaller then open price ${openTrade.openPrice / 1e10}!`);
-							const liqFactor = getLiqPnlThresholdP(convertedLiquidationParams, convertedTrade.leverage);
-							const logLiqId = `${Math.random().toString(36).slice(2, 7)}-LIQ_CLOSE_WARN_LOG`;
-							logAllParametersForLiquidation(logLiqId, liqFactor, convertedTrade, convertedTradeInfo, convertedInitialAccFees, convertedLiquidationParams, convertedFee, convertedPairSpreadP, borrowingFeesContext, triggeredOrderTrackingInfoIdentifier, long, price, liqPrice);
-							*/
-							return;
+						// edge cases when fees becomes higher then collateral fast
+						if (long === true && liqPrice >= openTrade.openPrice / 1e10) {
+							const details = `LIQ-PRICE  ${liqPrice} of trade ${openTradeKey} for ${openTrade.leverage / 1e3}x LONG on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to}
+							with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} bigger then open price ${openTrade.openPrice / 1e10}! => we need to liquidate NOW`;
+							app.missedLiquidations.set(openTradeKey, details);
+						} else if (long === false && liqPrice <= openTrade.openPrice / 1e10) {
+							const details = `LIQ-PRICE ${liqPrice} of trade ${openTradeKey} for ${openTrade.leverage / 1e3}x SHORT on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to}
+							with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} smaller then open price ${openTrade.openPrice / 1e10}! => we need to liquidate NOW`;
+							app.missedLiquidations.set(openTradeKey, details);
 						}
 
 						if (
