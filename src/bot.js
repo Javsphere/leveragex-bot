@@ -112,6 +112,10 @@ let executionStats = {
 	startTime: new Date(),
 };
 
+let trackingStats = {
+	startTime: new Date(),
+};
+
 // -----------------------------------------
 // 2. GLOBAL VARIABLES
 // -----------------------------------------
@@ -355,10 +359,22 @@ setInterval(() => {
 		uptime: DateTime.now()
 			.diff(DateTime.fromJSDate(executionStats.startTime), ['days', 'hours', 'minutes', 'seconds'])
 			.toFormat('d\'d\'h\'h\'m\'m\'s\'s\''),
-		'missedLiquidationsLiqPriceWrong': app.missedLiquidations.size,
+
 	};
 
 	appLogger.info(`Execution Stats: ${JSON.stringify(executionStats)}`);
+
+	trackingStats = {
+		...trackingStats,
+		uptime: DateTime.now()
+			.diff(DateTime.fromJSDate(executionStats.startTime), ['days', 'hours', 'minutes', 'seconds'])
+			.toFormat('d\'d\'h\'h\'m\'m\'s\'s\''),
+		missedLiquidationsLiqPriceWrong: Object.fromEntries(app.missedLiquidations),
+		priceUpdates: Object.fromEntries(app.priceUpdates),
+	};
+
+	appLogger.info(`Tracking Stats: ${JSON.stringify(trackingStats)}`);
+
 }, WEB3_STATUS_REPORT_INTERVAL_MS);
 
 setInterval(async () => {
@@ -1309,12 +1325,18 @@ function watchPricingStream() {
 			return;
 		}
 
+		const pairName = app.pairs[index].from + '/' + app.pairs[index].to;
+
 		// stocks pricefeed
 		if (messageData.priceCombined !== undefined) {
 			pairPrices.set(index, +messageData.priceCombined.price * 10 ** messageData.priceCombined.expo);
+			// track when last updated price
+			app.priceUpdates.set(pairName, DateTime.now());
 			// everything else directly from pyth
 		} else {
 			pairPrices.set(index, +messageData.price.price * 10 ** messageData.price.expo);
+			// track when last updated price
+			app.priceUpdates.set(pairName, DateTime.now());
 		}
 
 		pricingUpdatesMessageProcessingCount++;
@@ -1367,9 +1389,6 @@ function watchPricingStream() {
 					const convertedPairSpreadP = convertPairSpreadP(app.spreadsP[pairIndex]);
 					const borrowingFeesContext = app.borrowingFeesContext[collateralIndex];
 					////////////////////////////////////////////
-
-					const pairName = app.pairs[pairIndex].from + '/' + app.pairs[pairIndex].to;
-					app.priceUpdates.set(pairName, app.priceUpdates.has(pairName) ? app.priceUpdates.get(pairName) + 1 : 1);
 
 					if (isPendingOpenLimitOrder === false) {
 						// Hotfix openPrice of 0
