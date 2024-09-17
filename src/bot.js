@@ -169,6 +169,7 @@ const app = {
 	triggeredOrders: new Map(),
 	triggerRetries: new Map(),
 	missedLiquidations: new Map(),
+	priceUpdates: new Map(),
 	allowedLink: false,
 	gas: {
 		priorityTransactionMaxPriorityFeePerGas: 50,
@@ -354,7 +355,7 @@ setInterval(() => {
 		uptime: DateTime.now()
 			.diff(DateTime.fromJSDate(executionStats.startTime), ['days', 'hours', 'minutes', 'seconds'])
 			.toFormat('d\'d\'h\'h\'m\'m\'s\'s\''),
-		'missedLiquidationsLiqPriceWrong': app.missedLiquidations,
+		'missedLiquidationsLiqPriceWrong': app.missedLiquidations.size,
 	};
 
 	appLogger.info(`Execution Stats: ${JSON.stringify(executionStats)}`);
@@ -1303,6 +1304,11 @@ function watchPricingStream() {
 		const messageData = JSON.parse(msg.data.toString());
 
 		const index = app.pairs.findIndex(pair => pair.feedId === '0x' + messageData.id);
+		// pair not in leveragex
+		if (index < 0) {
+			return;
+		}
+
 		// stocks pricefeed
 		if (messageData.priceCombined !== undefined) {
 			pairPrices.set(index, +messageData.priceCombined.price * 10 ** messageData.priceCombined.expo);
@@ -1361,6 +1367,9 @@ function watchPricingStream() {
 					const convertedPairSpreadP = convertPairSpreadP(app.spreadsP[pairIndex]);
 					const borrowingFeesContext = app.borrowingFeesContext[collateralIndex];
 					////////////////////////////////////////////
+
+					const pairName = app.pairs[pairIndex].from + '/' + app.pairs[pairIndex].to;
+					app.priceUpdates.set(pairName, app.priceUpdates.has(pairName) ? app.priceUpdates.get(pairName) + 1 : 1);
 
 					if (isPendingOpenLimitOrder === false) {
 						// Hotfix openPrice of 0
@@ -1426,7 +1435,7 @@ function watchPricingStream() {
 						const tpDistanceP = tp !== 0 ? (Math.abs(tp - priceAfterImpact) / tp) * 100 : 0;
 						const slDistanceP = sl !== 0 ? (Math.abs(sl - priceAfterImpact) / sl) * 100 : 0;
 
-						const liqPrice = getTradeLiquidationPrice(
+						let liqPrice = getTradeLiquidationPrice(
 							convertedTrade,
 							convertedTradeInfo,
 							convertedInitialAccFees,
@@ -1436,15 +1445,17 @@ function watchPricingStream() {
 							borrowingFeesContext,
 						);
 
-						// edge cases when fees becomes higher then collateral fast
+						// edge cases when fees becomes higher then collateral (bot down, feed down) we need to liquidate immediately
 						if (long === true && liqPrice >= openTrade.openPrice / 1e10) {
 							const details = `LIQ-PRICE  ${liqPrice} of trade ${openTradeKey} for ${openTrade.leverage / 1e3}x LONG on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to}
 							with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} bigger then open price ${openTrade.openPrice / 1e10}! => we need to liquidate NOW`;
 							app.missedLiquidations.set(openTradeKey, details);
+							liqPrice = price;
 						} else if (long === false && liqPrice <= openTrade.openPrice / 1e10) {
 							const details = `LIQ-PRICE ${liqPrice} of trade ${openTradeKey} for ${openTrade.leverage / 1e3}x SHORT on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to}
 							with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} smaller then open price ${openTrade.openPrice / 1e10}! => we need to liquidate NOW`;
 							app.missedLiquidations.set(openTradeKey, details);
+							liqPrice = price;
 						}
 
 						if (
