@@ -12,6 +12,9 @@ export const COLLATERAL = {
 	tWETH: 'tWETH',
 	tUSDT: "tUSDT",
   tUSDC: 'tUSDC',
+	xWBTC: 'xWBTC',
+	xWETH: 'xWETH',
+	xUSDC: 'xUSDC',
 };
 
 export const COLLATERAL_CONFIG = {
@@ -25,12 +28,27 @@ export const COLLATERAL_CONFIG = {
     precision: 1e18,
     precisionDelta: 1,
   },
-  [COLLATERAL.tUSDC]: {
+	[COLLATERAL.tUSDT]: {
 		decimals: 18,
 		precision: 1e18,
 		precisionDelta: 1,
   },
-	[COLLATERAL.tUSDT]: {
+	[COLLATERAL.tUSDC]: {
+		decimals: 18,
+		precision: 1e18,
+		precisionDelta: 1,
+	},
+	[COLLATERAL.xWBTC]: {
+		decimals: 18,
+		precision: 1e18,
+		precisionDelta: 1,
+	},
+	[COLLATERAL.xWETH]: {
+		decimals: 18,
+		precision: 1e18,
+		precisionDelta: 1,
+	},
+	[COLLATERAL.xUSDC]: {
 		decimals: 18,
 		precision: 1e18,
 		precisionDelta: 1,
@@ -61,6 +79,19 @@ export const NETWORKS = {
 				symbol: COLLATERAL.tUSDT,
 				collateralIndex: 2,
 			},
+			{
+				symbol: COLLATERAL.xWETH,
+				collateralIndex: 5,
+			},
+			{
+				symbol: COLLATERAL.xWBTC,
+				collateralIndex: 4,
+			},
+			{
+				symbol: COLLATERAL.xUSDC,
+				collateralIndex: 6,
+			},
+
     ],
 		rewardTokenId: '0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
 		feedIds : [
