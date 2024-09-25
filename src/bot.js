@@ -21,6 +21,7 @@ import {
 	GAS_MODE,
 	getPendingOrderTypeByValue,
 	isCommoditiesGroup,
+	isDMCPair,
 	isForexGroup,
 	isStocksGroup,
 	MAX_OPEN_NEGATIVE_PNL_P,
@@ -1775,27 +1776,22 @@ function watchPricingStream() {
 			appLogger.info(`Reading from Pyth price feed ...`);
 
 			const groupId = parseInt(app.pairs[priceId].groupIndex);
-			if (!isStocksGroup(groupId)) {
-				const [priceUpdatesPyth] = await Promise.all([
-					fetchPythPrices([app.pairs[priceId].feedId, app.pairs[colId].feedId, NETWORK.rewardTokenId]),
-				]);
-				appLogger.info(`Prices get for pair ${priceId} with value ${+priceUpdatesPyth.parsed[0].price.price * 10 ** priceUpdatesPyth.parsed[0].price.expo}`);
-				return [['0x' + priceUpdatesPyth.binary.data[0]], []];
-			} else {
+			if (isStocksGroup(groupId) || isDMCPair(parseInt(priceId))) {
 				appLogger.info(`Get Price for Jav Oracle for priceId ${priceId}`);
 				const [priceUpdatesJav] = await Promise.all([
 					fetchPythPrices([app.pairs[colId].feedId, NETWORK.rewardTokenId]),
 				]);
-				const priceCombined = messageData.priceCombined;
-				const updatePriceInfo = abiCoder.encode(
-					['bytes32', 'int64', 'uint64', 'int32', 'uint64'],
-					[`0x${messageData.id}`, +priceCombined.price, priceCombined.conf, priceCombined.expo, priceCombined.publishTime],
-				);
-				const messageHash = ethers.utils.keccak256(updatePriceInfo);
-				const signature = await app.signer.signMessage(ethers.utils.arrayify(messageHash));
-				const signedData = ethers.utils.concat([signature, updatePriceInfo]);
-				appLogger.info(`Prices get and signed for pair ${priceId} with value ${+messageData.priceCombined.price * 10 ** messageData.priceCombined.expo}`);
-				return [['0x' + priceUpdatesJav.binary.data[0]], [signedData]];
+				const priceData = messageData.priceCombined ? messageData.priceCombined : messageData.price;
+				const signedData = messageData.signedPriceCombined ? messageData.signedPriceCombined : messageData.signedPrice;
+				appLogger.info(`Prices get and signed for pair ${messageData.asset}:${priceId} with value ${+priceData.price * 10 ** priceData.expo}`);
+				return [['0x' + priceUpdatesJav.binary.data[0]], signedData];
+
+			} else {
+				const [priceUpdatesPyth] = await Promise.all([
+					fetchPythPrices([app.pairs[priceId].feedId, app.pairs[colId].feedId, NETWORK.rewardTokenId]),
+				]);
+				appLogger.info(`Prices get for pair ${messageData.asset}:${priceId} with value ${+priceUpdatesPyth.parsed[0].price.price * 10 ** priceUpdatesPyth.parsed[0].price.expo}`);
+				return [['0x' + priceUpdatesPyth.binary.data[0]], []];
 			}
 
 		} catch (err) {

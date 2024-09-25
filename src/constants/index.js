@@ -4,10 +4,17 @@ const GROUP_IDS = {
 	STOCKS: [1],
 	COMMODITIES: [3],
 };
+
+const CUSTOM_PAIR_IDS = {
+	DMC: [84, 85, 86],
+};
+
 export const isCryptoGroup = (groupId) => GROUP_IDS.CRYPTO.includes(groupId);
 export const isForexGroup = (groupId) => GROUP_IDS.FOREX.includes(groupId);
 export const isStocksGroup = (groupId) => GROUP_IDS.STOCKS.includes(groupId);
 export const isCommoditiesGroup = (groupId) => GROUP_IDS.COMMODITIES.includes(groupId);
+
+export const isDMCPair = (pairId) => CUSTOM_PAIR_IDS.DMC.includes(pairId);
 
 export const MAX_OPEN_NEGATIVE_PNL_P = 40; // 40%;
 export const TRADE_TYPE = { MARKET: 0, LIMIT: 1 };
