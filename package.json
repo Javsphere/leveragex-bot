@@ -1,6 +1,6 @@
 {
 	"name": "leveragex-bot",
-	"version": "4.3.1",
+	"version": "4.3.2",
 	"description": "LeverageX Bot for Liquidations and Limit Orders",
 	"main": "bot.js",
 	"type": "module",

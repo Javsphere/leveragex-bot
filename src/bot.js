@@ -374,7 +374,7 @@ setInterval(() => {
 		priceUpdates: Object.fromEntries(app.priceUpdates),
 	};
 
-	appLogger.info(`Tracking Stats: ${JSON.stringify(trackingStats)}`);
+	appLogger.debug(`Tracking Stats: ${JSON.stringify(trackingStats)}`);
 
 }, WEB3_STATUS_REPORT_INTERVAL_MS);
 
