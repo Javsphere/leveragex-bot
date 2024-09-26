@@ -1450,7 +1450,7 @@ function watchPricingStream() {
 						const sl = convertedTrade.sl;
 
 						// inverse direction (!long) because it's a close trade op
-						const priceAfterImpact = !long ? price * (1 + spreadWithPriceImpactP) : price * (1 - spreadWithPriceImpactP);
+						const priceAfterImpact = !long ? price * (1 + spreadWithPriceImpactP / 100) : price * (1 - spreadWithPriceImpactP / 100);
 
 						const tpDistanceP = tp !== 0 ? (Math.abs(tp - priceAfterImpact) / tp) * 100 : 0;
 						const slDistanceP = sl !== 0 ? (Math.abs(sl - priceAfterImpact) / sl) * 100 : 0;
@@ -1464,6 +1464,10 @@ function watchPricingStream() {
 							convertedPairSpreadP,
 							borrowingFeesContext,
 						);
+
+						/*if (pnlPercentage < -70) {
+							appLogger.warn(`Monitor Trade alert for ${openTradeKey} pnl ${pnlPercentage} pair ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} ${leverage / 1e3}x ${long ? 'long' : 'short'} ...`);
+						}*/
 
 						// edge cases when fees becomes higher then collateral (bot down, feed down) we need to liquidate immediately
 						if (long === true && liqPrice >= openTrade.openPrice / 1e10) {
@@ -1517,7 +1521,9 @@ function watchPricingStream() {
 
 						const newInterestDai = interestDai + posDai;
 						const wantedPrice = convertedTrade.openPrice;
-						const wantedPriceAfterImpact = long ? wantedPrice * (1 + spreadWithPriceImpactP) : wantedPrice * (1 - spreadWithPriceImpactP);
+						const wantedPriceAfterImpact = long
+							? wantedPrice * (1 + spreadWithPriceImpactP / 100)
+							: wantedPrice * (1 - spreadWithPriceImpactP / 100);
 
 						const openPriceDistanceP = (Math.abs(wantedPrice - price) / wantedPrice) * 100;
 
