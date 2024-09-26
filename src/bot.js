@@ -174,6 +174,7 @@ const app = {
 	triggeredOrders: new Map(),
 	triggerRetries: new Map(),
 	missedLiquidations: new Map(),
+	warningLowPnlTrades: new Map(),
 	priceUpdates: new Map(),
 	allowedLink: false,
 	gas: {
@@ -371,6 +372,7 @@ setInterval(() => {
 			.diff(DateTime.fromJSDate(executionStats.startTime), ['days', 'hours', 'minutes', 'seconds'])
 			.toFormat('d\'d\'h\'h\'m\'m\'s\'s\''),
 		missedLiquidationsLiqPriceWrong: Object.fromEntries(app.missedLiquidations),
+		warningLowPnlTrades: Object.fromEntries(app.warningLowPnlTrades),
 		priceUpdates: Object.fromEntries(app.priceUpdates),
 	};
 
@@ -1465,9 +1467,14 @@ function watchPricingStream() {
 							borrowingFeesContext,
 						);
 
-						/*if (pnlPercentage < -70) {
-							appLogger.warn(`Monitor Trade alert for ${openTradeKey} pnl ${pnlPercentage} pair ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} ${leverage / 1e3}x ${long ? 'long' : 'short'} ...`);
-						}*/
+						if (pnlPercentage < -90) {
+							const details = (`Monitor Trade alert for ${openTradeKey} pnl ${pnlPercentage} pair ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} ${leverage / 1e3}x ${long ? 'long' : 'short'} ...`);
+							if (!app.warningLowPnlTrades.has(openTradeKey)) {
+								app.warningLowPnlTrades.set(openTradeKey, details);
+								await slackWebhook('⚠️ ' + details);
+								appLogger.warn(details);
+							}
+						}
 
 						// edge cases when fees becomes higher then collateral (bot down, feed down) we need to liquidate immediately
 						if (long === true && liqPrice >= openTrade.openPrice / 1e10) {
