@@ -1212,7 +1212,7 @@ async function slackWebhook(text) {
 	};
 	axios.post(process.env.WEBHOOK_URL, payload)
 		.then(response => {
-			appLogger.info('SlackWebhook posted:', response.data);
+			appLogger.info(`SlackWebhook posted: ${response.data})`);
 		})
 		.catch(error => {
 			appLogger.warn('Error slackWebhook message:', error);
@@ -1602,7 +1602,7 @@ function watchPricingStream() {
 							return;
 						}
 
-						appLogger.info(`🤞 Trying to trigger ${triggeredOrderTrackingInfoIdentifier} pair ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} ${leverage / 1e3}x ${long ? 'long' : 'short'} ...`);
+						appLogger.info(`🤞 Trying to trigger ${triggeredOrderTrackingInfoIdentifier} collateral ${app.collaterals[collateralIndex].symbol} pair ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} ${leverage / 1e3}x ${long ? 'long' : 'short'} ...`);
 
 						if (orderType === PENDING_ORDER_TYPE.LIQ_CLOSE) {
 							const liqPrice = getTradeLiquidationPrice(
