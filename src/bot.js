@@ -440,22 +440,29 @@ async function startFetchingLatestGasPrices() {
 
 				if (NETWORK.gasMode === GAS_MODE.EIP1559) {
 					app.gas.standardTransactionGasFees = {
-						maxFee: Number(await app.currentlySelectedWeb3Client.eth.getGasPrice()) / 1e9,
-						maxPriorityFee: Number(await app.currentlySelectedWeb3Client.eth.getMaxPriorityFeePerGas()) / 1e9,
+						maxFee: Math.round(gasPriceData.standard.maxFee),
+						maxPriorityFee: Math.round(gasPriceData.standard.maxPriorityFee),
 					};
-					app.gas.priorityTransactionMaxPriorityFeePerGas = Math.max(
-						app.gas.standardTransactionGasFees.maxPriorityFee * PRIORITY_GWEI_MULTIPLIER,
-						MIN_PRIORITY_GWEI,
+
+					app.gas.priorityTransactionMaxPriorityFeePerGas = Math.round(
+						Math.max(Math.round(gasPriceData.fast.maxPriorityFee) * PRIORITY_GWEI_MULTIPLIER, MIN_PRIORITY_GWEI),
 					);
 				} else {
-					app.gas.gasPriceBn = new BN(await app.currentlySelectedWeb3Client.eth.getGasPrice());
+					// TODO: Add support for legacy gas stations here
 				}
 			} catch (error) {
 				appLogger.error('Error while fetching gas prices from gas station!', error);
 			}
 		} else {
 			if (NETWORK.gasMode === GAS_MODE.EIP1559) {
-				// TODO: Add support for EIP1159 provider fetching here
+				app.gas.standardTransactionGasFees = {
+					maxFee: Number(await app.currentlySelectedWeb3Client.eth.getGasPrice()) / 1e9,
+					maxPriorityFee: Number(await app.currentlySelectedWeb3Client.eth.getMaxPriorityFeePerGas()) / 1e9,
+				};
+				app.gas.priorityTransactionMaxPriorityFeePerGas = Math.max(
+					app.gas.standardTransactionGasFees.maxPriorityFee * PRIORITY_GWEI_MULTIPLIER,
+					MIN_PRIORITY_GWEI,
+				);
 			} else if (NETWORK.gasMode === GAS_MODE.LEGACY) {
 				app.gas.gasPriceBn = new BN(await app.currentlySelectedWeb3Client.eth.getGasPrice());
 			}
