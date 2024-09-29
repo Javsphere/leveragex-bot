@@ -284,6 +284,13 @@ function createWeb3Client(providerIndex, providerUrl) {
 	web3Client.eth.handleRevert = true;
 	web3Client.eth.defaultAccount = process.env.PUBLIC_KEY;
 	web3Client.eth.defaultChain = CHAIN;
+	web3Client.eth.extend({
+		methods: [{
+			name: 'getMaxPriorityFeePerGas',
+			call: 'eth_maxPriorityFeePerGas',
+			outputFormatter: Web3.utils.hexToNumberString,
+		}],
+	});
 
 	web3Client.eth.subscribe('newBlockHeaders').on('data', async (header) => {
 		const newBlockNumber = header.number;
@@ -432,16 +439,16 @@ async function startFetchingLatestGasPrices() {
 				const gasPriceData = await response.json();
 
 				if (NETWORK.gasMode === GAS_MODE.EIP1559) {
-					app.standardTransactionGasFees = {
-						maxFee: Math.round(gasPriceData.standard.maxFee),
-						maxPriorityFee: Math.round(gasPriceData.standard.maxPriorityFee),
+					app.gas.standardTransactionGasFees = {
+						maxFee: Number(await app.currentlySelectedWeb3Client.eth.getGasPrice()) / 1e9,
+						maxPriorityFee: Number(await app.currentlySelectedWeb3Client.eth.getMaxPriorityFeePerGas()) / 1e9,
 					};
-
-					app.gas.priorityTransactionMaxPriorityFeePerGas = Math.round(
-						Math.max(Math.round(gasPriceData.fast.maxPriorityFee) * PRIORITY_GWEI_MULTIPLIER, MIN_PRIORITY_GWEI),
+					app.gas.priorityTransactionMaxPriorityFeePerGas = Math.max(
+						app.gas.standardTransactionGasFees.maxPriorityFee * PRIORITY_GWEI_MULTIPLIER,
+						MIN_PRIORITY_GWEI,
 					);
 				} else {
-					// TODO: Add support for legacy gas stations here
+					app.gas.gasPriceBn = new BN(await app.currentlySelectedWeb3Client.eth.getGasPrice());
 				}
 			} catch (error) {
 				appLogger.error('Error while fetching gas prices from gas station!', error);
@@ -1886,9 +1893,9 @@ function getTransactionGasFees(network, isPriority = false) {
 	if (NETWORK.gasMode === GAS_MODE.EIP1559) {
 		return {
 			maxPriorityFeePerGas: isPriority
-				? toHex(app.gas.priorityTransactionMaxPriorityFeePerGas * 1e9)
-				: toHex(app.gas.standardTransactionGasFees.maxPriorityFee * 1e9),
-			maxFeePerGas: isPriority ? MAX_FEE_PER_GAS_WEI_HEX : toHex(app.gas.standardTransactionGasFees.maxFee * 1e9),
+				? toHex(Math.round(app.gas.priorityTransactionMaxPriorityFeePerGas * 1e9))
+				: toHex(Math.round(app.gas.standardTransactionGasFees.maxPriorityFee * 1e9)),
+			maxFeePerGas: isPriority ? MAX_FEE_PER_GAS_WEI_HEX : toHex(Math.round(app.gas.standardTransactionGasFees.maxFee * 1e9)),
 		};
 	} else if (NETWORK.gasMode === GAS_MODE.LEGACY) {
 		return {

@@ -59,7 +59,7 @@ export const NETWORKS = {
   [CHAIN_IDS.SEPOLIA]: {
     chainName: 'base sepolia',
     chainId: CHAIN_IDS.SEPOLIA,
-    gasMode: GAS_MODE.LEGACY,
+		gasMode: GAS_MODE.EIP1559,
     gasStationUrl: undefined,
 		diamondAddress: '0xB8057B1605e25c1D8CDE6F9f875d7bcFe4A0fE33',
     collaterals: [
