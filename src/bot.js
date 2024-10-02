@@ -248,6 +248,16 @@ async function fetchPythPrices(ids) {
 	}
 }
 
+async function fetchSignedPrice(id) {
+	try {
+		const url = `${process.env.FEED_SERVICE}/api/getSigned/${id}`;
+		const response = await axios.get(url);
+		return response.data;
+	} catch (error) {
+		appLogger.error(`error in fetchSignedPrice ${error?.message}`);
+	}
+}
+
 function createWeb3Provider(providerUrl) {
 	const provider = new Web3.providers.WebsocketProvider(providerUrl, {
 		clientConfig: {
@@ -1482,7 +1492,7 @@ function watchPricingStream() {
 						);
 
 						if (pnlPercentage < -90) {
-							const details = (`Monitor Trade alert for ${openTradeKey} pnl ${pnlPercentage} pair ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} ${leverage / 1e3}x ${long ? 'long' : 'short'} ...`);
+							const details = (`Monitor Trade alert for ${openTradeKey} pnl ${pnlPercentage}% pair ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} ${leverage / 1e3}x ${long ? 'long' : 'short'} ...`);
 							if (!app.warningLowPnlTrades.has(openTradeKey)) {
 								app.warningLowPnlTrades.set(openTradeKey, details);
 								await slackWebhook('⚠️ ' + details);
@@ -1805,13 +1815,13 @@ function watchPricingStream() {
 			const groupId = parseInt(app.pairs[priceId].groupIndex);
 			if (isStocksGroup(groupId) || isDMCPair(parseInt(priceId))) {
 				appLogger.info(`Get Price for Jav Oracle for priceId ${priceId}`);
-				const [priceUpdatesJav] = await Promise.all([
+				const [priceUpdatesJav, signedPriceJav] = await Promise.all([
 					fetchPythPrices([app.pairs[colId].feedId, NETWORK.rewardTokenId]),
+					fetchSignedPrice(app.pairs[priceId].feedId.slice(2)),
 				]);
 				const priceData = messageData.priceCombined ? messageData.priceCombined : messageData.price;
-				const signedData = messageData.signedPriceCombined ? messageData.signedPriceCombined : messageData.signedPrice;
-				appLogger.info(`Prices get and signed for pair ${messageData.asset}:${priceId} with value ${+priceData.price * 10 ** priceData.expo}`);
-				return [['0x' + priceUpdatesJav.binary.data[0]], signedData];
+				appLogger.info(`Prices get and signed for pair ${messageData.asset}:${priceId} with value ${+priceData.price * 10 ** priceData.expo} signed ${signedPriceJav.signedPrice}`);
+				return [['0x' + priceUpdatesJav.binary.data[0]], signedPriceJav.signedPrice];
 
 			} else {
 				const [priceUpdatesPyth] = await Promise.all([
