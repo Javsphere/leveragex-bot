@@ -1084,7 +1084,7 @@ async function synchronizeOpenTrades(event) {
 			const { collateralPriceUsd, amountSentToTrader, price, open } = eventReturnValues;
 			const tradeKey = buildTradeIdentifier(user, index);
 
-			appLogger.info(`Synchronize trigger tracking from event ${eventName}: Trade synced ${tradeKey}`);
+			appLogger.info(`🚀 Synchronize trigger tracking from event ${eventName}: Trade synced ${tradeKey}`);
 
 			if (app.missedLiquidations.has(tradeKey)) {
 				app.missedLiquidations.delete(tradeKey);
