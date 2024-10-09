@@ -1053,7 +1053,7 @@ async function synchronizeOpenTrades(event) {
 
 			if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifier)) {
 				app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
-				appLogger.info(`Synchronize trigger tracking from event ${eventName}: Trigger deleted for ${triggeredOrderTrackingInfoIdentifier}`);
+				appLogger.info(`${(orderType === '6' ? '💸 ' : (orderType === '2' || orderType === '3' ? '🚀  ' : '🤝 '))} Synchronize trigger tracking from event ${eventName}: Trigger deleted for ${triggeredOrderTrackingInfoIdentifier}`);
 			} else {
 				appLogger.info(`Synchronize trigger trades from event ${eventName}: Trade not found for ${triggeredOrderTrackingInfoIdentifier}`);
 			}
