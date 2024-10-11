@@ -1236,7 +1236,7 @@ async function slackWebhook(text) {
 	};
 	axios.post(process.env.WEBHOOK_URL, payload)
 		.then(response => {
-			appLogger.info(`SlackWebhook posted: ${response.data})`);
+			appLogger.info(`SlackWebhook posted ${response.data} with data: ${text})`);
 		})
 		.catch(error => {
 			appLogger.warn('Error slackWebhook message:', error);
