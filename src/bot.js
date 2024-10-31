@@ -1047,6 +1047,9 @@ async function synchronizeOpenTrades(event) {
 				collateralIndex,
 				leverage,
 			} = eventReturnValues.t;
+			const orderUser = eventReturnValues.orderId.user;
+			const orderIndex = eventReturnValues.orderId.index;
+
 			const { orderType, collateralPriceUsd, amountSentToTrader, price } = eventReturnValues;
 			const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(user, index, orderType);
 			const tradeKey = buildTradeIdentifier(user, index);
@@ -1056,6 +1059,17 @@ async function synchronizeOpenTrades(event) {
 				appLogger.info(`${(orderType === '6' ? '💸 ' : (orderType === '2' || orderType === '3' ? '🚀  ' : '🤝 '))} Synchronize trigger tracking from event ${eventName}: Trigger deleted for ${triggeredOrderTrackingInfoIdentifier}`);
 			} else {
 				appLogger.info(`Synchronize trigger trades from event ${eventName}: Trade not found for ${triggeredOrderTrackingInfoIdentifier}`);
+			}
+
+			// LIMIT and STOP LIMIT EVENT has different index
+			if (orderIndex !== index) {
+				const triggeredOrderTrackingInfoIdentifierLimit = buildTriggerIdentifier(orderUser, index, orderType);
+				if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifierLimit)) {
+					app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifierLimit);
+					appLogger.info(`${(orderType === '6' ? '💸 ' : (orderType === '2' || orderType === '3' ? '🚀  ' : '🤝 '))} Synchronize trigger tracking from event ${eventName}: Trigger deleted for ${triggeredOrderTrackingInfoIdentifierLimit}`);
+				} else {
+					appLogger.info(`Synchronize trigger trades from event ${eventName}: Trade not found for ${triggeredOrderTrackingInfoIdentifierLimit}`);
+				}
 			}
 
 			if (app.missedLiquidations.has(tradeKey)) {
