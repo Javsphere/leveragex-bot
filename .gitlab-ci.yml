@@ -1,8 +1,6 @@
 image: docker:latest
 
 stages:
-    - update
-    - build
     - deploy
 
 variables:
@@ -12,18 +10,6 @@ variables:
     DEPENDABOT_GITLAB_VERSION: 3.13.1-alpha.1
     PACKAGE_MANAGER_SET: npm
     DIRECTORY: /
-
-
-build:
-    stage: build
-    image: docker:stable
-    services:
-        - docker:dind
-    script:
-        - docker build -t javlis-leveragex-bot-service .
-    cache:
-        key: "docker"
-        policy: pull
 
 deploy-dev-cluster:
     stage: deploy

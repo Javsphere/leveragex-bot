@@ -1295,9 +1295,6 @@ async function handleBorrowingFeesEvent(event) {
 function watchPricingStream() {
 	appLogger.info(`Connecting to pricing stream... ${process.env.PRICES_URL}`);
 	const pairPrices = new Map();
-	if (!NETWORK.feedIds) {
-		throw Error('Missing `feedIds` network configuration.');
-	}
 
 	let socket = new WebSocket(process.env.PRICES_URL);
 	let pricingUpdatesMessageProcessingCount = 0;
