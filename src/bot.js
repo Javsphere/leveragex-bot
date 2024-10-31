@@ -1820,25 +1820,29 @@ function watchPricingStream() {
 	async function getActualPrice(priceId, colId, messageData) {
 
 		try {
+			const assetName = messageData.asset;
+			const priceData = messageData.priceCombined ? messageData.priceCombined : messageData.price;
+			const priceIdLocal = priceId;
+			const colIdLocal = colId;
 
-			appLogger.info(`Reading from Pyth price feed ...`);
+			appLogger.info(`Reading from Pyth price feed for asset ${assetName} ...`);
 
-			const groupId = parseInt(app.pairs[priceId].groupIndex);
-			if (isStocksGroup(groupId) || isDMCPair(parseInt(priceId))) {
-				appLogger.info(`Get Price for Jav Oracle for priceId ${priceId}`);
+			const groupId = parseInt(app.pairs[priceIdLocal].groupIndex);
+			if (isStocksGroup(groupId) || isDMCPair(parseInt(priceIdLocal))) {
+				appLogger.info(`Get Price for Jav Oracle for priceId ${priceIdLocal}`);
+
 				const [priceUpdatesJav, signedPriceJav] = await Promise.all([
-					fetchPythPrices([app.pairs[colId].feedId, NETWORK.rewardTokenId]),
-					fetchSignedPrice(app.pairs[priceId].feedId.slice(2)),
+					fetchPythPrices([app.pairs[colIdLocal].feedId, NETWORK.rewardTokenId]),
+					fetchSignedPrice(app.pairs[priceIdLocal].feedId.slice(2)),
 				]);
-				const priceData = messageData.priceCombined ? messageData.priceCombined : messageData.price;
-				appLogger.info(`Prices get and signed for pair ${messageData.asset}:${priceId} with value ${+priceData.price * 10 ** priceData.expo} signed ${signedPriceJav.signedPrice}`);
+				appLogger.info(`Prices get and signed for pair ${assetName}:${priceIdLocal} with value ${+priceData.price * 10 ** priceData.expo} signed ${signedPriceJav.signedPrice}`);
 				return [['0x' + priceUpdatesJav.binary.data[0]], signedPriceJav.signedPrice];
 
 			} else {
 				const [priceUpdatesPyth] = await Promise.all([
-					fetchPythPrices([app.pairs[priceId].feedId, app.pairs[colId].feedId, NETWORK.rewardTokenId]),
+					fetchPythPrices([app.pairs[priceIdLocal].feedId, app.pairs[colIdLocal].feedId, NETWORK.rewardTokenId]),
 				]);
-				appLogger.info(`Prices get for pair ${messageData.asset}:${priceId} with value ${+priceUpdatesPyth.parsed[0].price.price * 10 ** priceUpdatesPyth.parsed[0].price.expo}`);
+				appLogger.info(`Prices get for pair ${assetName}:${priceIdLocal} with value ${+priceUpdatesPyth.parsed[0].price.price * 10 ** priceUpdatesPyth.parsed[0].price.expo}`);
 				return [['0x' + priceUpdatesPyth.binary.data[0]], []];
 			}
 
