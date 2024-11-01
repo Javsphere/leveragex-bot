@@ -1066,9 +1066,9 @@ async function synchronizeOpenTrades(event) {
 				const triggeredOrderTrackingInfoIdentifierLimit = buildTriggerIdentifier(orderUser, orderIndex, orderType);
 				if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifierLimit)) {
 					app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifierLimit);
-					appLogger.info(`${(orderType === '6' ? '💸 ' : (orderType === '2' || orderType === '3' ? '🚀  ' : '🤝 '))} Synchronize trigger tracking from event ${eventName}: Trigger deleted for ${triggeredOrderTrackingInfoIdentifierLimit}`);
+					appLogger.info(`🚀Synchronize trigger tracking from event ${eventName} for LIMIT or STOP LIMIT: Trigger deleted for ${triggeredOrderTrackingInfoIdentifierLimit}`);
 				} else {
-					appLogger.info(`Synchronize trigger trades from event ${eventName}: Trade not found for ${triggeredOrderTrackingInfoIdentifierLimit}`);
+					appLogger.info(`Synchronize trigger trades from event ${eventName} for LIMIT or STOP LIMIT: Trade not found for ${triggeredOrderTrackingInfoIdentifierLimit}`);
 				}
 			}
 
