@@ -16,6 +16,8 @@ export const COLLATERAL = {
 	xWBTC: 'xWBTC',
 	xWETH: 'xWETH',
 	xUSDC: 'xUSDC',
+	dcbBTC: 'dcbBTC',
+	dUSDC: 'dUSDC',
 	WETH: 'WETH',
 	cbBTC: 'cbBTC',
 	USDC: 'USDC',
@@ -55,6 +57,16 @@ export const COLLATERAL_CONFIG = {
 	[COLLATERAL.xUSDC]: {
 		decimals: 18,
 		precision: 1e18,
+		precisionDelta: 1,
+	},
+	[COLLATERAL.dcbBTC]: {
+		decimals: 8,
+		precision: 1e8,
+		precisionDelta: 1,
+	},
+	[COLLATERAL.dUSDC]: {
+		decimals: 6,
+		precision: 1e6,
 		precisionDelta: 1,
 	},
 	[COLLATERAL.WETH]: {
@@ -110,7 +122,14 @@ export const NETWORKS = {
 				symbol: COLLATERAL.xUSDC,
 				collateralIndex: 6,
 			},
-
+			{
+				symbol: COLLATERAL.dcbBTC,
+				collateralIndex: 7,
+			},
+			{
+				symbol: COLLATERAL.dUSDC,
+				collateralIndex: 8,
+			},
     ],
 		rewardTokenId: '0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
 	},
