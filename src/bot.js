@@ -1078,8 +1078,9 @@ async function synchronizeOpenTrades(event) {
 			}
 
 			const orderTypeText = getPendingOrderTypeByValue(+orderType);
-			const webhookText = `Trade EXECUTED type ${orderTypeText} with id ${triggeredOrderTrackingInfoIdentifier} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / 1e18 * collateralPriceUsd / 1e8)}$
-			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round8(openPrice / 1e10)}$ / executed ${round8(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / 1e18 - collateralAmount / 1e18) / (collateralAmount / 1e18) * 100)}% => ${+amountSentToTrader === 0 ? `-${collateralAmount / 1e18}` : (amountSentToTrader / 1e18 - collateralAmount / 1e18)} ${app.collaterals[collateralIndex].symbol}`;
+			const colPrecision = app.collaterals[collateralIndex].precision;
+			const webhookText = `Trade EXECUTED type ${orderTypeText} with id ${triggeredOrderTrackingInfoIdentifier} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / colPrecision} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / colPrecision * collateralPriceUsd / colPrecision)}$
+			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round8(openPrice / 1e10)}$ / executed ${round8(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / colPrecision - collateralAmount / colPrecision) / (collateralAmount / colPrecision) * 100)}% => ${+amountSentToTrader === 0 ? `-${collateralAmount / colPrecision}` : (amountSentToTrader / colPrecision - collateralAmount / colPrecision)} ${app.collaterals[collateralIndex].symbol}`;
 
 			await slackWebhook((orderType === '6' ? '💸 ' : (orderType === '2' || orderType === '3' ? '🚀  ' : '🤝 ')) + webhookText + ' txId ' + event.transactionHash);
 
@@ -1104,13 +1105,13 @@ async function synchronizeOpenTrades(event) {
 				app.missedLiquidations.delete(tradeKey);
 				appLogger.info(`Synchronize trigger tracking from event ${eventName}: Missed Liquidations deleted for ${tradeKey}`);
 			}
-
+			const colPrecision = app.collaterals[collateralIndex].precision;
 			let webhookText;
 			if (open) {
-				webhookText = `🚀 Trade OPENED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} : ${round2(collateralAmount / 1e18 * collateralPriceUsd / 1e8)}$ on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} at ${round8(openPrice / 1e10)}$`;
+				webhookText = `🚀 Trade OPENED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / colPrecision} ${app.collaterals[collateralIndex].symbol} : ${round2(collateralAmount / colPrecision * collateralPriceUsd / colPrecision)}$ on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} at ${round8(openPrice / 1e10)}$`;
 			} else {
-				webhookText = `🤝 Trade CLOSED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / 1e18 * collateralPriceUsd / 1e8)}$
-			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round8(openPrice / 1e10)}$ / executed ${round8(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / 1e18 - collateralAmount / 1e18) / (collateralAmount / 1e18) * 100)}% 	=> ${+amountSentToTrader === 0 ? `-${collateralAmount / 1e18}` : round5(amountSentToTrader / 1e18 - collateralAmount / 1e18)} ${app.collaterals[collateralIndex].symbol}`;
+				webhookText = `🤝 Trade CLOSED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / colPrecision} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / colPrecision * collateralPriceUsd / colPrecision)}$
+			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round8(openPrice / 1e10)}$ / executed ${round8(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / colPrecision - collateralAmount / colPrecision) / (collateralAmount / colPrecision) * 100)}% 	=> ${+amountSentToTrader === 0 ? `-${collateralAmount / colPrecision}` : round5(amountSentToTrader / colPrecision - collateralAmount / colPrecision)} ${app.collaterals[collateralIndex].symbol}`;
 			}
 
 			await slackWebhook(webhookText + ' txId ' + event.transactionHash);
@@ -1512,14 +1513,15 @@ function watchPricingStream() {
 						}
 
 						// edge cases when fees becomes higher then collateral (bot down, feed down) we need to liquidate immediately
+						const colPrecision = app.collaterals[collateralIndex].precision;
 						if (long === true && liqPrice >= openTrade.openPrice / 1e10) {
 							const details = `LIQ-PRICE  ${liqPrice} of trade ${openTradeKey} for ${openTrade.leverage / 1e3}x LONG on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to}
-							with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} bigger then open price ${openTrade.openPrice / 1e10}! => we need to liquidate NOW`;
+							with ${convertedTrade.collateralAmount / colPrecision} ${app.collaterals[collateralIndex].symbol} bigger then open price ${openTrade.openPrice / 1e10}! => we need to liquidate NOW`;
 							app.missedLiquidations.set(openTradeKey, details);
 							liqPrice = price;
 						} else if (long === false && liqPrice <= openTrade.openPrice / 1e10) {
 							const details = `LIQ-PRICE ${liqPrice} of trade ${openTradeKey} for ${openTrade.leverage / 1e3}x SHORT on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to}
-							with ${convertedTrade.collateralAmount / 1e18} ${app.collaterals[collateralIndex].symbol} smaller then open price ${openTrade.openPrice / 1e10}! => we need to liquidate NOW`;
+							with ${convertedTrade.collateralAmount / colPrecision} ${app.collaterals[collateralIndex].symbol} smaller then open price ${openTrade.openPrice / 1e10}! => we need to liquidate NOW`;
 							app.missedLiquidations.set(openTradeKey, details);
 							liqPrice = price;
 						}
