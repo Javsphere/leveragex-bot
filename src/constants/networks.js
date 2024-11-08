@@ -81,7 +81,7 @@ export const COLLATERAL_CONFIG = {
 	},
 	[COLLATERAL.USDC]: {
 		decimals: 8,
-		precision: 1e8,
+		precision: 1e6,
 		precisionDelta: 1,
 	},
 };
