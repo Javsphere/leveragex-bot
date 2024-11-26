@@ -1467,7 +1467,7 @@ function watchPricingStream() {
 							convertedLiquidationParams,
 							true,
 							{
-								maxGainP: 900,
+								maxGainP: NETWORK.maxGainP,
 								fee: convertedFee,
 								currentBlock: app.blocks.latestL2Block,
 								openInterest: borrowingFeesContext.pairs[convertedTrade.pairIndex].oi,

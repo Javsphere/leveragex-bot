@@ -80,7 +80,7 @@ export const COLLATERAL_CONFIG = {
 		precisionDelta: 1,
 	},
 	[COLLATERAL.USDC]: {
-		decimals: 8,
+		decimals: 6,
 		precision: 1e6,
 		precisionDelta: 1,
 	},
@@ -93,6 +93,7 @@ export const NETWORKS = {
 		gasMode: GAS_MODE.EIP1559,
     gasStationUrl: undefined,
 		diamondAddress: '0xB8057B1605e25c1D8CDE6F9f875d7bcFe4A0fE33',
+		maxPnl: 400,
     collaterals: [
       {
 				symbol: COLLATERAL.tWETH,
@@ -139,6 +140,7 @@ export const NETWORKS = {
 		gasMode: GAS_MODE.EIP1559,
 		gasStationUrl: undefined,
 		diamondAddress: '0xDEFf0d5bAAb58985aC3b2E61B82108Cc1900aF8a',
+		maxPnl: 400,
 		collaterals: [
 			{
 				symbol: COLLATERAL.WETH,
