@@ -92,7 +92,7 @@ export const NETWORKS = {
     chainId: CHAIN_IDS.SEPOLIA,
 		gasMode: GAS_MODE.EIP1559,
     gasStationUrl: undefined,
-		diamondAddress: '0xB8057B1605e25c1D8CDE6F9f875d7bcFe4A0fE33',
+		diamondAddress: '0xDED8c59c45D8e0f45D8C32f6F6E0A4a2d582e59d',
 		maxPnl: 400,
     collaterals: [
       {
@@ -105,31 +105,7 @@ export const NETWORKS = {
       },
       {
         symbol: COLLATERAL.tUSDC,
-				collateralIndex: 3,
-      },
-			{
-				symbol: COLLATERAL.tUSDT,
 				collateralIndex: 2,
-			},
-			{
-				symbol: COLLATERAL.xWETH,
-				collateralIndex: 5,
-			},
-			{
-				symbol: COLLATERAL.xWBTC,
-				collateralIndex: 4,
-			},
-			{
-				symbol: COLLATERAL.xUSDC,
-				collateralIndex: 6,
-			},
-			{
-				symbol: COLLATERAL.dcbBTC,
-				collateralIndex: 7,
-			},
-			{
-				symbol: COLLATERAL.dUSDC,
-				collateralIndex: 8,
 			},
     ],
 		rewardTokenId: '0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
