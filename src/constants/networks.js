@@ -116,7 +116,7 @@ export const NETWORKS = {
 		gasMode: GAS_MODE.EIP1559,
 		gasStationUrl: undefined,
 		diamondAddress: '0xDEFf0d5bAAb58985aC3b2E61B82108Cc1900aF8a',
-		maxPnl: 900,
+		maxPnl: 400,
 		collaterals: [
 			{
 				symbol: COLLATERAL.WETH,
