@@ -1244,7 +1244,7 @@ async function synchronizeOpenTrades(event) {
 
 async function slackWebhook(text) {
 	const payload = {
-		channel: '#levx-sepolia',
+		channel: process.env.ENV === 'dev' ? '#levx-sepolia' : '#levs-base',
 		username: 'webhookbot',
 		text: text,
 		icon_emoji: `:robot_face:`,
