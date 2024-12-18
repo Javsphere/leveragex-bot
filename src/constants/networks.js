@@ -115,7 +115,7 @@ export const NETWORKS = {
 		chainId: CHAIN_IDS.BASE,
 		gasMode: GAS_MODE.EIP1559,
 		gasStationUrl: undefined,
-		diamondAddress: '0xDEFf0d5bAAb58985aC3b2E61B82108Cc1900aF8a',
+		diamondAddress: '0xBF35e4273db5692777EA475728fDbBa092FFa1B3',
 		maxPnl: 400,
 		collaterals: [
 			{
