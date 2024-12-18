@@ -1912,7 +1912,7 @@ function createTransaction(additionalTransactionProps, isPriority = false) {
 		gas: MAX_GAS_PER_TRANSACTION_HEX,
 		...getTransactionGasFees(NETWORK, isPriority),
 		...additionalTransactionProps,
-		value: parseEther('0.00001'),
+		value: parseEther('0.000001'),
 	};
 }
 
