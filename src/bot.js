@@ -1830,7 +1830,7 @@ function watchPricingStream() {
 			appLogger.info(`Reading from Pyth price feed for asset ${assetName} ...`);
 
 			const groupId = parseInt(app.pairs[priceIdLocal].groupIndex);
-			if (isStocksGroup(groupId) || isDMCPair(parseInt(priceIdLocal))) {
+			if (isStocksGroup(groupId) || isDMCPair(parseInt(priceIdLocal), process.env.ENV)) {
 				appLogger.info(`Get Price for Jav Oracle for priceId ${priceIdLocal}`);
 
 				const [priceUpdatesJav, signedPriceJav] = await Promise.all([
