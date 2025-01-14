@@ -2,8 +2,8 @@ const GROUP_IDS = {
 	CRYPTO: [0],
 	CRYPTO_INDEX: [1],
 	FOREX: [2],
-	STOCKS: [4],
 	COMMODITIES: [3],
+	STOCKS: [4],
 };
 
 const CUSTOM_PAIR_IDS = {

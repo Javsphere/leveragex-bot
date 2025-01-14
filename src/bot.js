@@ -12,6 +12,7 @@ import {
 	getSpreadWithPriceImpactP,
 	isCommoditiesOpen,
 	isForexOpen,
+	isStocksOpen,
 	withinMaxGroupOi,
 } from '@gainsnetwork/sdk';
 import Web3 from 'web3';
@@ -1226,7 +1227,7 @@ async function synchronizeOpenTrades(event) {
 
 			const webhookText = `Trade TRIGGER CANCELED with id ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}`;
 
-			await slackWebhook('❌ ' + webhookText + ' txId ' + event.transactionHash);
+			await slackWebhook('⚠️ ' + webhookText + ' txId ' + event.transactionHash);
 
 			return;
 		}
@@ -1503,14 +1504,14 @@ function watchPricingStream() {
 							borrowingFeesContext,
 						);
 
-						if (pnlPercentage < -90) {
+						/*if (pnlPercentage < -90) {
 							const details = (`Monitor Trade alert for ${openTradeKey} pnl ${pnlPercentage}% pair ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} ${leverage / 1e3}x ${long ? 'long' : 'short'} ...`);
 							if (!app.warningLowPnlTrades.has(openTradeKey)) {
 								app.warningLowPnlTrades.set(openTradeKey, details);
 								await slackWebhook('⚠️ ' + details);
 								appLogger.warn(details);
 							}
-						}
+						}*/
 
 						// edge cases when fees becomes higher then collateral (bot down, feed down) we need to liquidate immediately
 						const colPrecision = app.collaterals[collateralIndex].precision;
@@ -1605,6 +1606,10 @@ function watchPricingStream() {
 					}
 
 					if (isCommoditiesGroup(groupId) && !isCommoditiesOpen(new Date())) {
+						return;
+					}
+
+					if (isStocksGroup(groupId) && !isStocksOpen(new Date())) {
 						return;
 					}
 
