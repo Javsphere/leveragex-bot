@@ -1124,11 +1124,11 @@ async function synchronizeOpenTrades(event) {
 			let webhookText;
 			if (existingKnownOpenTrade !== undefined) {
 				if (eventName === 'TradeTpUpdated') {
-					webhookText = `ℹ️ Trade TpUpdated with id ${tradeKey} - old value ${existingKnownOpenTrade.tp} new value ${eventReturnValues.newTp.toString()}`;
+					webhookText = `ℹ️ Trade TpUpdated with id ${tradeKey} - old value ${existingKnownOpenTrade.tp / 1e10} new value ${eventReturnValues.newTp / 1e10}`;
 					existingKnownOpenTrade.tp = eventReturnValues.newTp.toString();
 					existingKnownOpenTrade.tradeInfo.tpLastUpdatedBlock = event.blockNumber.toString();
 				} else {
-					webhookText = `ℹ️ Trade SlUpdated with id ${tradeKey} - old value ${existingKnownOpenTrade.sl} new value ${eventReturnValues.newSl.toString()}`;
+					webhookText = `ℹ️ Trade SlUpdated with id ${tradeKey} - old value ${existingKnownOpenTrade.sl / 1e10} new value ${eventReturnValues.newSl / 1e10}`;
 					existingKnownOpenTrade.sl = eventReturnValues.newSl.toString();
 					existingKnownOpenTrade.tradeInfo.slLastUpdatedBlock = event.blockNumber.toString();
 				}
@@ -1192,11 +1192,13 @@ async function synchronizeOpenTrades(event) {
 			if (existingKnownOpenTrade !== undefined) {
 				const colPrecision = app.collaterals[existingKnownOpenTrade.collateralIndex].precision;
 				const colPrice = app.collaterals[existingKnownOpenTrade.collateralIndex].price;
+				const colSymbol = app.collaterals[existingKnownOpenTrade.collateralIndex].symbol;
+
 				webhookText = `ℹ️ Trade TradePositionUpdated with id ${tradeKey}
 				- OLD values - with open price ${existingKnownOpenTrade.openPrice / 1e10} leverage ${existingKnownOpenTrade.leverage / 1e3}x
-				${existingKnownOpenTrade.collateralAmount / colPrecision} ${app.collaterals[existingKnownOpenTrade.collateralIndex].symbol}: ${round2(existingKnownOpenTrade.collateralAmount / colPrecision * colPrice / 1e8)}$}
+				${existingKnownOpenTrade.collateralAmount / colPrecision} ${colSymbol}: ${round2(existingKnownOpenTrade.collateralAmount / colPrecision * colPrice / 1e8)}$
 				- NEW values - with open price ${eventReturnValues.openPrice / 1e10} leverage ${eventReturnValues.leverage / 1e3}x
-				${eventReturnValues.collateralAmount / colPrecision} ${app.collaterals[existingKnownOpenTrade.collateralIndex].symbol}: ${round2(eventReturnValues.collateralAmount / colPrecision * colPrice / 1e8)}$}`;
+				${eventReturnValues.collateralAmount / colPrecision} ${colSymbol}: ${round2(eventReturnValues.collateralAmount / colPrecision * colPrice / 1e8)}$`;
 
 				// Update trade values
 				existingKnownOpenTrade.collateralAmount = eventReturnValues.collateralAmount.toString();
