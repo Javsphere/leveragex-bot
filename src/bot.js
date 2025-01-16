@@ -1121,15 +1121,18 @@ async function synchronizeOpenTrades(event) {
 			const { user, index } = eventReturnValues.tradeId;
 			const tradeKey = buildTradeIdentifier(user, index);
 			const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
-
+			let webhookText;
 			if (existingKnownOpenTrade !== undefined) {
 				if (eventName === 'TradeTpUpdated') {
+					webhookText = `ℹ️ Trade TpUpdated with id ${tradeKey} - old value ${existingKnownOpenTrade.tp} new value ${eventReturnValues.newTp.toString()}`;
 					existingKnownOpenTrade.tp = eventReturnValues.newTp.toString();
 					existingKnownOpenTrade.tradeInfo.tpLastUpdatedBlock = event.blockNumber.toString();
 				} else {
+					webhookText = `ℹ️ Trade SlUpdated with id ${tradeKey} - old value ${existingKnownOpenTrade.sl} new value ${eventReturnValues.newSl.toString()}`;
 					existingKnownOpenTrade.sl = eventReturnValues.newSl.toString();
 					existingKnownOpenTrade.tradeInfo.slLastUpdatedBlock = event.blockNumber.toString();
 				}
+				await slackWebhook(webhookText + ' txId ' + event.transactionHash);
 				appLogger.info(`Synchronize update trade from event ${eventName}: Updated values for ${tradeKey}`);
 			} else {
 				appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
@@ -1180,12 +1183,21 @@ async function synchronizeOpenTrades(event) {
 				appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
 			}
 		} else if (eventName === 'TradePositionUpdated') {
+			let webhookText;
 			const { user, index } = eventReturnValues.tradeId;
 			const tradeKey = buildTradeIdentifier(user, index);
 
 			const existingKnownOpenTrade = currentKnownOpenTrades.get(tradeKey);
 
 			if (existingKnownOpenTrade !== undefined) {
+				const colPrecision = app.collaterals[existingKnownOpenTrade.collateralIndex].precision;
+				const colPrice = app.collaterals[existingKnownOpenTrade.collateralIndex].price;
+				webhookText = `ℹ️ Trade TradePositionUpdated with id ${tradeKey}
+				- OLD values - with open price ${existingKnownOpenTrade.openPrice / 1e10} leverage ${existingKnownOpenTrade.leverage / 1e3}x
+				${existingKnownOpenTrade.collateralAmount / colPrecision} ${app.collaterals[existingKnownOpenTrade.collateralIndex].symbol}: ${round2(existingKnownOpenTrade.collateralAmount / colPrecision * colPrice / 1e8)}$}
+				- NEW values - with open price ${eventReturnValues.openPrice / 1e10} leverage ${eventReturnValues.leverage / 1e3}x
+				${eventReturnValues.collateralAmount / colPrecision} ${app.collaterals[existingKnownOpenTrade.collateralIndex].symbol}: ${round2(eventReturnValues.collateralAmount / colPrecision * colPrice / 1e8)}$}`;
+
 				// Update trade values
 				existingKnownOpenTrade.collateralAmount = eventReturnValues.collateralAmount.toString();
 				existingKnownOpenTrade.leverage = eventReturnValues.leverage.toString();
@@ -1212,7 +1224,7 @@ async function synchronizeOpenTrades(event) {
 						endLeverage: liquidationParams.endLeverage + '',
 					};
 				}
-
+				await slackWebhook(webhookText + ' txId ' + event.transactionHash);
 				appLogger.info(`Synchronize update trade from event ${eventName}: Updated values for ${tradeKey}`);
 			} else {
 				appLogger.error(`Synchronize update trade from event ${eventName}: Trade not found for ${tradeKey}!`);
