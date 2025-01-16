@@ -38,5 +38,25 @@ export function getPendingOrderTypeByValue(value) {
 	return Object.keys(PENDING_ORDER_TYPE).find(key => PENDING_ORDER_TYPE[key] === value);
 }
 
+const CancelReason = {
+	0: 'NONE',
+	1: 'MARKET_CLOSED',
+	2: 'SLIPPAGE',
+	3: 'TP_REACHED',
+	4: 'SL_REACHED',
+	5: 'EXPOSURE_LIMITS',
+	6: 'PRICE_IMPACT',
+	7: 'MAX_LEVERAGE',
+	8: 'NO_TRADE',
+	9: 'NOT_HIT',
+};
+
+export function getCancelReasonByIndex(index) {
+	if (index < 0 || index >= Object.keys(CancelReason).length / 2) {
+		return undefined;
+	}
+	return CancelReason[index];
+}
+
 export * from './abis.js';
 export * from './networks.js';

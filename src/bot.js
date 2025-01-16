@@ -20,6 +20,7 @@ import { DateTime } from 'luxon';
 import fetch from 'node-fetch';
 import {
 	GAS_MODE,
+	getCancelReasonByIndex,
 	getPendingOrderTypeByValue,
 	isCommoditiesGroup,
 	isDMCPair,
@@ -1237,9 +1238,9 @@ async function synchronizeOpenTrades(event) {
 
 			const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(user, index, orderType);
 
-			appLogger.warn(`Synchronize trigger tracking from event ${eventName}: Order canceled ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}`);
+			appLogger.warn(`Synchronize trigger tracking from event ${eventName}: Order canceled ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}:${getCancelReasonByIndex(cancelReason)}`);
 
-			const webhookText = `Trade TRIGGER CANCELED with id ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}`;
+			const webhookText = `Trade TRIGGER CANCELED with id ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}:${getCancelReasonByIndex(cancelReason)}`;
 
 			await slackWebhook('⚠️ ' + webhookText + ' txId ' + event.transactionHash);
 
@@ -1658,7 +1659,7 @@ function watchPricingStream() {
 							return;
 						}
 
-						appLogger.info(`🤞 Trying to trigger ${triggeredOrderTrackingInfoIdentifier} collateral ${app.collaterals[collateralIndex].symbol} pair ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} ${leverage / 1e3}x ${long ? 'long' : 'short'} ...`);
+						appLogger.info(`🤞 Trying to trigger ${triggeredOrderTrackingInfoIdentifier}: ${getPendingOrderTypeByValue(orderType)} collateral ${app.collaterals[collateralIndex].symbol} pair ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} ${leverage / 1e3}x ${long ? 'long' : 'short'} ...`);
 
 						if (orderType === PENDING_ORDER_TYPE.LIQ_CLOSE) {
 							const liqPrice = getTradeLiquidationPrice(
@@ -1683,7 +1684,7 @@ function watchPricingStream() {
 							appLogger.info(`Trade ${openTradeKey} set orderType set to SL_CLOSE because long: ${long} & price: ${price} ${long ? '<=' : '>='} sl: ${convertedTrade.sl}.`);
 						}
 						if (orderType === PENDING_ORDER_TYPE.LIMIT_OPEN || orderType === PENDING_ORDER_TYPE.STOP_OPEN) {
-							appLogger.debug(`Trade ${openTradeKey} set orderType set to ${orderType === PENDING_ORDER_TYPE.LIMIT_OPEN ? 'LIMIT_OPEN' : 'STOP_OPEN'} because long: ${long} & price: ${price} reached.`);
+							appLogger.info(`Trade ${openTradeKey} set orderType set to ${orderType === PENDING_ORDER_TYPE.LIMIT_OPEN ? 'LIMIT_OPEN' : 'STOP_OPEN'} because long: ${long} & price: ${price} reached.`);
 						}
 
 						try {
@@ -1853,7 +1854,7 @@ function watchPricingStream() {
 				appLogger.info(`Get Price for Jav Oracle for priceId ${priceIdLocal}`);
 
 				const [priceUpdatesJav, signedPriceJav] = await Promise.all([
-					fetchPythPrices([app.pairs[colIdLocal].feedId, NETWORK.rewardTokenId]),
+					fetchPythPrices([app.collaterals[colIdLocal].collateralFeed, NETWORK.rewardTokenId]),
 					fetchSignedPrice(app.pairs[priceIdLocal].feedId.slice(2)),
 				]);
 				appLogger.info(`Prices get and signed for pair ${assetName}:${priceIdLocal} with value ${+priceData.price * 10 ** priceData.expo} signed ${signedPriceJav.signedPrice}`);
@@ -1861,7 +1862,7 @@ function watchPricingStream() {
 
 			} else {
 				const [priceUpdatesPyth] = await Promise.all([
-					fetchPythPrices([app.pairs[priceIdLocal].feedId, app.pairs[colIdLocal].feedId, NETWORK.rewardTokenId]),
+					fetchPythPrices([app.pairs[priceIdLocal].feedId, app.collaterals[colIdLocal].collateralFeed, NETWORK.rewardTokenId]),
 				]);
 				appLogger.info(`Prices get for pair ${assetName}:${priceIdLocal} with value ${+priceUpdatesPyth.parsed[0].price.price * 10 ** priceUpdatesPyth.parsed[0].price.expo}`);
 				return [['0x' + priceUpdatesPyth.binary.data[0]], []];
