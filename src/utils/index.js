@@ -74,7 +74,7 @@ export const convertTradeInfo = (tradeInfo) => {
 		createdBlock: parseInt(tradeInfo.createdBlock),
 		tpLastUpdatedBlock: parseInt(tradeInfo.tpLastUpdatedBlock),
 		slLastUpdatedBlock: parseInt(tradeInfo.slLastUpdatedBlock),
-		maxSlippageP: tradeInfo.maxSlippageP + '' === '0' ? 1 : parseFloat(tradeInfo.maxSlippageP) / 1e3,
+		maxSlippageP: tradeInfo.maxSlippageP + '' === '0' ? 5 : parseFloat(tradeInfo.maxSlippageP) / 1e3,
 		lastOiUpdateTs: parseFloat(tradeInfo.lastOiUpdateTs),
 		collateralPriceUsd: parseFloat(tradeInfo.collateralPriceUsd) / 1e8,
 		// we set manually to V9_2
