@@ -52,9 +52,6 @@ const CancelReason = {
 };
 
 export function getCancelReasonByIndex(index) {
-	if (index < 0 || index >= Object.keys(CancelReason).length / 2) {
-		return undefined;
-	}
 	return CancelReason[index];
 }
 
