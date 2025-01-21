@@ -41,6 +41,7 @@ import {
 	convertTradeInfo,
 	convertTradeInitialAccFees,
 	createLogger,
+	getBotNr,
 	getEthersContract,
 	increaseWindowOi,
 	initContracts,
@@ -1262,7 +1263,7 @@ async function slackWebhook(text) {
 	const payload = {
 		channel: process.env.ENV === 'dev' ? '#levx-sepolia' : '#levs-base',
 		username: 'webhookbot',
-		text: text,
+		text: 'BOT-' + getBotNr() + ' ' + text,
 		icon_emoji: `:robot_face:`,
 	};
 	axios.post(process.env.WEBHOOK_URL, payload)
