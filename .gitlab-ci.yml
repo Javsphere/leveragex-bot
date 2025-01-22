@@ -12,7 +12,6 @@ variables:
     PACKAGE_MANAGER_SET: npm
     DIRECTORY: /
     CONTAINER_IMAGE: ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_SLUG}_${CI_COMMIT_SHORT_SHA}
-    CONTAINER_IMAGE_STAGING: ${CI_REGISTRY}/${CI_PROJECT_PATH}:staging
     CONTAINER_IMAGE_LATEST: ${CI_REGISTRY}/${CI_PROJECT_PATH}:latest
     CONTAINER_IMAGE_STAGING_LATEST: ${CI_REGISTRY}/${CI_PROJECT_PATH}:staging__${CI_BUILD_REF}
 
@@ -22,7 +21,7 @@ build:
     services:
         - docker:dind
     before_script:
-        - docker login -u gitlab-ci-token -p ${CI_BUILD_TOKEN} ${CI_REGISTRY}
+        - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
     script:
         - docker pull $CI_REGISTRY_IMAGE:latest || true
         - docker build --cache-from $CONTAINER_IMAGE_LATEST -t $CONTAINER_IMAGE_LATEST -t $CONTAINER_IMAGE .
