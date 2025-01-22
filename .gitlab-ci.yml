@@ -1,6 +1,7 @@
 image: docker:latest
 
 stages:
+    - build
     - deploy
 
 variables:
