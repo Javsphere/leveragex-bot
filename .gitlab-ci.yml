@@ -11,6 +11,24 @@ variables:
     PACKAGE_MANAGER_SET: npm
     DIRECTORY: /
 
+build:
+    stage: build
+    image: docker:stable
+    services:
+        - docker:dind
+    before_script:
+        - docker login -u gitlab-ci-token -p ${CI_BUILD_TOKEN} ${CI_REGISTRY}
+    script:
+        - docker pull $CI_REGISTRY_IMAGE:latest || true
+        - docker build --cache-from $CONTAINER_IMAGE_LATEST -t $CONTAINER_IMAGE_LATEST -t $CONTAINER_IMAGE .
+        - docker push $CONTAINER_IMAGE
+        - docker push $CONTAINER_IMAGE_LATEST
+    cache:
+        key: "docker"
+        policy: pull
+    only:
+        - main
+
 deploy-dev-cluster:
     stage: deploy
     services:
