@@ -28,7 +28,7 @@ build:
         key: "docker"
         policy: pull
     only:
-        - main
+        - master
 
 deploy-dev-cluster:
     stage: deploy
