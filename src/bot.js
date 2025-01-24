@@ -114,6 +114,14 @@ if (process.env.NODE_ENV) {
 const appLogger = createLogger('BOT', process.env.LOG_LEVEL);
 let executionStats = {
 	startTime: new Date(),
+	feedLatency: {
+		last: null,
+		ts: null,
+	},
+	refresh: {
+		openTrades: null,
+		tradingVariables: null,
+	},
 };
 
 let trackingStats = {
@@ -515,6 +523,7 @@ async function fetchTradingVariables() {
 
 		await currentTradingVariablesFetchPromise;
 		appLogger.info(`Done fetching trading variables; took ${performance.now() - executionStart}ms.`);
+		executionStats.refresh.tradingVariables = Date.now();
 
 		if (FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_MS > 0) {
 			fetchTradingVariablesTimerId = setTimeout(() => {
@@ -700,10 +709,18 @@ async function fetchOpenTrades() {
 
 		const start = performance.now();
 
-		const trades = await fetchOpenPairTrades();
+		const { allTrades: trades } = await Promise.race([
+			fetchOpenPairTrades(),
+			new Promise((_, reject) => {
+				setTimeout(() => reject(new Error('Timed out fetching open trades!')), OPEN_TRADES_REFRESH_MS);
+			}),
+		]);
+
 		app.knownOpenTrades = new Map(trades.map((trade) => [buildTradeIdentifier(trade.user, trade.index), trade]));
 
 		appLogger.info(`Fetched ${app.knownOpenTrades.size} total open trade(s) in ${performance.now() - start}ms.`);
+
+		executionStats.refresh.openTrades = Date.now();
 
 		// Check if we're supposed to auto-refresh open trades and if so, schedule the next refresh
 		if (OPEN_TRADES_REFRESH_MS !== 0) {
@@ -717,7 +734,6 @@ async function fetchOpenTrades() {
 		}
 	} catch (error) {
 		appLogger.error('Error fetching open trades!', error);
-
 		scheduleRetryFetchOpenTrades();
 	}
 
@@ -754,7 +770,7 @@ async function fetchOpenTrades() {
 
 		appLogger.info(`Fetched ${allTrades.length} new open pair trade(s).`);
 
-		return allTrades;
+		return { allTrades };
 	}
 }
 
@@ -919,6 +935,7 @@ function watchLiveTradingEvents() {
 			}
 		});
 	} catch {
+		appLogger.error(`Unexpected error while fetching open pair trades!`);
 		setTimeout(() => {
 			watchLiveTradingEvents();
 		}, 2 * 1000);
@@ -1285,6 +1302,11 @@ async function handleBorrowingFeesEvent(event) {
 				pairBorrowingFees.accFeeLong = parseFloat(accFeeLong) / 1e10;
 				pairBorrowingFees.accFeeShort = parseFloat(accFeeShort) / 1e10;
 				pairBorrowingFees.accLastUpdateBlock = parseInt(event.blockNumber);
+				pairBorrowingFees.accLastUpdatedBlock = parseInt(event.blockNumber);
+				appLogger.info(
+					`${event.event}: Updated borrowingFees.pair[${pairIndex},${collateralIndex}] with accFeeLong:${pairBorrowingFees.accFeeLong}, accFeeShort:${pairBorrowingFees.accFeeShort}, accLastUpdateBlock:${pairBorrowingFees.accLastUpdateBlock}`
+						`${event.event}: Updated borrowingFees.pair[${pairIndex},${collateralIndex}] with accFeeLong:${pairBorrowingFees.accFeeLong}, accFeeShort:${pairBorrowingFees.accFeeShort}, accLastUpdatedBlock:${pairBorrowingFees.accLastUpdatedBlock}`,
+				);
 			}
 		} else if (event.event === 'BorrowingGroupAccFeesUpdated') {
 			const { collateralIndex, groupIndex, accFeeLong, accFeeShort } = event.returnValues;
@@ -1295,24 +1317,32 @@ async function handleBorrowingFeesEvent(event) {
 				groupBorrowingFees.accFeeLong = parseFloat(accFeeLong) / 1e10;
 				groupBorrowingFees.accFeeShort = parseFloat(accFeeShort) / 1e10;
 				groupBorrowingFees.accLastUpdateBlock = parseInt(event.blockNumber);
+				groupBorrowingFees.accLastUpdatedBlock = parseInt(event.blockNumber);
+
+				appLogger.info(
+					`${event.event}: Updated borrowingFees.group[${groupIndex},${collateralIndex}] with accFeeLong:${groupBorrowingFees.accFeeLong}, accFeeShort:${groupBorrowingFees.accFeeShort}, accLastUpdateBlock:${groupBorrowingFees.accLastUpdateBlock}`
+						`${event.event}: Updated borrowingFees.group[${groupIndex},${collateralIndex}] with accFeeLong:${groupBorrowingFees.accFeeLong}, accFeeShort:${groupBorrowingFees.accFeeShort}, accLastUpdatedBlock:${groupBorrowingFees.accLastUpdatedBlock}`,
+				);
 			}
-		} else if (event.event === 'BorrowingGroupOiUpdated') {
-			const { collateralIndex, groupIndex, newOiLong, newOiShort } = event.returnValues;
-
-			const groupBorrowingFees = app.borrowingFeesContext[collateralIndex].groups[groupIndex].oi;
-
+		} else if (event.event === 'BorrowingGroupUpdated') {
+			const { collateralIndex, groupIndex, feePerBlock, maxOi } = event.returnValues;
+			const groupBorrowingFees = app.borrowingFeesContext[collateralIndex].groups[groupIndex];
 			if (groupBorrowingFees) {
-				groupBorrowingFees.long = parseFloat(newOiLong) / 1e10;
-				groupBorrowingFees.short = parseFloat(newOiShort) / 1e10;
+				groupBorrowingFees.feePerBlock = transformFrom1e10(feePerBlock);
+				groupBorrowingFees.oi.max = transformFrom1e10(maxOi);
+				appLogger.info(
+					`${event.event}: Updated borrowingFees.group[${groupIndex}] with feePerBlock:${groupBorrowingFees.feePerBlock}, oi.maxOi:${groupBorrowingFees.oi.max}`,
+				);
 			}
-		} else if (event.event === 'BorrowingPairOiUpdated') {
-			const { collateralIndex, pairIndex, newOiLong, newOiShort } = event.returnValues;
-
-			const pairBorrowingFees = app.borrowingFeesContext[collateralIndex].pairs[pairIndex].oi;
-
+		} else if (event.event === 'BorrowingPairParamsUpdated') {
+			const { collateralIndex, pairIndex, feePerBlock, maxOi } = event.returnValues;
+			const pairBorrowingFees = app.borrowingFeesContext[collateralIndex].pairs[pairIndex];
 			if (pairBorrowingFees) {
-				pairBorrowingFees.long = parseFloat(newOiLong) / 1e10;
-				pairBorrowingFees.short = parseFloat(newOiShort) / 1e10;
+				pairBorrowingFees.feePerBlock = transformFrom1e10(feePerBlock);
+				pairBorrowingFees.oi.max = transformFrom1e10(maxOi);
+				appLogger.info(
+					`${event.event}: Updated borrowingFees.pair[${pairIndex}] with feePerBlock:${pairBorrowingFees.feePerBlock}, oi.maxOi:${pairBorrowingFees.oi.max}`,
+				);
 			}
 		}
 	} catch (error) {
@@ -1380,6 +1410,8 @@ function watchPricingStream() {
 		if (index < 0) {
 			return;
 		}
+
+		executionStats.feedLatency.ts = Date.now();
 
 		const pairName = app.pairs[index].from + '/' + app.pairs[index].to;
 
@@ -1520,14 +1552,13 @@ function watchPricingStream() {
 							borrowingFeesContext,
 						);
 
-						/*if (pnlPercentage < -90) {
+						if (pnlPercentage < -90) {
 							const details = (`Monitor Trade alert for ${openTradeKey} pnl ${pnlPercentage}% pair ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} ${leverage / 1e3}x ${long ? 'long' : 'short'} ...`);
 							if (!app.warningLowPnlTrades.has(openTradeKey)) {
 								app.warningLowPnlTrades.set(openTradeKey, details);
-								await slackWebhook('⚠️ ' + details);
 								appLogger.warn(details);
 							}
-						}*/
+						}
 
 						// edge cases when fees becomes higher then collateral (bot down, feed down) we need to liquidate immediately
 						const colPrecision = app.collaterals[collateralIndex].precision;
@@ -1572,6 +1603,7 @@ function watchPricingStream() {
 								app.pairDepths[openTrade.pairIndex],
 								app.oiWindowsSettings,
 								app.oiWindows[openTrade.pairIndex],
+								{ isOpen: true, ...app.pairFactors[openTrade.pairIndex] },
 							) * 100;
 
 						// oi.long/short/max are already transformed (div 1e10)
