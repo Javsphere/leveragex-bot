@@ -1301,7 +1301,6 @@ async function handleBorrowingFeesEvent(event) {
 			if (pairBorrowingFees) {
 				pairBorrowingFees.accFeeLong = parseFloat(accFeeLong) / 1e10;
 				pairBorrowingFees.accFeeShort = parseFloat(accFeeShort) / 1e10;
-				pairBorrowingFees.accLastUpdateBlock = parseInt(event.blockNumber);
 				pairBorrowingFees.accLastUpdatedBlock = parseInt(event.blockNumber);
 				appLogger.info(
 					`${event.event}: Updated borrowingFees.pair[${pairIndex},${collateralIndex}] with accFeeLong:${pairBorrowingFees.accFeeLong}, accFeeShort:${pairBorrowingFees.accFeeShort}, accLastUpdateBlock:${pairBorrowingFees.accLastUpdateBlock}`
@@ -1316,7 +1315,6 @@ async function handleBorrowingFeesEvent(event) {
 			if (groupBorrowingFees) {
 				groupBorrowingFees.accFeeLong = parseFloat(accFeeLong) / 1e10;
 				groupBorrowingFees.accFeeShort = parseFloat(accFeeShort) / 1e10;
-				groupBorrowingFees.accLastUpdateBlock = parseInt(event.blockNumber);
 				groupBorrowingFees.accLastUpdatedBlock = parseInt(event.blockNumber);
 
 				appLogger.info(
