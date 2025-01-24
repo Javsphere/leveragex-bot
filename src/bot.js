@@ -1304,7 +1304,6 @@ async function handleBorrowingFeesEvent(event) {
 				pairBorrowingFees.accLastUpdatedBlock = parseInt(event.blockNumber);
 				appLogger.info(
 					`${event.event}: Updated borrowingFees.pair[${pairIndex},${collateralIndex}] with accFeeLong:${pairBorrowingFees.accFeeLong}, accFeeShort:${pairBorrowingFees.accFeeShort}, accLastUpdatedBlock:${pairBorrowingFees.accLastUpdatedBlock}`
-						`${event.event}: Updated borrowingFees.pair[${pairIndex},${collateralIndex}] with accFeeLong:${pairBorrowingFees.accFeeLong}, accFeeShort:${pairBorrowingFees.accFeeShort}, accLastUpdatedBlock:${pairBorrowingFees.accLastUpdatedBlock}`,
 				);
 			}
 		} else if (event.event === 'BorrowingGroupAccFeesUpdated') {
@@ -1316,10 +1315,8 @@ async function handleBorrowingFeesEvent(event) {
 				groupBorrowingFees.accFeeLong = parseFloat(accFeeLong) / 1e10;
 				groupBorrowingFees.accFeeShort = parseFloat(accFeeShort) / 1e10;
 				groupBorrowingFees.accLastUpdatedBlock = parseInt(event.blockNumber);
-
 				appLogger.info(
 					`${event.event}: Updated borrowingFees.group[${groupIndex},${collateralIndex}] with accFeeLong:${groupBorrowingFees.accFeeLong}, accFeeShort:${groupBorrowingFees.accFeeShort}, accLastUpdatedBlock:${groupBorrowingFees.accLastUpdatedBlock}`
-						`${event.event}: Updated borrowingFees.group[${groupIndex},${collateralIndex}] with accFeeLong:${groupBorrowingFees.accFeeLong}, accFeeShort:${groupBorrowingFees.accFeeShort}, accLastUpdatedBlock:${groupBorrowingFees.accLastUpdatedBlock}`,
 				);
 			}
 		} else if (event.event === 'BorrowingGroupUpdated') {
