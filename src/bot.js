@@ -1099,10 +1099,12 @@ async function synchronizeOpenTrades(event) {
 
 			const orderTypeText = getPendingOrderTypeByValue(+orderType);
 			const colPrecision = app.collaterals[collateralIndex].precision;
-			const webhookText = `Trade EXECUTED type ${orderTypeText} with id ${triggeredOrderTrackingInfoIdentifier} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / colPrecision} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8)}$
+			const positionSize = leverage / 1e3 * round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8);
+			const collateralUsd = round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8);
+			const webhookText = `Trade EXECUTED type ${orderTypeText} with id ${triggeredOrderTrackingInfoIdentifier} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / colPrecision} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8)}$ (Position ${positionSize}$)
 			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round8(openPrice / 1e10)}$ / executed ${round8(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / colPrecision - collateralAmount / colPrecision) / (collateralAmount / colPrecision) * 100)}% => ${+amountSentToTrader === 0 ? `-${collateralAmount / colPrecision}` : (amountSentToTrader / colPrecision - collateralAmount / colPrecision)} ${app.collaterals[collateralIndex].symbol}`;
 
-			await slackWebhook((orderType === '6' ? '💸 ' : (orderType === '2' || orderType === '3' ? '🚀  ' : '🤝 ')) + webhookText + ' txId ' + event.transactionHash);
+			await slackWebhook(collateralUsd >= 500 ? ' 💰💰💰 ' : '' + (orderType === '6' ? '💸 ' : (orderType === '2' || orderType === '3' ? '🚀  ' : '🤝 ')) + webhookText + ' txId ' + event.transactionHash);
 
 		} else if (eventName === 'MarketExecuted') {
 
@@ -1126,15 +1128,17 @@ async function synchronizeOpenTrades(event) {
 				appLogger.info(`Synchronize trigger tracking from event ${eventName}: Missed Liquidations deleted for ${tradeKey}`);
 			}
 			const colPrecision = app.collaterals[collateralIndex].precision;
+			const positionSize = leverage / 1e3 * round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8);
+			const collateralUsd = round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8);
 			let webhookText;
 			if (open) {
-				webhookText = `🚀 Trade OPENED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / colPrecision} ${app.collaterals[collateralIndex].symbol} : ${round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8)}$ on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} at ${round8(openPrice / 1e10)}$`;
+				webhookText = `🚀 Trade OPENED  with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / colPrecision} ${app.collaterals[collateralIndex].symbol} : ${round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8)}$ (Position ${positionSize}$) on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} at ${round8(openPrice / 1e10)}$`;
 			} else {
-				webhookText = `🤝 Trade CLOSED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / colPrecision} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8)}$
+				webhookText = `🤝 Trade CLOSED with id ${tradeKey} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / colPrecision} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8)}$ (Position ${positionSize}$)
 			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round8(openPrice / 1e10)}$ / executed ${round8(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / colPrecision - collateralAmount / colPrecision) / (collateralAmount / colPrecision) * 100)}% 	=> ${+amountSentToTrader === 0 ? `-${collateralAmount / colPrecision}` : round5(amountSentToTrader / colPrecision - collateralAmount / colPrecision)} ${app.collaterals[collateralIndex].symbol}`;
 			}
 
-			await slackWebhook(webhookText + ' txId ' + event.transactionHash);
+			await slackWebhook(collateralUsd >= 500 ? ' 💰💰💰 ' : '' + webhookText + ' txId ' + event.transactionHash);
 
 		} else if (eventName === 'TradeTpUpdated' || eventName === 'TradeSlUpdated') {
 			const { user, index } = eventReturnValues.tradeId;
