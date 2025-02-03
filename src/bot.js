@@ -1099,7 +1099,7 @@ async function synchronizeOpenTrades(event) {
 
 			const orderTypeText = getPendingOrderTypeByValue(+orderType);
 			const colPrecision = app.collaterals[collateralIndex].precision;
-			const positionSize = leverage / 1e3 * round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8);
+			const positionSize = round2(leverage / 1e3 * collateralAmount / colPrecision * collateralPriceUsd / 1e8);
 			const collateralUsd = round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8);
 			const webhookText = `Trade EXECUTED type ${orderTypeText} with id ${triggeredOrderTrackingInfoIdentifier} - ${leverage / 1e3}x ${long ? 'long' : 'short'} with ${collateralAmount / colPrecision} ${app.collaterals[collateralIndex].symbol}: ${round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8)}$ (Position ${positionSize}$)
 			on ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} opened ${round8(openPrice / 1e10)}$ / executed ${round8(price / 1e10)}$ profit ${+amountSentToTrader === 0 ? '-100' : round2((+amountSentToTrader / colPrecision - collateralAmount / colPrecision) / (collateralAmount / colPrecision) * 100)}% => ${+amountSentToTrader === 0 ? `-${collateralAmount / colPrecision}` : (amountSentToTrader / colPrecision - collateralAmount / colPrecision)} ${app.collaterals[collateralIndex].symbol} (${round2((amountSentToTrader / colPrecision - collateralAmount / colPrecision) * collateralPriceUsd / 1e8)}$)`;
@@ -1128,7 +1128,7 @@ async function synchronizeOpenTrades(event) {
 				appLogger.info(`Synchronize trigger tracking from event ${eventName}: Missed Liquidations deleted for ${tradeKey}`);
 			}
 			const colPrecision = app.collaterals[collateralIndex].precision;
-			const positionSize = leverage / 1e3 * round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8);
+			const positionSize = round2(leverage / 1e3 * collateralAmount / colPrecision * collateralPriceUsd / 1e8);
 			const collateralUsd = round2(collateralAmount / colPrecision * collateralPriceUsd / 1e8);
 			let webhookText;
 			if (open) {
