@@ -23,7 +23,6 @@ import {
 	getCancelReasonByIndex,
 	getPendingOrderTypeByValue,
 	isCommoditiesGroup,
-	isDMCPair,
 	isForexGroup,
 	isStocksGroup,
 	MAX_OPEN_NEGATIVE_PNL_P,
@@ -1414,17 +1413,10 @@ function watchPricingStream() {
 
 		const pairName = app.pairs[index].from + '/' + app.pairs[index].to;
 
-		// stocks pricefeed
-		if (messageData.priceCombined !== undefined) {
-			pairPrices.set(index, +messageData.priceCombined.price * 10 ** messageData.priceCombined.expo);
-			// track when last updated price
-			app.priceUpdates.set(pairName, DateTime.now());
-			// everything else directly from pyth
-		} else {
-			pairPrices.set(index, +messageData.price.price * 10 ** messageData.price.expo);
-			// track when last updated price
-			app.priceUpdates.set(pairName, DateTime.now());
-		}
+		// get price
+		pairPrices.set(index, +messageData.price.price * 10 ** messageData.price.expo);
+		// track when last updated price
+		app.priceUpdates.set(pairName, DateTime.now());
 
 		pricingUpdatesMessageProcessingCount++;
 
@@ -1875,30 +1867,16 @@ function watchPricingStream() {
 
 		try {
 			const assetName = messageData.asset;
-			const priceData = messageData.priceCombined ? messageData.priceCombined : messageData.price;
 			const priceIdLocal = priceId;
 			const colIdLocal = colId;
 
 			appLogger.info(`Reading from Pyth price feed for asset ${assetName} ...`);
 
-			const groupId = parseInt(app.pairs[priceIdLocal].groupIndex);
-			if (isStocksGroup(groupId) || isDMCPair(parseInt(priceIdLocal), process.env.ENV)) {
-				appLogger.info(`Get Price for Jav Oracle for priceId ${priceIdLocal}`);
-
-				const [priceUpdatesJav, signedPriceJav] = await Promise.all([
-					fetchPythPrices([app.collaterals[colIdLocal].collateralFeed, NETWORK.rewardTokenId]),
-					fetchSignedPrice(app.pairs[priceIdLocal].feedId.slice(2)),
-				]);
-				appLogger.info(`Prices get and signed for pair ${assetName}:${priceIdLocal} with value ${+priceData.price * 10 ** priceData.expo} signed ${signedPriceJav.signedPrice}`);
-				return [['0x' + priceUpdatesJav.binary.data[0]], signedPriceJav.signedPrice];
-
-			} else {
-				const [priceUpdatesPyth] = await Promise.all([
-					fetchPythPrices([app.pairs[priceIdLocal].feedId, app.collaterals[colIdLocal].collateralFeed, NETWORK.rewardTokenId]),
-				]);
-				appLogger.info(`Prices get for pair ${assetName}:${priceIdLocal} with value ${+priceUpdatesPyth.parsed[0].price.price * 10 ** priceUpdatesPyth.parsed[0].price.expo}`);
-				return [['0x' + priceUpdatesPyth.binary.data[0]], []];
-			}
+			const [priceUpdatesPyth] = await Promise.all([
+				fetchPythPrices([app.pairs[priceIdLocal].feedId, app.collaterals[colIdLocal].collateralFeed, NETWORK.rewardTokenId]),
+			]);
+			appLogger.info(`Prices get for pair ${assetName}:${priceIdLocal} with value ${+priceUpdatesPyth.parsed[0].price.price * 10 ** priceUpdatesPyth.parsed[0].price.expo}`);
+			return [['0x' + priceUpdatesPyth.binary.data[0]], []];
 
 		} catch (err) {
 			appLogger.error(`error ${err?.message} in getActualPrice`);
