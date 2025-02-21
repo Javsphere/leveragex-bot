@@ -11,6 +11,8 @@ export const initContracts = async (w3, ctx, networkConfig) => {
 	ctx.evmProvider = new ethers.providers.JsonRpcProvider(process.env.RPC);
 	ctx.signer = new ethers.Wallet(process.env.PRIVATE_KEY, ctx.evmProvider);
 
+	ctx.contracts.diamondHttp = new ethers.Contract(networkConfig.diamondAddress, abis.DIAMOND, ctx.evmProvider);
+
   for (const collateral of networkConfig.collaterals) {
     ctx.collaterals[collateral.collateralIndex] = {
       ...collateral,

@@ -162,6 +162,7 @@ const app = {
 	diamond: null,
 	contracts: {
 		diamond: null,
+		diamondHttp: null,
 		pythOrace: null,
 		javOracle: null,
 	},
@@ -543,14 +544,14 @@ async function fetchTradingVariables() {
 
 	async function fetchPairs(pairsCount) {
 		const [depths, pairFactors, maxLeverage, pairs, feesCount, groupsCount] = await Promise.all([
-			app.contracts.diamond.methods.getPairDepths([...Array(parseInt(pairsCount)).keys()]).call(),
-			app.contracts.diamond.methods.getPairFactors([...Array(parseInt(pairsCount)).keys()]).call(),
-			app.contracts.diamond.methods.getAllPairsRestrictedMaxLeverage().call(),
+			app.contracts.diamondHttp.getPairDepths([...Array(parseInt(pairsCount)).keys()]),
+			app.contracts.diamondHttp.getPairFactors([...Array(parseInt(pairsCount)).keys()]),
+			app.contracts.diamondHttp.getAllPairsRestrictedMaxLeverage(),
 			Promise.all(
-				[...Array(parseInt(pairsCount)).keys()].map(async (_, pairIndex) => app.contracts.diamond.methods.pairs(pairIndex).call()),
+				[...Array(parseInt(pairsCount)).keys()].map(async (_, pairIndex) => app.contracts.diamondHttp.pairs(pairIndex)),
 			),
-			app.contracts.diamond.methods.feesCount().call(),
-			app.contracts.diamond.methods.groupsCount().call(),
+			app.contracts.diamondHttp.feesCount(),
+			app.contracts.diamondHttp.groupsCount(),
 		]);
 
 		app.pairMaxLeverage = new Map(maxLeverage.map((l, idx) => [idx, parseInt(l)]));
@@ -571,7 +572,7 @@ async function fetchTradingVariables() {
 		app.spreadsP = pairs.map((p) => p.spreadP);
 
 		app.fees = (
-			await Promise.all([...Array(parseInt(feesCount)).keys()].map((_, feeIndex) => app.contracts.diamond.methods.fees(feeIndex).call()))
+			await Promise.all([...Array(parseInt(feesCount)).keys()].map((_, feeIndex) => app.contracts.diamondHttp.fees(feeIndex)))
 		).map(({ openFeeP, closeFeeP, triggerOrderFeeP, minPositionSizeUsd }) => ({
 			openFeeP: openFeeP,
 			closeFeeP: closeFeeP,
@@ -584,7 +585,7 @@ async function fetchTradingVariables() {
 		app.groupLiquidationParams = (
 			await Promise.all(
 				[...Array(parseInt(groupsCount)).keys()].map((_, groupIndex) =>
-					app.contracts.diamond.methods.getGroupLiquidationParams(groupIndex).call(),
+					app.contracts.diamondHttp.getGroupLiquidationParams(groupIndex),
 				),
 			)
 		).map((liquidationParams) => convertLiquidationParams(liquidationParams));
@@ -593,7 +594,7 @@ async function fetchTradingVariables() {
 	async function fetchBorrowingFees() {
 		await Promise.all(
 			Object.keys(app.collaterals).map(async (collateralIndex) => {
-				const allBorrowingPairs = await app.contracts.diamond.methods.getAllBorrowingPairs(collateralIndex).call();
+				const allBorrowingPairs = await app.contracts.diamondHttp.getAllBorrowingPairs(collateralIndex);
 
 				const [pairsBorrowingData, rawPairsOpenInterest, pairsBorrowingPairGroup] = [
 					allBorrowingPairs[0],
@@ -609,9 +610,8 @@ async function fetchTradingVariables() {
 
 				const borrowingFeeGroupResults =
 					borrowingFeesGroupIds.length > 0
-						? await app.contracts.diamond.methods
+						? await app.contracts.diamondHttp
 							.getBorrowingGroups(collateralIndex, Array.from(Array(+borrowingFeesGroupIds[borrowingFeesGroupIds.length - 1] + 1).keys()))
-							.call()
 						: [[], []];
 
 				const groupsBorrowingData = borrowingFeeGroupResults[0];
@@ -657,7 +657,7 @@ async function fetchTradingVariables() {
 			startTs,
 			windowsDuration,
 			windowsCount,
-		} = await app.contracts.diamond.methods.getOiWindowsSettings().call();
+		} = await app.contracts.diamondHttp.getOiWindowsSettings();
 
 		app.oiWindowsSettings = {
 			startTs: parseFloat(startTs),
@@ -673,9 +673,8 @@ async function fetchTradingVariables() {
 		const oiWindowsTemp = (
 			await Promise.all(
 				[...Array(parseInt(pairLength)).keys()].map((_, pairIndex) =>
-					app.contracts.diamond.methods
+					app.contracts.diamondHttp
 						.getOiWindows(app.oiWindowsSettings.windowsDuration, pairIndex, windowsToCheck)
-						.call()
 						.then((r) => r.map((w) => ({ oiLongUsd: w.oiLongUsd, oiShortUsd: w.oiShortUsd }))),
 				),
 			)
