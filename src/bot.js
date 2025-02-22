@@ -544,14 +544,14 @@ async function fetchTradingVariables() {
 
 	async function fetchPairs(pairsCount) {
 		const [depths, pairFactors, maxLeverage, pairs, feesCount, groupsCount] = await Promise.all([
-			app.contracts.diamondHttp.getPairDepths([...Array(parseInt(pairsCount)).keys()]),
-			app.contracts.diamondHttp.getPairFactors([...Array(parseInt(pairsCount)).keys()]),
-			app.contracts.diamondHttp.getAllPairsRestrictedMaxLeverage(),
+			app.contracts.diamond.methods.getPairDepths([...Array(parseInt(pairsCount)).keys()]).call(),
+			app.contracts.diamond.methods.getPairFactors([...Array(parseInt(pairsCount)).keys()]).call(),
+			app.contracts.diamond.methods.getAllPairsRestrictedMaxLeverage().call(),
 			Promise.all(
-				[...Array(parseInt(pairsCount)).keys()].map(async (_, pairIndex) => app.contracts.diamondHttp.pairs(pairIndex)),
+				[...Array(parseInt(pairsCount)).keys()].map(async (_, pairIndex) => app.contracts.diamond.methods.pairs(pairIndex).call()),
 			),
-			app.contracts.diamondHttp.feesCount(),
-			app.contracts.diamondHttp.groupsCount(),
+			app.contracts.diamond.methods.feesCount().call(),
+			app.contracts.diamond.methods.groupsCount().call(),
 		]);
 
 		app.pairMaxLeverage = new Map(maxLeverage.map((l, idx) => [idx, parseInt(l)]));
@@ -572,7 +572,7 @@ async function fetchTradingVariables() {
 		app.spreadsP = pairs.map((p) => p.spreadP);
 
 		app.fees = (
-			await Promise.all([...Array(parseInt(feesCount)).keys()].map((_, feeIndex) => app.contracts.diamondHttp.fees(feeIndex)))
+			await Promise.all([...Array(parseInt(feesCount)).keys()].map((_, feeIndex) => app.contracts.diamond.methods.fees(feeIndex).call()))
 		).map(({ openFeeP, closeFeeP, triggerOrderFeeP, minPositionSizeUsd }) => ({
 			openFeeP: openFeeP,
 			closeFeeP: closeFeeP,
@@ -585,7 +585,7 @@ async function fetchTradingVariables() {
 		app.groupLiquidationParams = (
 			await Promise.all(
 				[...Array(parseInt(groupsCount)).keys()].map((_, groupIndex) =>
-					app.contracts.diamondHttp.getGroupLiquidationParams(groupIndex),
+					app.contracts.diamond.methods.getGroupLiquidationParams(groupIndex).call(),
 				),
 			)
 		).map((liquidationParams) => convertLiquidationParams(liquidationParams));
@@ -657,7 +657,7 @@ async function fetchTradingVariables() {
 			startTs,
 			windowsDuration,
 			windowsCount,
-		} = await app.contracts.diamondHttp.getOiWindowsSettings();
+		} = await app.contracts.diamond.methods.getOiWindowsSettings().call();
 
 		app.oiWindowsSettings = {
 			startTs: parseFloat(startTs),
@@ -673,8 +673,8 @@ async function fetchTradingVariables() {
 		const oiWindowsTemp = (
 			await Promise.all(
 				[...Array(parseInt(pairLength)).keys()].map((_, pairIndex) =>
-					app.contracts.diamondHttp
-						.getOiWindows(app.oiWindowsSettings.windowsDuration, pairIndex, windowsToCheck)
+					app.contracts.diamond.methods
+						.getOiWindows(app.oiWindowsSettings.windowsDuration, pairIndex, windowsToCheck).call()
 						.then((r) => r.map((w) => ({ oiLongUsd: w.oiLongUsd, oiShortUsd: w.oiShortUsd }))),
 				),
 			)
