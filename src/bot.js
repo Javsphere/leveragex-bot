@@ -121,6 +121,7 @@ let executionStats = {
 		openTrades: null,
 		tradingVariables: null,
 	},
+	config: {},
 };
 
 let trackingStats = {
@@ -151,6 +152,27 @@ const {
 	FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_MS,
 	COLLATERAL_PRICE_REFRESH_INTERVAL_MS,
 } = appConfig();
+
+// Stringify, stops logger from pretty printing and consuming too many lines
+executionStats.config = JSON.stringify({
+	MAX_FEE_PER_GAS_WEI_HEX,
+	MAX_GAS_PER_TRANSACTION_HEX,
+	EVENT_CONFIRMATIONS_MS,
+	FAILED_ORDER_TRIGGER_TIMEOUT_MS,
+	PRIORITY_GWEI_MULTIPLIER,
+	MIN_PRIORITY_GWEI,
+	OPEN_TRADES_REFRESH_MS,
+	GAS_REFRESH_INTERVAL_MS,
+	WEB3_STATUS_REPORT_INTERVAL_MS,
+	USE_MULTICALL,
+	MAX_RETRIES,
+	CHAIN_ID,
+	CHAIN,
+	NETWORK,
+	DRY_RUN_MODE,
+	FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_MS,
+	COLLATERAL_PRICE_REFRESH_INTERVAL_MS,
+});
 
 const app = {
 	// web3
@@ -519,8 +541,8 @@ async function fetchTradingVariables() {
 	}
 
 	try {
-		currentTradingVariablesFetchPromise = Promise.all([fetchPairs(pairsCount), fetchBorrowingFees(), fetchOiWindows(pairsCount)]);
 
+		currentTradingVariablesFetchPromise = Promise.all([fetchPairs(pairsCount), fetchBorrowingFees(), fetchOiWindows(pairsCount)]);
 		await currentTradingVariablesFetchPromise;
 		appLogger.info(`Done fetching trading variables; took ${performance.now() - executionStart}ms.`);
 		executionStats.refresh.tradingVariables = Date.now();
@@ -573,11 +595,11 @@ async function fetchTradingVariables() {
 
 		app.fees = (
 			await Promise.all([...Array(parseInt(feesCount)).keys()].map((_, feeIndex) => app.contracts.diamond.methods.fees(feeIndex).call()))
-		).map(({ openFeeP, closeFeeP, triggerOrderFeeP, minPositionSizeUsd }) => ({
-			openFeeP: openFeeP,
-			closeFeeP: closeFeeP,
-			triggerOrderFeeP: triggerOrderFeeP,
-			minPositionSizeUsd: minPositionSizeUsd,
+		).map(({ totalPositionSizeFeeP, totalLiqCollateralFeeP, minPositionSizeUsd }) =>
+			convertFee({
+				totalPositionSizeFeeP: totalPositionSizeFeeP,
+				totalLiqCollateralFeeP: totalLiqCollateralFeeP,
+				minPositionSizeUsd: minPositionSizeUsd,
 		}));
 
 		app.pairFactors = pairFactors.map((pairFactor) => convertPairFactors(pairFactor));
@@ -674,7 +696,8 @@ async function fetchTradingVariables() {
 			await Promise.all(
 				[...Array(parseInt(pairLength)).keys()].map((_, pairIndex) =>
 					app.contracts.diamond.methods
-						.getOiWindows(app.oiWindowsSettings.windowsDuration, pairIndex, windowsToCheck).call()
+						.getOiWindows(app.oiWindowsSettings.windowsDuration, pairIndex, windowsToCheck)
+						.call()
 						.then((r) => r.map((w) => ({ oiLongUsd: w.oiLongUsd, oiShortUsd: w.oiShortUsd }))),
 				),
 			)
@@ -1036,7 +1059,11 @@ async function synchronizeOpenTrades(event) {
 			const tradeKey = buildTradeIdentifier(user, index);
 			const newTrade = transformRawTrade({ trade, tradeInfo, initialAccFees, liquidationParams });
 			currentKnownOpenTrades.set(tradeKey, newTrade);
-			appLogger.info(`Synchronize open trades from event ${eventName}: Stored active trade ${tradeKey}`);
+			const { accPairFee, accGroupFee, block } = newTrade.initialAccFees;
+			appLogger.info(
+				`Synchronize open trades from event ${eventName}: Stored active trade ${tradeKey}; InitialAccFees{accPairFee: ${accPairFee}, accGroupFee: ${accGroupFee}, block: ${block} }`,
+			);
+
 
 		} else if (eventName === 'TradeClosed') {
 			const { user, index } = eventReturnValues.tradeId;
@@ -1258,8 +1285,13 @@ async function synchronizeOpenTrades(event) {
 
 			const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(user, index, orderType);
 
-			appLogger.warn(`Synchronize trigger tracking from event ${eventName}: Order canceled ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}:${getCancelReasonByIndex(cancelReason)}`);
-
+			if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifier)) {
+				app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
+				appLogger.warn(`Synchronize trigger tracking from event ${eventName}: Order canceled ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}:${getCancelReasonByIndex(cancelReason)} Tx ${event.transactionHash}`);
+			} else {
+				appLogger.error(`Synchronize trigger tracking from event ${eventName}: Trigger not found for ${triggeredOrderTrackingInfoIdentifier}! Tx ${event.transactionHash}`,
+				);
+			}
 			const webhookText = `Trade TRIGGER CANCELED with id ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}:${getCancelReasonByIndex(cancelReason)}`;
 
 			await slackWebhook('⚠️ ' + webhookText + ' txId ' + event.transactionHash);
@@ -1417,6 +1449,8 @@ function watchPricingStream() {
 		// track when last updated price
 		app.priceUpdates.set(pairName, DateTime.now());
 
+		const msgTs = Date.now();
+
 		pricingUpdatesMessageProcessingCount++;
 
 		handleOnMessageAsync()
@@ -1463,10 +1497,30 @@ function watchPricingStream() {
 					const convertedTradeInfo = convertTradeInfo(openTrade.tradeInfo);
 					const convertedInitialAccFees = convertTradeInitialAccFees(openTrade.initialAccFees);
 					const convertedLiquidationParams = convertLiquidationParams(openTrade.liquidationParams);
-					const convertedFee = convertFee(app.fees[parseInt(app.pairs[pairIndex].feeIndex)]);
+					const convertedFee = app.fees[parseInt(app.pairs[pairIndex].feeIndex)];
 					const convertedPairSpreadP = convertPairSpreadP(app.spreadsP[pairIndex]);
 					const borrowingFeesContext = app.borrowingFeesContext[collateralIndex];
 					////////////////////////////////////////////
+
+					const debug = {
+						user,
+						index,
+						long,
+						collateralIndex,
+						pairIndex,
+						price,
+						liqPrice: null,
+						liquidationParams: convertedLiquidationParams,
+						latestL2Block: app.blocks.latestL2Block,
+						convertedFee,
+						collateralPriceUsd: app.collaterals[convertedTrade.collateralIndex].price,
+						contractsVersion: convertedTradeInfo.contractsVersion,
+						pricingUpdatesMessageProcessingCount,
+						trade: convertedTrade,
+						tradeInfo: convertedTradeInfo,
+						initialAccFees: convertedInitialAccFees,
+						msgTs,
+					};
 
 					if (isPendingOpenLimitOrder === false) {
 						// Hotfix openPrice of 0
@@ -1477,7 +1531,7 @@ function watchPricingStream() {
 							isPnlPositive: false,
 							createdBlock: +openTrade.tradeInfo.createdBlock,
 							...app.pairFactors[pairIndex],
-							liquidationParams: convertLiquidationParams(openTrade.liquidationParams),
+							liquidationParams: convertedLiquidationParams,
 							contractsVersion: +openTrade.tradeInfo.contractsVersion,
 							currentBlock: app.blocks.latestL2Block,
 						};
@@ -1683,6 +1737,8 @@ function watchPricingStream() {
 						}
 
 						appLogger.info(`🤞 Trying to trigger ${triggeredOrderTrackingInfoIdentifier}: ${getPendingOrderTypeByValue(orderType)} collateral ${app.collaterals[collateralIndex].symbol} pair ${app.pairs[pairIndex].from}/${app.pairs[pairIndex].to} ${leverage / 1e3}x ${long ? 'long' : 'short'} ...`);
+						appLogger.info(JSON.stringify(debug));
+
 
 						if (orderType === PENDING_ORDER_TYPE.LIQ_CLOSE) {
 							const liqPrice = getTradeLiquidationPrice(
@@ -1821,7 +1877,9 @@ function watchPricingStream() {
 
 									if (
 										errorMessage !== undefined &&
-										(errorMessage.includes('nonce too low') || errorMessage.includes('replacement transaction underpriced'))
+										(errorMessage.includes('nonce too low') ||
+											errorMessage.includes('nonce too high') ||
+											errorMessage.includes('replacement transaction underpriced'))
 									) {
 										appLogger.error(
 											`⁉️ Some how we ended up with a nonce that was too low; forcing a refresh now and the trade may be tried again if still available.`,

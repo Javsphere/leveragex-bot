@@ -358,62 +358,70 @@ export const ABIS = {
 			'name': 'target',
 			'type': 'address',
 		}], 'name': 'AddressEmptyCode', 'type': 'error',
-	}, { 'inputs': [], 'name': 'AlreadyExists', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'AddressZero', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'BelowMin',
+		'name': 'AlreadyExists',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'BlockOrder', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'BelowMin', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'DoesntExist',
+		'name': 'BlockOrder',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'implementation', 'type': 'address' }],
-		'name': 'ERC1967InvalidImplementation',
-		'type': 'error',
+	}, { 'inputs': [], 'name': 'DoesntExist', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'implementation',
+			'type': 'address',
+		}], 'name': 'ERC1967InvalidImplementation', 'type': 'error',
 	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'EndLeverageTooHigh',
+		'name': 'EarlyTpSlUpdate',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'EndLiqThresholdTooLow', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'EarlyTradeClose', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'EnforcedPause',
+		'name': 'EarlyTradeUpdate',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'ExpectedPause', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'EndLeverageTooHigh', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'FailedInnerCall',
+		'name': 'EndLiqThresholdTooLow',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'FeeNotListed', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'EnforcedPause', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'GeneralPaused',
+		'name': 'ExpectedPause',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'GroupNotListed', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'FailedCall', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InitError',
+		'name': 'FeeNotListed',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidAddresses', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'GeneralPaused', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InvalidCollateralIndex',
+		'name': 'GroupNotListed',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidInitialization', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InitError', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InvalidInputLength',
+		'name': 'InvalidAddresses',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InvalidCollateralIndex', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'MaxLiqSpreadPTooHigh',
+		'name': 'InvalidInitialization',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InvalidInputLength', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NotAuthorized',
+		'name': 'LiqReached',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'MaxLiqSpreadPTooHigh', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'Overflow',
+		'name': 'NotAllowed',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
-		'name': 'OwnableInvalidOwner',
+	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NotInitializing',
 		'type': 'error',
+	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'owner',
+			'type': 'address',
+		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
@@ -489,18 +497,74 @@ export const ABIS = {
 		'type': 'event',
 	}, {
 		'anonymous': false,
-		'inputs': [{ 'indexed': false, 'internalType': 'uint256', 'name': 'index', 'type': 'uint256' }, {
+		'inputs': [{
 			'indexed': false,
-			'internalType': 'string',
-			'name': 'name',
-			'type': 'string',
+			'internalType': 'uint256',
+			'name': 'index',
+			'type': 'uint256',
+		}, {
+			'components': [{
+				'internalType': 'uint40',
+				'name': 'totalPositionSizeFeeP',
+				'type': 'uint40',
+			}, { 'internalType': 'uint40', 'name': 'totalLiqCollateralFeeP', 'type': 'uint40' }, {
+				'internalType': 'uint32',
+				'name': 'minPositionSizeUsd',
+				'type': 'uint32',
+			}, { 'internalType': 'uint104', 'name': '__placeholder', 'type': 'uint104' }],
+			'indexed': false,
+			'internalType': 'struct IPairsStorage.FeeGroup',
+			'name': 'feeGroup',
+			'type': 'tuple',
 		}],
 		'name': 'FeeAdded',
 		'type': 'event',
 	}, {
 		'anonymous': false,
-		'inputs': [{ 'indexed': false, 'internalType': 'uint256', 'name': 'index', 'type': 'uint256' }],
+		'inputs': [{
+			'indexed': false,
+			'internalType': 'uint256',
+			'name': 'index',
+			'type': 'uint256',
+		}, {
+			'components': [{
+				'internalType': 'uint40',
+				'name': 'totalPositionSizeFeeP',
+				'type': 'uint40',
+			}, { 'internalType': 'uint40', 'name': 'totalLiqCollateralFeeP', 'type': 'uint40' }, {
+				'internalType': 'uint32',
+				'name': 'minPositionSizeUsd',
+				'type': 'uint32',
+			}, { 'internalType': 'uint104', 'name': '__placeholder', 'type': 'uint104' }],
+			'indexed': false,
+			'internalType': 'struct IPairsStorage.FeeGroup',
+			'name': 'feeGroup',
+			'type': 'tuple',
+		}],
 		'name': 'FeeUpdated',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'components': [{
+				'internalType': 'uint24',
+				'name': 'referralFeeP',
+				'type': 'uint24',
+			}, { 'internalType': 'uint24', 'name': 'govFeeP', 'type': 'uint24' }, {
+				'internalType': 'uint24',
+				'name': 'llpTokenFeeP',
+				'type': 'uint24',
+			}, { 'internalType': 'uint24', 'name': 'triggerOrderFeeP', 'type': 'uint24' }, {
+				'internalType': 'uint112',
+				'name': '__placeholder',
+				'type': 'uint112',
+			}],
+			'indexed': false,
+			'internalType': 'struct IPairsStorage.GlobalTradeFeeParams',
+			'name': 'feeParams',
+			'type': 'tuple',
+		}],
+		'name': 'GlobalTradeFeeParamsUpdated',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -568,6 +632,16 @@ export const ABIS = {
 			'name': 'previousOwner',
 			'type': 'address',
 		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
+		'name': 'OwnershipTransferStarted',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'previousOwner',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
 		'name': 'OwnershipTransferred',
 		'type': 'event',
 	}, {
@@ -592,6 +666,16 @@ export const ABIS = {
 		'type': 'event',
 	}, {
 		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'uint256', 'name': 'index', 'type': 'uint256' }, {
+			'indexed': false,
+			'internalType': 'bool',
+			'name': 'isActive',
+			'type': 'bool',
+		}],
+		'name': 'PairStateUpdated',
+		'type': 'event',
+	}, {
+		'anonymous': false,
 		'inputs': [{ 'indexed': false, 'internalType': 'uint256', 'name': 'index', 'type': 'uint256' }],
 		'name': 'PairUpdated',
 		'type': 'event',
@@ -607,6 +691,11 @@ export const ABIS = {
 		'type': 'event',
 	}, {
 		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
+		'name': 'SetManagerAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
 		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'Unpaused',
 		'type': 'event',
@@ -618,18 +707,17 @@ export const ABIS = {
 	}, {
 		'inputs': [{
 			'components': [{
-				'internalType': 'string',
-				'name': 'name',
-				'type': 'string',
-			}, { 'internalType': 'uint256', 'name': 'openFeeP', 'type': 'uint256' }, {
-				'internalType': 'uint256',
-				'name': 'closeFeeP',
-				'type': 'uint256',
-			}, { 'internalType': 'uint256', 'name': 'triggerOrderFeeP', 'type': 'uint256' }, {
-				'internalType': 'uint256',
+				'internalType': 'uint40',
+				'name': 'totalPositionSizeFeeP',
+				'type': 'uint40',
+			}, { 'internalType': 'uint40', 'name': 'totalLiqCollateralFeeP', 'type': 'uint40' }, {
+				'internalType': 'uint32',
 				'name': 'minPositionSizeUsd',
-				'type': 'uint256',
-			}], 'internalType': 'struct IPairsStorage.Fee[]', 'name': '_fees', 'type': 'tuple[]',
+				'type': 'uint32',
+			}, { 'internalType': 'uint104', 'name': '__placeholder', 'type': 'uint104' }],
+			'internalType': 'struct IPairsStorage.FeeGroup[]',
+			'name': '_fees',
+			'type': 'tuple[]',
 		}], 'name': 'addFees', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
 	}, {
 		'inputs': [{
@@ -668,18 +756,17 @@ export const ABIS = {
 		'name': 'fees',
 		'outputs': [{
 			'components': [{
-				'internalType': 'string',
-				'name': 'name',
-				'type': 'string',
-			}, { 'internalType': 'uint256', 'name': 'openFeeP', 'type': 'uint256' }, {
-				'internalType': 'uint256',
-				'name': 'closeFeeP',
-				'type': 'uint256',
-			}, { 'internalType': 'uint256', 'name': 'triggerOrderFeeP', 'type': 'uint256' }, {
-				'internalType': 'uint256',
+				'internalType': 'uint40',
+				'name': 'totalPositionSizeFeeP',
+				'type': 'uint40',
+			}, { 'internalType': 'uint40', 'name': 'totalLiqCollateralFeeP', 'type': 'uint40' }, {
+				'internalType': 'uint32',
 				'name': 'minPositionSizeUsd',
-				'type': 'uint256',
-			}], 'internalType': 'struct IPairsStorage.Fee', 'name': '', 'type': 'tuple',
+				'type': 'uint32',
+			}, { 'internalType': 'uint104', 'name': '__placeholder', 'type': 'uint104' }],
+			'internalType': 'struct IPairsStorage.FeeGroup',
+			'name': '',
+			'type': 'tuple',
 		}],
 		'stateMutability': 'view',
 		'type': 'function',
@@ -693,6 +780,26 @@ export const ABIS = {
 		'inputs': [],
 		'name': 'getAllPairsRestrictedMaxLeverage',
 		'outputs': [{ 'internalType': 'uint256[]', 'name': '', 'type': 'uint256[]' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [],
+		'name': 'getGlobalTradeFeeParams',
+		'outputs': [{
+			'components': [{
+				'internalType': 'uint24',
+				'name': 'referralFeeP',
+				'type': 'uint24',
+			}, { 'internalType': 'uint24', 'name': 'govFeeP', 'type': 'uint24' }, {
+				'internalType': 'uint24',
+				'name': 'llpTokenFeeP',
+				'type': 'uint24',
+			}, { 'internalType': 'uint24', 'name': 'triggerOrderFeeP', 'type': 'uint24' }, {
+				'internalType': 'uint112',
+				'name': '__placeholder',
+				'type': 'uint112',
+			}], 'internalType': 'struct IPairsStorage.GlobalTradeFeeParams', 'name': '', 'type': 'tuple',
+		}],
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
@@ -777,6 +884,22 @@ export const ABIS = {
 			'type': 'tuple[]',
 		}], 'name': 'initializeGroupLiquidationParams', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
 	}, {
+		'inputs': [{
+			'components': [{
+				'internalType': 'uint24',
+				'name': 'referralFeeP',
+				'type': 'uint24',
+			}, { 'internalType': 'uint24', 'name': 'govFeeP', 'type': 'uint24' }, {
+				'internalType': 'uint24',
+				'name': 'llpTokenFeeP',
+				'type': 'uint24',
+			}, { 'internalType': 'uint24', 'name': 'triggerOrderFeeP', 'type': 'uint24' }, {
+				'internalType': 'uint112',
+				'name': '__placeholder',
+				'type': 'uint112',
+			}], 'internalType': 'struct IPairsStorage.GlobalTradeFeeParams', 'name': '_tradeFeeParams', 'type': 'tuple',
+		}], 'name': 'initializeNewFees', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
+	}, {
 		'inputs': [{ 'internalType': 'uint256', 'name': '_pairIndex', 'type': 'uint256' }],
 		'name': 'isPairIndexListed',
 		'outputs': [{ 'internalType': 'bool', 'name': '', 'type': 'bool' }],
@@ -790,12 +913,6 @@ export const ABIS = {
 		}],
 		'name': 'isPairListed',
 		'outputs': [{ 'internalType': 'bool', 'name': '', 'type': 'bool' }],
-		'stateMutability': 'view',
-		'type': 'function',
-	}, {
-		'inputs': [{ 'internalType': 'uint256', 'name': '_pairIndex', 'type': 'uint256' }],
-		'name': 'pairCloseFeeP',
-		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
@@ -836,19 +953,19 @@ export const ABIS = {
 		'type': 'function',
 	}, {
 		'inputs': [{ 'internalType': 'uint256', 'name': '_pairIndex', 'type': 'uint256' }],
-		'name': 'pairOpenFeeP',
-		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
-		'stateMutability': 'view',
-		'type': 'function',
-	}, {
-		'inputs': [{ 'internalType': 'uint256', 'name': '_pairIndex', 'type': 'uint256' }],
 		'name': 'pairSpreadP',
 		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
 		'inputs': [{ 'internalType': 'uint256', 'name': '_pairIndex', 'type': 'uint256' }],
-		'name': 'pairTriggerOrderFeeP',
+		'name': 'pairTotalLiqCollateralFeeP',
+		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint256', 'name': '_pairIndex', 'type': 'uint256' }],
+		'name': 'pairTotalPositionSizeFeeP',
 		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
 		'stateMutability': 'view',
 		'type': 'function',
@@ -877,57 +994,47 @@ export const ABIS = {
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
-		'inputs': [{ 'internalType': 'uint256', 'name': '_index', 'type': 'uint256' }],
-		'name': 'pairsBackend',
-		'outputs': [{
-			'components': [{
-				'internalType': 'string',
-				'name': 'from',
-				'type': 'string',
-			}, { 'internalType': 'string', 'name': 'to', 'type': 'string' }, {
-				'internalType': 'bytes32',
-				'name': 'feedId',
-				'type': 'bytes32',
-			}, { 'internalType': 'uint256', 'name': 'spreadP', 'type': 'uint256' }, {
-				'internalType': 'uint256',
-				'name': 'groupIndex',
-				'type': 'uint256',
-			}, { 'internalType': 'uint256', 'name': 'feeIndex', 'type': 'uint256' }, {
-				'internalType': 'bool',
-				'name': 'altPriceOracle',
-				'type': 'bool',
-			}], 'internalType': 'struct IPairsStorage.Pair', 'name': '', 'type': 'tuple',
-		}, {
-			'components': [{ 'internalType': 'string', 'name': 'name', 'type': 'string' }, {
-				'internalType': 'uint256',
-				'name': 'minLeverage',
-				'type': 'uint256',
-			}, { 'internalType': 'uint256', 'name': 'maxLeverage', 'type': 'uint256' }],
-			'internalType': 'struct IPairsStorage.Group',
-			'name': '',
-			'type': 'tuple',
-		}, {
-			'components': [{ 'internalType': 'string', 'name': 'name', 'type': 'string' }, {
-				'internalType': 'uint256',
-				'name': 'openFeeP',
-				'type': 'uint256',
-			}, { 'internalType': 'uint256', 'name': 'closeFeeP', 'type': 'uint256' }, {
-				'internalType': 'uint256',
-				'name': 'triggerOrderFeeP',
-				'type': 'uint256',
-			}, { 'internalType': 'uint256', 'name': 'minPositionSizeUsd', 'type': 'uint256' }],
-			'internalType': 'struct IPairsStorage.Fee',
-			'name': '',
-			'type': 'tuple',
-		}],
-		'stateMutability': 'view',
-		'type': 'function',
-	}, {
 		'inputs': [],
 		'name': 'pairsCount',
 		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
 		'stateMutability': 'view',
 		'type': 'function',
+	}, {
+		'inputs': [{
+			'components': [{
+				'internalType': 'uint24',
+				'name': 'referralFeeP',
+				'type': 'uint24',
+			}, { 'internalType': 'uint24', 'name': 'govFeeP', 'type': 'uint24' }, {
+				'internalType': 'uint24',
+				'name': 'llpTokenFeeP',
+				'type': 'uint24',
+			}, { 'internalType': 'uint24', 'name': 'triggerOrderFeeP', 'type': 'uint24' }, {
+				'internalType': 'uint112',
+				'name': '__placeholder',
+				'type': 'uint112',
+			}], 'internalType': 'struct IPairsStorage.GlobalTradeFeeParams', 'name': '_feeParams', 'type': 'tuple',
+		}], 'name': 'setGlobalTradeFeeParams', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
+	}, {
+		'inputs': [{
+			'internalType': 'uint256',
+			'name': '_groupIndex',
+			'type': 'uint256',
+		}, {
+			'components': [{
+				'internalType': 'uint40',
+				'name': 'maxLiqSpreadP',
+				'type': 'uint40',
+			}, { 'internalType': 'uint40', 'name': 'startLiqThresholdP', 'type': 'uint40' }, {
+				'internalType': 'uint40',
+				'name': 'endLiqThresholdP',
+				'type': 'uint40',
+			}, { 'internalType': 'uint24', 'name': 'startLeverage', 'type': 'uint24' }, {
+				'internalType': 'uint24',
+				'name': 'endLeverage',
+				'type': 'uint24',
+			}], 'internalType': 'struct IPairsStorage.GroupLiquidationParams', 'name': '_params', 'type': 'tuple',
+		}], 'name': 'setGroupLiquidationParams', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
 	}, {
 		'inputs': [{
 			'internalType': 'uint256[]',
@@ -939,21 +1046,27 @@ export const ABIS = {
 		'stateMutability': 'nonpayable',
 		'type': 'function',
 	}, {
+		'inputs': [{ 'internalType': 'uint256[]', 'name': '_pairIndices', 'type': 'uint256[]' }],
+		'name': 'togglePairsState',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
 		'inputs': [{
 			'internalType': 'uint256[]',
 			'name': '_ids',
 			'type': 'uint256[]',
 		}, {
-			'components': [{ 'internalType': 'string', 'name': 'name', 'type': 'string' }, {
-				'internalType': 'uint256',
-				'name': 'openFeeP',
-				'type': 'uint256',
-			}, { 'internalType': 'uint256', 'name': 'closeFeeP', 'type': 'uint256' }, {
-				'internalType': 'uint256',
-				'name': 'triggerOrderFeeP',
-				'type': 'uint256',
-			}, { 'internalType': 'uint256', 'name': 'minPositionSizeUsd', 'type': 'uint256' }],
-			'internalType': 'struct IPairsStorage.Fee[]',
+			'components': [{
+				'internalType': 'uint40',
+				'name': 'totalPositionSizeFeeP',
+				'type': 'uint40',
+			}, { 'internalType': 'uint40', 'name': 'totalLiqCollateralFeeP', 'type': 'uint40' }, {
+				'internalType': 'uint32',
+				'name': 'minPositionSizeUsd',
+				'type': 'uint32',
+			}, { 'internalType': 'uint104', 'name': '__placeholder', 'type': 'uint104' }],
+			'internalType': 'struct IPairsStorage.FeeGroup[]',
 			'name': '_fees',
 			'type': 'tuple[]',
 		}], 'name': 'updateFees', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
@@ -1003,64 +1116,68 @@ export const ABIS = {
 		'inputs': [{ 'internalType': 'address', 'name': 'target', 'type': 'address' }],
 		'name': 'AddressEmptyCode',
 		'type': 'error',
+	}, { 'inputs': [], 'name': 'AddressZero', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'AllyNotActive',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'AlreadyActive', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'AlreadyExists',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'AlreadyInactive', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'BelowMin',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'BlockOrder', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'DoesntExist',
+		'type': 'error',
 	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
-		'name': 'AddressInsufficientBalance',
+		'inputs': [{ 'internalType': 'address', 'name': 'implementation', 'type': 'address' }],
+		'name': 'ERC1967InvalidImplementation',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'AllyNotActive', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'AlreadyActive',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'AlreadyExists', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'AlreadyInactive',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'BelowMin', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'BlockOrder',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'DoesntExist', 'type': 'error' }, {
-		'inputs': [{
-			'internalType': 'address',
-			'name': 'implementation',
-			'type': 'address',
-		}], 'name': 'ERC1967InvalidImplementation', 'type': 'error',
 	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'EnforcedPause',
+		'name': 'EarlyTpSlUpdate',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'ExpectedPause', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'EarlyTradeClose', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'FailedInnerCall',
+		'name': 'EarlyTradeUpdate',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'GeneralPaused', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'EnforcedPause', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InitError',
+		'name': 'ExpectedPause',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidAddresses', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'FailedCall', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InvalidCollateralIndex',
+		'name': 'GeneralPaused',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidInitialization', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InitError', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InvalidInputLength',
+		'name': 'InvalidAddresses',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InvalidCollateralIndex', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NoPendingRewards',
+		'name': 'InvalidInitialization',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InvalidInputLength', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NotAuthorized',
+		'name': 'LiqReached',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'NoPendingRewards', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'Overflow',
+		'name': 'NotAllowed',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
-		'name': 'OwnableInvalidOwner',
+	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NotInitializing',
 		'type': 'error',
+	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'owner',
+			'type': 'address',
+		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
@@ -1180,6 +1297,16 @@ export const ABIS = {
 			'name': 'previousOwner',
 			'type': 'address',
 		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
+		'name': 'OwnershipTransferStarted',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'previousOwner',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
 		'name': 'OwnershipTransferred',
 		'type': 'event',
 	}, {
@@ -1244,6 +1371,11 @@ export const ABIS = {
 		'type': 'event',
 	}, {
 		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
+		'name': 'SetManagerAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
 		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'Unpaused',
 		'type': 'event',
@@ -1289,15 +1421,11 @@ export const ABIS = {
 			'internalType': 'uint256',
 			'name': '_volumeUsd',
 			'type': 'uint256',
-		}, { 'internalType': 'uint256', 'name': '_pairOpenFeeP', 'type': 'uint256' }, {
+		}, { 'internalType': 'uint256', 'name': '_referrerFeeUsd', 'type': 'uint256' }, {
 			'internalType': 'uint256',
 			'name': '_javPriceUsd',
 			'type': 'uint256',
-		}],
-		'name': 'distributeReferralReward',
-		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
-		'stateMutability': 'nonpayable',
-		'type': 'function',
+		}], 'name': 'distributeReferralReward', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': '_ally', 'type': 'address' }],
 		'name': 'getAllyDetails',
@@ -1324,12 +1452,6 @@ export const ABIS = {
 	}, {
 		'inputs': [],
 		'name': 'getReferralsAllyFeeP',
-		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
-		'stateMutability': 'view',
-		'type': 'function',
-	}, {
-		'inputs': [],
-		'name': 'getReferralsOpenFeeP',
 		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
 		'stateMutability': 'view',
 		'type': 'function',
@@ -1370,12 +1492,8 @@ export const ABIS = {
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
-		'inputs': [{
-			'internalType': 'uint256',
-			'name': '_pairOpenFeeP',
-			'type': 'uint256',
-		}, { 'internalType': 'uint256', 'name': '_volumeReferredUsd', 'type': 'uint256' }],
-		'name': 'getReferrerFeeP',
+		'inputs': [{ 'internalType': 'address', 'name': '_referrer', 'type': 'address' }],
+		'name': 'getReferrerFeeProgressP',
 		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
 		'stateMutability': 'view',
 		'type': 'function',
@@ -1408,11 +1526,11 @@ export const ABIS = {
 			'internalType': 'uint256',
 			'name': '_startReferrerFeeP',
 			'type': 'uint256',
-		}, { 'internalType': 'uint256', 'name': '_openFeeP', 'type': 'uint256' }, {
-			'internalType': 'uint256',
-			'name': '_targetVolumeUsd',
-			'type': 'uint256',
-		}], 'name': 'initializeReferrals', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
+		}, { 'internalType': 'uint256', 'name': '_targetVolumeUsd', 'type': 'uint256' }],
+		'name': 'initializeReferrals',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }, {
 			'internalType': 'address',
@@ -1434,12 +1552,6 @@ export const ABIS = {
 	}, {
 		'inputs': [{ 'internalType': 'uint256', 'name': '_value', 'type': 'uint256' }],
 		'name': 'updateAllyFeeP',
-		'outputs': [],
-		'stateMutability': 'nonpayable',
-		'type': 'function',
-	}, {
-		'inputs': [{ 'internalType': 'uint256', 'name': '_value', 'type': 'uint256' }],
-		'name': 'updateReferralsOpenFeeP',
 		'outputs': [],
 		'stateMutability': 'nonpayable',
 		'type': 'function',
@@ -1479,68 +1591,78 @@ export const ABIS = {
 		'inputs': [{ 'internalType': 'address', 'name': 'target', 'type': 'address' }],
 		'name': 'AddressEmptyCode',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'AlreadyExists', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'AddressZero', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'BelowMin',
+		'name': 'AlreadyExists',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'BlockOrder', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'BelowMin', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'DoesntExist',
+		'name': 'BlockOrder',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'implementation', 'type': 'address' }],
-		'name': 'ERC1967InvalidImplementation',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'EnforcedPause',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'ExpectedPause', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'FailedInnerCall',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'GeneralPaused', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'InitError',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidAddresses', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'InvalidCollateralIndex',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidInitialization', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'InvalidInputLength',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'NotAllowed',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'NotInitializing',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'DoesntExist', 'type': 'error' }, {
 		'inputs': [{
 			'internalType': 'address',
-			'name': 'owner',
+			'name': 'implementation',
 			'type': 'address',
-		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
+		}], 'name': 'ERC1967InvalidImplementation', 'type': 'error',
+	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'EarlyTpSlUpdate',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'EarlyTradeClose', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'EarlyTradeUpdate',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'EnforcedPause', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'ExpectedPause',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'FailedCall', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'GeneralPaused',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InitError', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidAddresses',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidCollateralIndex', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidInitialization',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidInputLength', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'LiqReached',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NotAuthorized',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Overflow',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
+		'name': 'OwnableInvalidOwner',
+		'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'SlReached', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'PointsOverflow', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'Slippage',
+		'name': 'SlReached',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'TpReached', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'Slippage', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'UUPSUnauthorizedCallContext',
+		'name': 'TpReached',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'bytes32', 'name': 'slot', 'type': 'bytes32' }],
-		'name': 'UUPSUnsupportedProxiableUUID',
-		'type': 'error',
+	}, { 'inputs': [], 'name': 'UUPSUnauthorizedCallContext', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'bytes32',
+			'name': 'slot',
+			'type': 'bytes32',
+		}], 'name': 'UUPSUnsupportedProxiableUUID', 'type': 'error',
 	}, { 'inputs': [], 'name': 'WrongAccess', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'WrongFeeTier',
@@ -1639,6 +1761,16 @@ export const ABIS = {
 			'name': 'previousOwner',
 			'type': 'address',
 		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
+		'name': 'OwnershipTransferStarted',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'previousOwner',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
 		'name': 'OwnershipTransferred',
 		'type': 'event',
 	}, {
@@ -1653,6 +1785,11 @@ export const ABIS = {
 		'type': 'event',
 	}, {
 		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
+		'name': 'SetManagerAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
 		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
 			'indexed': true,
 			'internalType': 'uint32',
@@ -1660,6 +1797,26 @@ export const ABIS = {
 			'type': 'uint32',
 		}, { 'indexed': false, 'internalType': 'uint224', 'name': 'points', 'type': 'uint224' }],
 		'name': 'TraderDailyPointsIncreased',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'trader',
+			'type': 'address',
+		}, {
+			'components': [{
+				'internalType': 'enum IFeeTiers.TraderEnrollmentStatus',
+				'name': 'status',
+				'type': 'uint8',
+			}, { 'internalType': 'uint248', 'name': '__placeholder', 'type': 'uint248' }],
+			'indexed': false,
+			'internalType': 'struct IFeeTiers.TraderEnrollment',
+			'name': 'enrollment',
+			'type': 'tuple',
+		}],
+		'name': 'TraderEnrollmentUpdated',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -1704,6 +1861,21 @@ export const ABIS = {
 	}, {
 		'anonymous': false,
 		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
+			'indexed': true,
+			'internalType': 'uint32',
+			'name': 'day',
+			'type': 'uint32',
+		}, {
+			'indexed': false,
+			'internalType': 'enum IFeeTiers.CreditType',
+			'name': 'creditType',
+			'type': 'uint8',
+		}, { 'indexed': false, 'internalType': 'uint224', 'name': 'points', 'type': 'uint224' }],
+		'name': 'TraderPointsCredited',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
 			'indexed': false,
 			'internalType': 'uint32',
 			'name': 'fromDay',
@@ -1718,6 +1890,16 @@ export const ABIS = {
 		'type': 'event',
 	}, {
 		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
+			'indexed': true,
+			'internalType': 'uint32',
+			'name': 'day',
+			'type': 'uint32',
+		}, { 'indexed': false, 'internalType': 'uint224', 'name': 'points', 'type': 'uint224' }],
+		'name': 'TraderUnclaimedPointsClaimed',
+		'type': 'event',
+	}, {
+		'anonymous': false,
 		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'Unpaused',
 		'type': 'event',
@@ -1726,6 +1908,20 @@ export const ABIS = {
 		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'implementation', 'type': 'address' }],
 		'name': 'Upgraded',
 		'type': 'event',
+	}, {
+		'inputs': [{
+			'internalType': 'address[]',
+			'name': '_traders',
+			'type': 'address[]',
+		}, {
+			'internalType': 'enum IFeeTiers.CreditType[]',
+			'name': '_creditTypes',
+			'type': 'uint8[]',
+		}, { 'internalType': 'uint224[]', 'name': '_points', 'type': 'uint224[]' }],
+		'name': 'addTradersUnclaimedPoints',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }, {
 			'internalType': 'uint256',
@@ -1798,6 +1994,27 @@ export const ABIS = {
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
+		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }],
+		'name': 'getTraderFeeTiersEnrollment',
+		'outputs': [{
+			'components': [{
+				'internalType': 'enum IFeeTiers.TraderEnrollmentStatus',
+				'name': 'status',
+				'type': 'uint8',
+			}, { 'internalType': 'uint248', 'name': '__placeholder', 'type': 'uint248' }],
+			'internalType': 'struct IFeeTiers.TraderEnrollment',
+			'name': '',
+			'type': 'tuple',
+		}],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }],
+		'name': 'getTraderUnclaimedPoints',
+		'outputs': [{ 'internalType': 'uint224', 'name': '', 'type': 'uint224' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
 		'inputs': [{
 			'internalType': 'uint256[]',
 			'name': '_groupIndices',
@@ -1846,6 +2063,21 @@ export const ABIS = {
 		'stateMutability': 'nonpayable',
 		'type': 'function',
 	}, {
+		'inputs': [{
+			'internalType': 'address[]',
+			'name': '_traders',
+			'type': 'address[]',
+		}, {
+			'components': [{
+				'internalType': 'enum IFeeTiers.TraderEnrollmentStatus',
+				'name': 'status',
+				'type': 'uint8',
+			}, { 'internalType': 'uint248', 'name': '__placeholder', 'type': 'uint248' }],
+			'internalType': 'struct IFeeTiers.TraderEnrollment[]',
+			'name': '_values',
+			'type': 'tuple[]',
+		}], 'name': 'setTradersFeeTiersEnrollment', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
+	}, {
 		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }, {
 			'internalType': 'uint256',
 			'name': '_volumeUsd',
@@ -1863,52 +2095,60 @@ export const ABIS = {
 		'inputs': [{ 'internalType': 'address', 'name': 'target', 'type': 'address' }],
 		'name': 'AddressEmptyCode',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'AlreadyExists', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'AddressZero', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'BelowMin',
+		'name': 'AlreadyExists',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'BlockOrder', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'BelowMin', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'DoesntExist',
+		'name': 'BlockOrder',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'implementation', 'type': 'address' }],
-		'name': 'ERC1967InvalidImplementation',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'EnforcedPause',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'ExpectedPause', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'FailedInnerCall',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'GeneralPaused', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'InitError',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidAddresses', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'InvalidCollateralIndex',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidInitialization', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'InvalidInputLength',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'NotAllowed',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'NotInitializing',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'DoesntExist', 'type': 'error' }, {
 		'inputs': [{
 			'internalType': 'address',
-			'name': 'owner',
+			'name': 'implementation',
 			'type': 'address',
-		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
+		}], 'name': 'ERC1967InvalidImplementation', 'type': 'error',
+	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'EarlyTpSlUpdate',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'EarlyTradeClose', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'EarlyTradeUpdate',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'EnforcedPause', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'ExpectedPause',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'FailedCall', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'GeneralPaused',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InitError', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidAddresses',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidCollateralIndex', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidInitialization',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidInputLength', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'LiqReached',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NotAuthorized',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Overflow',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
+		'name': 'OwnableInvalidOwner',
+		'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
@@ -1925,27 +2165,31 @@ export const ABIS = {
 		'inputs': [{ 'internalType': 'bytes32', 'name': 'slot', 'type': 'bytes32' }],
 		'name': 'UUPSUnsupportedProxiableUUID',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'WrongAccess', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'UnsupportedChain', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'WrongIndex',
+		'name': 'WrongAccess',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'WrongLength', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'WrongIndex', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'WrongOrder',
+		'name': 'WrongLength',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'WrongOrderType', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'WrongOrder', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'WrongParams',
+		'name': 'WrongOrderType',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'WrongTradeType', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'WrongParams', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'WrongWindowsCount',
+		'name': 'WrongTradeType',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'WrongWindowsDuration', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'WrongWindowsCount', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'ZeroAddress',
+		'name': 'WrongWindowsDuration',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'ZeroValue', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'ZeroAddress', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'ZeroValue',
+		'type': 'error',
+	}, {
 		'anonymous': false,
 		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'target', 'type': 'address' }, {
 			'indexed': false,
@@ -1982,6 +2226,26 @@ export const ABIS = {
 		'type': 'event',
 	}, {
 		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'uint256',
+			'name': 'pairIndex',
+			'type': 'uint256',
+		}, { 'indexed': false, 'internalType': 'bool', 'name': 'exemptAfterProtectionCloseFactor', 'type': 'bool' }],
+		'name': 'ExemptAfterProtectionCloseFactorUpdated',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'uint256',
+			'name': 'pairIndex',
+			'type': 'uint256',
+		}, { 'indexed': false, 'internalType': 'bool', 'name': 'exemptOnOpen', 'type': 'bool' }],
+		'name': 'ExemptOnOpenUpdated',
+		'type': 'event',
+	}, {
+		'anonymous': false,
 		'inputs': [{ 'indexed': false, 'internalType': 'uint64', 'name': 'version', 'type': 'uint64' }],
 		'name': 'Initialized',
 		'type': 'event',
@@ -1994,6 +2258,11 @@ export const ABIS = {
 			'type': 'address',
 		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'at', 'type': 'uint256' }],
 		'name': 'Initialized',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'uint40', 'name': 'negPnlCumulVolMultiplier', 'type': 'uint40' }],
+		'name': 'NegPnlCumulVolMultiplierUpdated',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -2019,6 +2288,16 @@ export const ABIS = {
 			'type': 'uint128',
 		}],
 		'name': 'OnePercentDepthUpdated',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'previousOwner',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
+		'name': 'OwnershipTransferStarted',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -2094,7 +2373,11 @@ export const ABIS = {
 				'internalType': 'bool',
 				'name': 'open',
 				'type': 'bool',
-			}, { 'internalType': 'uint128', 'name': 'openInterestUsd', 'type': 'uint128' }],
+			}, { 'internalType': 'bool', 'name': 'isPnlPositive', 'type': 'bool' }, {
+				'internalType': 'uint128',
+				'name': 'openInterestUsd',
+				'type': 'uint128',
+			}],
 			'indexed': false,
 			'internalType': 'struct IPriceImpact.OiWindowUpdate',
 			'name': 'oiWindowUpdate',
@@ -2134,8 +2417,23 @@ export const ABIS = {
 		'type': 'event',
 	}, {
 		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
+			'indexed': false,
+			'internalType': 'bool',
+			'name': 'whitelisted',
+			'type': 'bool',
+		}],
+		'name': 'ProtectionCloseFactorWhitelistUpdated',
+		'type': 'event',
+	}, {
+		'anonymous': false,
 		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
 		'name': 'SetAdminAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
+		'name': 'SetManagerAddress',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -2156,7 +2454,17 @@ export const ABIS = {
 			'internalType': 'bool',
 			'name': '_open',
 			'type': 'bool',
-		}], 'name': 'addPriceImpactOpenInterest', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
+		}, { 'internalType': 'bool', 'name': '_isPnlPositive', 'type': 'bool' }],
+		'name': 'addPriceImpactOpenInterest',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
+		'inputs': [],
+		'name': 'getNegPnlCumulVolMultiplier',
+		'outputs': [{ 'internalType': 'uint48', 'name': '', 'type': 'uint48' }],
+		'stateMutability': 'view',
+		'type': 'function',
 	}, {
 		'inputs': [{
 			'internalType': 'uint48',
@@ -2262,10 +2570,17 @@ export const ABIS = {
 				'name': 'protectionCloseFactorBlocks',
 				'type': 'uint32',
 			}, { 'internalType': 'uint40', 'name': 'cumulativeFactor', 'type': 'uint40' }, {
-				'internalType': 'uint144',
-				'name': '__placeholder',
-				'type': 'uint144',
-			}], 'internalType': 'struct IPriceImpact.PairFactors', 'name': '', 'type': 'tuple',
+				'internalType': 'bool',
+				'name': 'exemptOnOpen',
+				'type': 'bool',
+			}, {
+				'internalType': 'bool',
+				'name': 'exemptAfterProtectionCloseFactor',
+				'type': 'bool',
+			}, { 'internalType': 'uint128', 'name': '__placeholder', 'type': 'uint128' }],
+			'internalType': 'struct IPriceImpact.PairFactors',
+			'name': '',
+			'type': 'tuple',
 		}],
 		'stateMutability': 'view',
 		'type': 'function',
@@ -2282,10 +2597,17 @@ export const ABIS = {
 				'name': 'protectionCloseFactorBlocks',
 				'type': 'uint32',
 			}, { 'internalType': 'uint40', 'name': 'cumulativeFactor', 'type': 'uint40' }, {
-				'internalType': 'uint144',
-				'name': '__placeholder',
-				'type': 'uint144',
-			}], 'internalType': 'struct IPriceImpact.PairFactors[]', 'name': '', 'type': 'tuple[]',
+				'internalType': 'bool',
+				'name': 'exemptOnOpen',
+				'type': 'bool',
+			}, {
+				'internalType': 'bool',
+				'name': 'exemptAfterProtectionCloseFactor',
+				'type': 'bool',
+			}, { 'internalType': 'uint128', 'name': '__placeholder', 'type': 'uint128' }],
+			'internalType': 'struct IPriceImpact.PairFactors[]',
+			'name': '',
+			'type': 'tuple[]',
 		}],
 		'stateMutability': 'view',
 		'type': 'function',
@@ -2300,19 +2622,29 @@ export const ABIS = {
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
-		'inputs': [{ 'internalType': 'uint256', 'name': '_marketPrice', 'type': 'uint256' }, {
+		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }],
+		'name': 'getProtectionCloseFactorWhitelist',
+		'outputs': [{ 'internalType': 'bool', 'name': '', 'type': 'bool' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }, {
 			'internalType': 'uint256',
-			'name': '_pairIndex',
+			'name': '_marketPrice',
 			'type': 'uint256',
-		}, { 'internalType': 'bool', 'name': '_long', 'type': 'bool' }, {
-			'internalType': 'uint256',
-			'name': '_tradeOpenInterestUsd',
-			'type': 'uint256',
-		}, { 'internalType': 'bool', 'name': '_isPnlPositive', 'type': 'bool' }, {
+		}, { 'internalType': 'uint256', 'name': '_pairIndex', 'type': 'uint256' }, {
 			'internalType': 'bool',
-			'name': '_open',
+			'name': '_long',
 			'type': 'bool',
-		}, { 'internalType': 'uint256', 'name': '_lastPosIncreaseBlock', 'type': 'uint256' }],
+		}, { 'internalType': 'uint256', 'name': '_tradeOpenInterestUsd', 'type': 'uint256' }, {
+			'internalType': 'bool',
+			'name': '_isPnlPositive',
+			'type': 'bool',
+		}, { 'internalType': 'bool', 'name': '_open', 'type': 'bool' }, {
+			'internalType': 'uint256',
+			'name': '_lastPosIncreaseBlock',
+			'type': 'uint256',
+		}],
 		'name': 'getTradePriceImpact',
 		'outputs': [{ 'internalType': 'uint256', 'name': 'priceImpactP', 'type': 'uint256' }, {
 			'internalType': 'uint256',
@@ -2338,6 +2670,32 @@ export const ABIS = {
 			'type': 'uint16[]',
 		}, { 'internalType': 'uint40[]', 'name': '_cumulativeFactors', 'type': 'uint40[]' }],
 		'name': 'setCumulativeFactors',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
+		'inputs': [{
+			'internalType': 'uint16[]',
+			'name': '_pairIndices',
+			'type': 'uint16[]',
+		}, { 'internalType': 'bool[]', 'name': '_exemptAfterProtectionCloseFactor', 'type': 'bool[]' }],
+		'name': 'setExemptAfterProtectionCloseFactor',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
+		'inputs': [{
+			'internalType': 'uint16[]',
+			'name': '_pairIndices',
+			'type': 'uint16[]',
+		}, { 'internalType': 'bool[]', 'name': '_exemptOnOpen', 'type': 'bool[]' }],
+		'name': 'setExemptOnOpen',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint40', 'name': '_negPnlCumulVolMultiplier', 'type': 'uint40' }],
+		'name': 'setNegPnlCumulVolMultiplier',
 		'outputs': [],
 		'stateMutability': 'nonpayable',
 		'type': 'function',
@@ -2374,6 +2732,12 @@ export const ABIS = {
 		'stateMutability': 'nonpayable',
 		'type': 'function',
 	}, {
+		'inputs': [{ 'internalType': 'address[]', 'name': '_traders', 'type': 'address[]' }, {
+			'internalType': 'bool[]',
+			'name': '_whitelisted',
+			'type': 'bool[]',
+		}], 'name': 'setProtectionCloseFactorWhitelist', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
+	}, {
 		'inputs': [{
 			'internalType': 'uint16[]',
 			'name': '_pairIndices',
@@ -2391,60 +2755,68 @@ export const ABIS = {
 		'inputs': [{ 'internalType': 'address', 'name': 'target', 'type': 'address' }],
 		'name': 'AddressEmptyCode',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'AlreadyExists', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'AddressZero', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'BelowMin',
+		'name': 'AlreadyExists',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'BlockOrder', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'BelowMin', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'CollateralAlreadyActive',
+		'name': 'BlockOrder',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'CollateralAlreadyDisabled', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'CollateralAlreadyActive', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'DoesntExist',
+		'name': 'CollateralAlreadyDisabled',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'implementation', 'type': 'address' }],
-		'name': 'ERC1967InvalidImplementation',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'EnforcedPause',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'ExpectedPause', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'FailedInnerCall',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'GeneralPaused', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'InitError',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidAddresses', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'InvalidCollateralIndex',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidInitialization', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'InvalidInputLength',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'MaxSlippageZero',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'MissingCollaterals', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'NotAllowed',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'NotInitializing',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'DoesntExist', 'type': 'error' }, {
 		'inputs': [{
 			'internalType': 'address',
-			'name': 'owner',
+			'name': 'implementation',
 			'type': 'address',
-		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
+		}], 'name': 'ERC1967InvalidImplementation', 'type': 'error',
+	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'EarlyTpSlUpdate',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'EarlyTradeClose', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'EarlyTradeUpdate',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'EnforcedPause', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'ExpectedPause',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'FailedCall', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'GeneralPaused',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InitError', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidAddresses',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidCollateralIndex', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidInitialization',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidInputLength', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'LiqReached',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'MaxSlippageZero', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'MissingCollaterals',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NotAuthorized',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Overflow',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
+		'name': 'OwnableInvalidOwner',
+		'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
@@ -2561,6 +2933,16 @@ export const ABIS = {
 		'type': 'event',
 	}, {
 		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'uint256', 'name': 'max_pnl_p', 'type': 'uint256' }],
+		'name': 'MaxPnlPUpdated',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'uint256', 'name': 'minCollateralAmountUsd', 'type': 'uint256' }],
+		'name': 'MinCollateralAmountUsd',
+		'type': 'event',
+	}, {
+		'anonymous': false,
 		'inputs': [{
 			'components': [{
 				'internalType': 'address',
@@ -2592,6 +2974,16 @@ export const ABIS = {
 			'name': 'previousOwner',
 			'type': 'address',
 		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
+		'name': 'OwnershipTransferStarted',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'previousOwner',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
 		'name': 'OwnershipTransferred',
 		'type': 'event',
 	}, {
@@ -2603,6 +2995,11 @@ export const ABIS = {
 		'anonymous': false,
 		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
 		'name': 'SetAdminAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
+		'name': 'SetManagerAddress',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -2824,7 +3221,11 @@ export const ABIS = {
 			'internalType': 'struct ITradingStorage.Id',
 			'name': '_tradeId',
 			'type': 'tuple',
-		}], 'name': 'closeTrade', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
+		}, { 'internalType': 'bool', 'name': '_isPnlPositive', 'type': 'bool' }],
+		'name': 'closeTrade',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
 	}, {
 		'inputs': [{ 'internalType': 'uint256', 'name': '_offset', 'type': 'uint256' }, {
 			'internalType': 'uint256',
@@ -2832,6 +3233,37 @@ export const ABIS = {
 			'type': 'uint256',
 		}],
 		'name': 'getAllTradeInfos',
+		'outputs': [{
+			'components': [{
+				'internalType': 'uint32',
+				'name': 'createdBlock',
+				'type': 'uint32',
+			}, { 'internalType': 'uint32', 'name': 'tpLastUpdatedBlock', 'type': 'uint32' }, {
+				'internalType': 'uint32',
+				'name': 'slLastUpdatedBlock',
+				'type': 'uint32',
+			}, { 'internalType': 'uint16', 'name': 'maxSlippageP', 'type': 'uint16' }, {
+				'internalType': 'uint48',
+				'name': 'lastOiUpdateTs',
+				'type': 'uint48',
+			}, { 'internalType': 'uint48', 'name': 'collateralPriceUsd', 'type': 'uint48' }, {
+				'internalType': 'uint32',
+				'name': 'lastPosIncreaseBlock',
+				'type': 'uint32',
+			}, { 'internalType': 'uint8', 'name': '__placeholder', 'type': 'uint8' }],
+			'internalType': 'struct ITradingStorage.TradeInfo[]',
+			'name': '',
+			'type': 'tuple[]',
+		}],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'address[]', 'name': '_traders', 'type': 'address[]' }, {
+			'internalType': 'uint256',
+			'name': '_offset',
+			'type': 'uint256',
+		}, { 'internalType': 'uint256', 'name': '_limit', 'type': 'uint256' }],
+		'name': 'getAllTradeInfosForTraders',
 		'outputs': [{
 			'components': [{
 				'internalType': 'uint32',
@@ -2900,12 +3332,79 @@ export const ABIS = {
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
+		'inputs': [{ 'internalType': 'address[]', 'name': '_traders', 'type': 'address[]' }, {
+			'internalType': 'uint256',
+			'name': '_offset',
+			'type': 'uint256',
+		}, { 'internalType': 'uint256', 'name': '_limit', 'type': 'uint256' }],
+		'name': 'getAllTradesForTraders',
+		'outputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'user',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }, {
+				'internalType': 'uint16',
+				'name': 'pairIndex',
+				'type': 'uint16',
+			}, { 'internalType': 'uint24', 'name': 'leverage', 'type': 'uint24' }, {
+				'internalType': 'bool',
+				'name': 'long',
+				'type': 'bool',
+			}, { 'internalType': 'bool', 'name': 'isOpen', 'type': 'bool' }, {
+				'internalType': 'uint8',
+				'name': 'collateralIndex',
+				'type': 'uint8',
+			}, {
+				'internalType': 'enum ITradingStorage.TradeType',
+				'name': 'tradeType',
+				'type': 'uint8',
+			}, { 'internalType': 'uint120', 'name': 'collateralAmount', 'type': 'uint120' }, {
+				'internalType': 'uint64',
+				'name': 'openPrice',
+				'type': 'uint64',
+			}, { 'internalType': 'uint64', 'name': 'tp', 'type': 'uint64' }, {
+				'internalType': 'uint64',
+				'name': 'sl',
+				'type': 'uint64',
+			}, { 'internalType': 'uint192', 'name': '__placeholder', 'type': 'uint192' }],
+			'internalType': 'struct ITradingStorage.Trade[]',
+			'name': '',
+			'type': 'tuple[]',
+		}],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
 		'inputs': [{ 'internalType': 'uint256', 'name': '_offset', 'type': 'uint256' }, {
 			'internalType': 'uint256',
 			'name': '_limit',
 			'type': 'uint256',
 		}],
 		'name': 'getAllTradesLiquidationParams',
+		'outputs': [{
+			'components': [{
+				'internalType': 'uint40',
+				'name': 'maxLiqSpreadP',
+				'type': 'uint40',
+			}, { 'internalType': 'uint40', 'name': 'startLiqThresholdP', 'type': 'uint40' }, {
+				'internalType': 'uint40',
+				'name': 'endLiqThresholdP',
+				'type': 'uint40',
+			}, { 'internalType': 'uint24', 'name': 'startLeverage', 'type': 'uint24' }, {
+				'internalType': 'uint24',
+				'name': 'endLeverage',
+				'type': 'uint24',
+			}], 'internalType': 'struct IPairsStorage.GroupLiquidationParams[]', 'name': '', 'type': 'tuple[]',
+		}],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'address[]', 'name': '_traders', 'type': 'address[]' }, {
+			'internalType': 'uint256',
+			'name': '_offset',
+			'type': 'uint256',
+		}, { 'internalType': 'uint256', 'name': '_limit', 'type': 'uint256' }],
+		'name': 'getAllTradesLiquidationParamsForTraders',
 		'outputs': [{
 			'components': [{
 				'internalType': 'uint40',
@@ -2995,6 +3494,34 @@ export const ABIS = {
 				'type': 'uint192',
 			}], 'internalType': 'struct ITradingStorage.Counter', 'name': '', 'type': 'tuple',
 		}],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'address[]', 'name': '_traders', 'type': 'address[]' }],
+		'name': 'getCountersForTraders',
+		'outputs': [{
+			'components': [{
+				'internalType': 'uint32',
+				'name': 'currentIndex',
+				'type': 'uint32',
+			}, { 'internalType': 'uint32', 'name': 'openCount', 'type': 'uint32' }, {
+				'internalType': 'uint192',
+				'name': '__placeholder',
+				'type': 'uint192',
+			}], 'internalType': 'struct ITradingStorage.Counter[]', 'name': '', 'type': 'tuple[]',
+		}],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [],
+		'name': 'getMaxPnlP',
+		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [],
+		'name': 'getMinCollateralAmountUsd',
+		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
@@ -3139,6 +3666,12 @@ export const ABIS = {
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
+		'inputs': [],
+		'name': 'getTradersCount',
+		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
 		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }],
 		'name': 'getTrades',
 		'outputs': [{
@@ -3212,11 +3745,15 @@ export const ABIS = {
 			'internalType': 'address',
 			'name': '_borrowingProvider',
 			'type': 'address',
-		}, { 'internalType': 'address[]', 'name': '_collaterals', 'type': 'address[]' }, {
-			'internalType': 'uint8[]',
-			'name': '_collateralsIndexes',
-			'type': 'uint8[]',
-		}], 'name': 'initializeTradingStorage', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
+		}, { 'internalType': 'uint256', 'name': '_max_pnl_p', 'type': 'uint256' }, {
+			'internalType': 'address[]',
+			'name': '_collaterals',
+			'type': 'address[]',
+		}, { 'internalType': 'uint8[]', 'name': '_collateralsIndexes', 'type': 'uint8[]' }],
+		'name': 'initializeTradingStorage',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
 	}, {
 		'inputs': [{ 'internalType': 'uint8', 'name': '_index', 'type': 'uint8' }],
 		'name': 'isCollateralActive',
@@ -3341,6 +3878,18 @@ export const ABIS = {
 		'stateMutability': 'nonpayable',
 		'type': 'function',
 	}, {
+		'inputs': [{ 'internalType': 'uint256', 'name': 'max_pnl_p', 'type': 'uint256' }],
+		'name': 'updateMaxPnlP',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint256', 'name': '_minCollateralAmountUsd', 'type': 'uint256' }],
+		'name': 'updateMinCollateralAmountUsd',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
 		'inputs': [{
 			'components': [{
 				'internalType': 'address',
@@ -3407,7 +3956,11 @@ export const ABIS = {
 			'internalType': 'bool',
 			'name': '_isPartialIncrease',
 			'type': 'bool',
-		}], 'name': 'updateTradePosition', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
+		}, { 'internalType': 'bool', 'name': '_isPnlPositive', 'type': 'bool' }],
+		'name': 'updateTradePosition',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
 	}, {
 		'inputs': [{
 			'components': [{
@@ -3444,6 +3997,41 @@ export const ABIS = {
 		'outputs': [],
 		'stateMutability': 'nonpayable',
 		'type': 'function',
+	}, {
+		'inputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'user',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }, {
+				'internalType': 'uint16',
+				'name': 'pairIndex',
+				'type': 'uint16',
+			}, { 'internalType': 'uint24', 'name': 'leverage', 'type': 'uint24' }, {
+				'internalType': 'bool',
+				'name': 'long',
+				'type': 'bool',
+			}, { 'internalType': 'bool', 'name': 'isOpen', 'type': 'bool' }, {
+				'internalType': 'uint8',
+				'name': 'collateralIndex',
+				'type': 'uint8',
+			}, {
+				'internalType': 'enum ITradingStorage.TradeType',
+				'name': 'tradeType',
+				'type': 'uint8',
+			}, { 'internalType': 'uint120', 'name': 'collateralAmount', 'type': 'uint120' }, {
+				'internalType': 'uint64',
+				'name': 'openPrice',
+				'type': 'uint64',
+			}, { 'internalType': 'uint64', 'name': 'tp', 'type': 'uint64' }, {
+				'internalType': 'uint64',
+				'name': 'sl',
+				'type': 'uint64',
+			}, { 'internalType': 'uint192', 'name': '__placeholder', 'type': 'uint192' }],
+			'internalType': 'struct ITradingStorage.Trade',
+			'name': '_trade',
+			'type': 'tuple',
+		}], 'name': 'validateTrade', 'outputs': [], 'stateMutability': 'view', 'type': 'function',
 	}, { 'inputs': [], 'stateMutability': 'nonpayable', 'type': 'constructor' }, {
 		'inputs': [],
 		'name': 'AboveExposureLimits',
@@ -3458,57 +4046,59 @@ export const ABIS = {
 			'name': 'target',
 			'type': 'address',
 		}], 'name': 'AddressEmptyCode', 'type': 'error',
+	}, { 'inputs': [], 'name': 'AddressZero', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'AlreadyBeingMarketClosed',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'AlreadyExists', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'BelowMin',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'BelowMinPositionSizeUsd', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'BlockOrder',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'CollateralNotActive', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'DelegateNotApproved',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'DelegatedActionNotAllowed', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'DoesntExist',
+		'type': 'error',
 	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
-		'name': 'AddressInsufficientBalance',
+		'inputs': [{ 'internalType': 'address', 'name': 'implementation', 'type': 'address' }],
+		'name': 'ERC1967InvalidImplementation',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'AlreadyBeingMarketClosed', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'AlreadyExists',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'BelowMin', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'BelowMinPositionSizeUsd',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'BlockOrder', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'CollateralNotActive',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'DelegateNotApproved', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'DelegatedActionNotAllowed',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'DoesntExist', 'type': 'error' }, {
-		'inputs': [{
-			'internalType': 'address',
-			'name': 'implementation',
-			'type': 'address',
-		}], 'name': 'ERC1967InvalidImplementation', 'type': 'error',
 	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'EnforcedPause',
+		'name': 'EarlyTpSlUpdate',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'ExpectedPause', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'EarlyTradeClose', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'FailedInnerCall',
+		'name': 'EarlyTradeUpdate',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'GeneralPaused', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'EnforcedPause', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InitError',
+		'name': 'ExpectedPause',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InsufficientCollateral', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'FailedCall', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InvalidAddresses',
+		'name': 'GeneralPaused',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidCollateralIndex', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InitError', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InvalidInitialization',
+		'name': 'InsufficientCollateral',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidInputLength', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InvalidAddresses', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'LiqReached',
+		'name': 'InvalidCollateralIndex',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'MaxSlippageZero', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InvalidInitialization', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidInputLength',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'NoOrder',
 		'type': 'error',
@@ -3636,7 +4226,17 @@ export const ABIS = {
 		'type': 'event',
 	}, {
 		'anonymous': false,
-		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
+		'inputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'user',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }],
+			'indexed': false,
+			'internalType': 'struct ITradingStorage.Id',
+			'name': 'orderId',
+			'type': 'tuple',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
 			'indexed': true,
 			'internalType': 'uint16',
 			'name': 'pairIndex',
@@ -3692,6 +4292,16 @@ export const ABIS = {
 			'name': 'previousOwner',
 			'type': 'address',
 		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
+		'name': 'OwnershipTransferStarted',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'previousOwner',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
 		'name': 'OwnershipTransferred',
 		'type': 'event',
 	}, {
@@ -3703,6 +4313,16 @@ export const ABIS = {
 		'anonymous': false,
 		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
 		'name': 'SetAdminAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
+		'name': 'SetManagerAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'termsAndConditionsAddress', 'type': 'address' }],
+		'name': 'TermsAndConditionsAddressUpdated',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -3726,6 +4346,21 @@ export const ABIS = {
 			'name': '_priceUpdate',
 			'type': 'bytes[][]',
 		}], 'name': 'closeTradeMarket', 'outputs': [], 'stateMutability': 'payable', 'type': 'function',
+	}, {
+		'inputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'user',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }],
+			'internalType': 'struct ITradingStorage.Id[]',
+			'name': '_trades',
+			'type': 'tuple[]',
+		}, { 'internalType': 'bytes[][]', 'name': '_priceUpdate', 'type': 'bytes[][]' }],
+		'name': 'closeTrades',
+		'outputs': [],
+		'stateMutability': 'payable',
+		'type': 'function',
 	}, {
 		'inputs': [{ 'internalType': 'uint32', 'name': '_index', 'type': 'uint32' }, {
 			'internalType': 'uint120',
@@ -3788,11 +4423,7 @@ export const ABIS = {
 			'internalType': 'address',
 			'name': '_referrer',
 			'type': 'address',
-		}, { 'internalType': 'bytes[][]', 'name': '_priceUpdate', 'type': 'bytes[][]' }],
-		'name': 'openTrade',
-		'outputs': [],
-		'stateMutability': 'payable',
-		'type': 'function',
+		}], 'name': 'openTrade', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
 	}, {
 		'inputs': [{ 'internalType': 'uint256', 'name': '_packed', 'type': 'uint256' }, {
 			'internalType': 'bytes[][]',
@@ -3809,6 +4440,12 @@ export const ABIS = {
 		'outputs': [],
 		'stateMutability': 'payable',
 		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint32', 'name': '_index', 'type': 'uint32' }, {
+			'internalType': 'uint16',
+			'name': '_maxSlippageP',
+			'type': 'uint16',
+		}], 'name': 'updateMaxClosingSlippageP', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
 	}, {
 		'inputs': [{ 'internalType': 'uint32', 'name': '_index', 'type': 'uint32' }, {
 			'internalType': 'uint64',
@@ -3830,6 +4467,12 @@ export const ABIS = {
 			'type': 'uint64',
 		}], 'name': 'updateSl', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
 	}, {
+		'inputs': [{ 'internalType': 'address', 'name': '_termsAndConditionsAddress', 'type': 'address' }],
+		'name': 'updateTermsAndConditionsAddress',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
 		'inputs': [{ 'internalType': 'uint32', 'name': '_index', 'type': 'uint32' }, {
 			'internalType': 'uint64',
 			'name': '_newTp',
@@ -3843,61 +4486,73 @@ export const ABIS = {
 		'inputs': [{ 'internalType': 'address', 'name': 'target', 'type': 'address' }],
 		'name': 'AddressEmptyCode',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'AlreadyExists', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'AddressZero', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'BelowMin',
+		'name': 'AlreadyExists',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'BlockOrder', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'BelowMin', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'DoesntExist',
+		'name': 'BlockOrder',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'implementation', 'type': 'address' }],
-		'name': 'ERC1967InvalidImplementation',
-		'type': 'error',
+	}, { 'inputs': [], 'name': 'DoesntExist', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'implementation',
+			'type': 'address',
+		}], 'name': 'ERC1967InvalidImplementation', 'type': 'error',
 	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'EnforcedPause',
+		'name': 'EarlyTpSlUpdate',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'ExpectedPause', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'EarlyTradeClose', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'FailedInnerCall',
+		'name': 'EarlyTradeUpdate',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'GeneralPaused', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'EnforcedPause', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InitError',
+		'name': 'ExpectedPause',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidAddresses', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'FailedCall', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InvalidCollateralIndex',
+		'name': 'GeneralPaused',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidDecreasePositionSizeInput', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InitError', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InvalidIncreasePositionSizeInput',
+		'name': 'InvalidAddresses',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidInitialization', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InvalidCollateralIndex', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InvalidInputLength',
+		'name': 'InvalidDecreasePositionSizeInput',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InvalidIncreasePositionSizeInput', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NewPositionSizeSmaller',
+		'name': 'InvalidInitialization',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InvalidInputLength', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NotAuthorized',
+		'name': 'LiqReached',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'NewPositionSizeSmaller', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'Overflow',
+		'name': 'NotAllowed',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
-		'name': 'OwnableInvalidOwner',
+	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NotInitializing',
 		'type': 'error',
+	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'owner',
+			'type': 'address',
+		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': 'token', 'type': 'address' }],
+		'name': 'SafeERC20FailedOperation',
 		'type': 'error',
 	}, { 'inputs': [], 'name': 'SlReached', 'type': 'error' }, {
 		'inputs': [],
@@ -3971,16 +4626,6 @@ export const ABIS = {
 			'type': 'uint8',
 		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'amountCollateral', 'type': 'uint256' }],
 		'name': 'BorrowingProviderFeeCharged',
-		'type': 'event',
-	}, {
-		'anonymous': false,
-		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
-			'indexed': true,
-			'internalType': 'uint8',
-			'name': 'collateralIndex',
-			'type': 'uint8',
-		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'amountCollateral', 'type': 'uint256' }],
-		'name': 'GnsStakingFeeCharged',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -4257,6 +4902,16 @@ export const ABIS = {
 			'name': 'previousOwner',
 			'type': 'address',
 		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
+		'name': 'OwnershipTransferStarted',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'previousOwner',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
 		'name': 'OwnershipTransferred',
 		'type': 'event',
 	}, {
@@ -4301,12 +4956,7 @@ export const ABIS = {
 			'internalType': 'uint256',
 			'name': 'collateralDelta',
 			'type': 'uint256',
-		}, {
-			'indexed': false,
-			'internalType': 'uint256',
-			'name': 'leverageDelta',
-			'type': 'uint256',
-		}, {
+		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'leverageDelta', 'type': 'uint256' }, {
 			'components': [{
 				'internalType': 'uint256',
 				'name': 'positionSizeCollateralDelta',
@@ -4316,18 +4966,14 @@ export const ABIS = {
 				'name': 'existingPositionSizeCollateral',
 				'type': 'uint256',
 			}, { 'internalType': 'uint256', 'name': 'existingLiqPrice', 'type': 'uint256' }, {
-				'internalType': 'int256',
-				'name': 'existingPnlCollateral',
-				'type': 'int256',
-			}, {
+				'internalType': 'uint256',
+				'name': 'priceAfterImpact',
+				'type': 'uint256',
+			}, { 'internalType': 'int256', 'name': 'existingPnlCollateral', 'type': 'int256' }, {
 				'internalType': 'uint256',
 				'name': 'borrowingFeeCollateral',
 				'type': 'uint256',
-			}, { 'internalType': 'uint256', 'name': 'vaultFeeCollateral', 'type': 'uint256' }, {
-				'internalType': 'uint256',
-				'name': 'gnsStakingFeeCollateral',
-				'type': 'uint256',
-			}, {
+			}, { 'internalType': 'uint256', 'name': 'closingFeeCollateral', 'type': 'uint256' }, {
 				'internalType': 'int256',
 				'name': 'availableCollateralInDiamond',
 				'type': 'int256',
@@ -4431,6 +5077,36 @@ export const ABIS = {
 		'anonymous': false,
 		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
 		'name': 'SetAdminAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'uint8[]', 'name': 'limitedGroups', 'type': 'uint8[]' }],
+		'name': 'SetLimitedGroups',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
+		'name': 'SetManagerAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'uint16[]', 'name': 'duration', 'type': 'uint16[]' }],
+		'name': 'SetTradeLockDuration',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'uint32[]', 'name': 'usdThresholds', 'type': 'uint32[]' }],
+		'name': 'SetTradeUsdThresholds',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'trader', 'type': 'address' }, {
+			'indexed': true,
+			'internalType': 'uint8',
+			'name': 'collateralIndex',
+			'type': 'uint8',
+		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'amountCollateral', 'type': 'uint256' }],
+		'name': 'TriggerFeeCharged',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -4647,9 +5323,37 @@ export const ABIS = {
 			'type': 'tuple',
 		}], 'name': 'executeTriggerOpenOrder', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
 	}, {
+		'inputs': [],
+		'name': 'getLimitedGroups',
+		'outputs': [{ 'internalType': 'uint8[]', 'name': '', 'type': 'uint8[]' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
 		'inputs': [{ 'internalType': 'uint8', 'name': '_collateralIndex', 'type': 'uint8' }],
 		'name': 'getPendingGovFeesCollateral',
 		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [],
+		'name': 'getTradeLockDuration',
+		'outputs': [{ 'internalType': 'uint16[]', 'name': '', 'type': 'uint16[]' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }, {
+			'internalType': 'uint256',
+			'name': '_tradeId',
+			'type': 'uint256',
+		}],
+		'name': 'getTradeTimestamp',
+		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [],
+		'name': 'getTradeUsdThresholds',
+		'outputs': [{ 'internalType': 'uint32[]', 'name': '', 'type': 'uint32[]' }],
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
@@ -4663,6 +5367,16 @@ export const ABIS = {
 		'name': 'initializeTradingProcessing',
 		'outputs': [],
 		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }, {
+			'internalType': 'uint32',
+			'name': '_tradeId',
+			'type': 'uint32',
+		}],
+		'name': 'isTradeInLockLimit',
+		'outputs': [{ 'internalType': 'bool', 'name': '', 'type': 'bool' }],
+		'stateMutability': 'view',
 		'type': 'function',
 	}, {
 		'inputs': [{
@@ -4721,6 +5435,24 @@ export const ABIS = {
 			'type': 'tuple',
 		}], 'name': 'openTradeMarketOrder', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
 	}, {
+		'inputs': [{ 'internalType': 'uint8[]', 'name': '_limitedGroups', 'type': 'uint8[]' }],
+		'name': 'setLimitedGroups',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint16[]', 'name': '_duration', 'type': 'uint16[]' }],
+		'name': 'setTradeLockDuration',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint32[]', 'name': '_usdThresholds', 'type': 'uint32[]' }],
+		'name': 'setTradeUsdThresholds',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
 		'inputs': [{ 'internalType': 'uint8', 'name': '_valueP', 'type': 'uint8' }],
 		'name': 'updateVaultClosingFeeP',
 		'outputs': [],
@@ -4734,58 +5466,66 @@ export const ABIS = {
 		'inputs': [{ 'internalType': 'address', 'name': 'target', 'type': 'address' }],
 		'name': 'AddressEmptyCode',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'AlreadyExists', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'AddressZero', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'BelowMin',
+		'name': 'AlreadyExists',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'BlockOrder', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'BelowMin', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'BorrowingWrongExponent',
+		'name': 'BlockOrder',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'BorrowingZeroGroup', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'BorrowingWrongExponent', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'DoesntExist',
+		'name': 'BorrowingZeroGroup',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'implementation', 'type': 'address' }],
-		'name': 'ERC1967InvalidImplementation',
-		'type': 'error',
+	}, { 'inputs': [], 'name': 'DoesntExist', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'implementation',
+			'type': 'address',
+		}], 'name': 'ERC1967InvalidImplementation', 'type': 'error',
 	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'EnforcedPause',
+		'name': 'EarlyTpSlUpdate',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'ExpectedPause', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'EarlyTradeClose', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'FailedInnerCall',
+		'name': 'EarlyTradeUpdate',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'GeneralPaused', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'EnforcedPause', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InitError',
+		'name': 'ExpectedPause',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidAddresses', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'FailedCall', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InvalidCollateralIndex',
+		'name': 'GeneralPaused',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidInitialization', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InitError', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'InvalidInputLength',
+		'name': 'InvalidAddresses',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InvalidCollateralIndex', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NotAllowed',
+		'name': 'InvalidInitialization',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'InvalidInputLength', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'NotInitializing',
+		'name': 'LiqReached',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NotAuthorized',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
 		'inputs': [],
 		'name': 'Overflow',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
-		'name': 'OwnableInvalidOwner',
-		'type': 'error',
+	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'owner',
+			'type': 'address',
+		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
@@ -4810,15 +5550,15 @@ export const ABIS = {
 		'inputs': [],
 		'name': 'WrongOrder',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'WrongParams', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'WrongOrderType', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'WrongTradeType',
+		'name': 'WrongParams',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'ZeroAddress', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'WrongTradeType', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'ZeroValue',
+		'name': 'ZeroAddress',
 		'type': 'error',
-	}, {
+	}, { 'inputs': [], 'name': 'ZeroValue', 'type': 'error' }, {
 		'anonymous': false,
 		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'target', 'type': 'address' }, {
 			'indexed': false,
@@ -5036,6 +5776,16 @@ export const ABIS = {
 			'name': 'previousOwner',
 			'type': 'address',
 		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
+		'name': 'OwnershipTransferStarted',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'previousOwner',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
 		'name': 'OwnershipTransferred',
 		'type': 'event',
 	}, {
@@ -5047,6 +5797,11 @@ export const ABIS = {
 		'anonymous': false,
 		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
 		'name': 'SetAdminAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
+		'name': 'SetManagerAddress',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -5197,11 +5952,11 @@ export const ABIS = {
 		'stateMutability': 'view',
 		'type': 'function',
 	}, {
-		'inputs': [{
-			'internalType': 'uint8',
-			'name': '_collateralIndex',
-			'type': 'uint8',
-		}, { 'internalType': 'uint16[]', 'name': '_indices', 'type': 'uint16[]' }],
+		'inputs': [{ 'internalType': 'uint8', 'name': '_collateralIndex', 'type': 'uint8' }, {
+			'internalType': 'uint16[]',
+			'name': '_indices',
+			'type': 'uint16[]',
+		}],
 		'name': 'getBorrowingGroups',
 		'outputs': [{
 			'components': [{
@@ -5446,6 +6201,20 @@ export const ABIS = {
 				'internalType': 'bool',
 				'name': 'useBorrowingFees',
 				'type': 'bool',
+			}, {
+				'components': [{
+					'internalType': 'uint40',
+					'name': 'maxLiqSpreadP',
+					'type': 'uint40',
+				}, { 'internalType': 'uint40', 'name': 'startLiqThresholdP', 'type': 'uint40' }, {
+					'internalType': 'uint40',
+					'name': 'endLiqThresholdP',
+					'type': 'uint40',
+				}, { 'internalType': 'uint24', 'name': 'startLeverage', 'type': 'uint24' }, {
+					'internalType': 'uint24',
+					'name': 'endLeverage',
+					'type': 'uint24',
+				}], 'internalType': 'struct IPairsStorage.GroupLiquidationParams', 'name': 'liquidationParams', 'type': 'tuple',
 			}], 'internalType': 'struct IBorrowingFees.LiqPriceInput', 'name': '_input', 'type': 'tuple',
 		}],
 		'name': 'getTradeLiquidationPrice',
@@ -5584,52 +6353,60 @@ export const ABIS = {
 		'inputs': [{ 'internalType': 'address', 'name': 'target', 'type': 'address' }],
 		'name': 'AddressEmptyCode',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'AlreadyExists', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'AddressZero', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'BelowMin',
+		'name': 'AlreadyExists',
 		'type': 'error',
-	}, { 'inputs': [], 'name': 'BlockOrder', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'BelowMin', 'type': 'error' }, {
 		'inputs': [],
-		'name': 'DoesntExist',
+		'name': 'BlockOrder',
 		'type': 'error',
-	}, {
-		'inputs': [{ 'internalType': 'address', 'name': 'implementation', 'type': 'address' }],
-		'name': 'ERC1967InvalidImplementation',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'EnforcedPause',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'ExpectedPause', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'FailedInnerCall',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'GeneralPaused', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'InitError',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidAddresses', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'InvalidCollateralIndex',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'InvalidInitialization', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'InvalidInputLength',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'LiqReached', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'NotAllowed',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
-		'inputs': [],
-		'name': 'NotInitializing',
-		'type': 'error',
-	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+	}, { 'inputs': [], 'name': 'DoesntExist', 'type': 'error' }, {
 		'inputs': [{
 			'internalType': 'address',
-			'name': 'owner',
+			'name': 'implementation',
 			'type': 'address',
-		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
+		}], 'name': 'ERC1967InvalidImplementation', 'type': 'error',
+	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'EarlyTpSlUpdate',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'EarlyTradeClose', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'EarlyTradeUpdate',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'EnforcedPause', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'ExpectedPause',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'FailedCall', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'GeneralPaused',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InitError', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidAddresses',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidCollateralIndex', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidInitialization',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidInputLength', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'LiqReached',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'NotAllowed', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NotAuthorized',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'NotInitializing', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Overflow',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': 'owner', 'type': 'address' }],
+		'name': 'OwnableInvalidOwner',
+		'type': 'error',
 	}, {
 		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
 		'name': 'OwnableUnauthorizedAccount',
@@ -5718,6 +6495,21 @@ export const ABIS = {
 		'type': 'event',
 	}, {
 		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'uint48', 'name': 'lifetime', 'type': 'uint48' }],
+		'name': 'LifeTimeUpdated',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'previousOwner',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
+		'name': 'OwnershipTransferStarted',
+		'type': 'event',
+	}, {
+		'anonymous': false,
 		'inputs': [{
 			'indexed': true,
 			'internalType': 'address',
@@ -5735,6 +6527,11 @@ export const ABIS = {
 		'anonymous': false,
 		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
 		'name': 'SetAdminAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
+		'name': 'SetManagerAddress',
 		'type': 'event',
 	}, {
 		'anonymous': false,
@@ -5771,6 +6568,12 @@ export const ABIS = {
 	}, {
 		'inputs': [{ 'internalType': 'uint16', 'name': '_pairIndex', 'type': 'uint16' }],
 		'name': 'getPrice',
+		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [],
+		'name': 'getPriceLifetime',
 		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
 		'stateMutability': 'view',
 		'type': 'function',
@@ -5815,6 +6618,12 @@ export const ABIS = {
 		'stateMutability': 'nonpayable',
 		'type': 'function',
 	}, {
+		'inputs': [{ 'internalType': 'uint48', 'name': '_lifetime', 'type': 'uint48' }],
+		'name': 'setPriceLifetime',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
 		'inputs': [{ 'internalType': 'uint8', 'name': '_collateralIndex', 'type': 'uint8' }, {
 			'internalType': 'bytes32',
 			'name': '_value',
@@ -5830,5 +6639,893 @@ export const ABIS = {
 		'outputs': [],
 		'stateMutability': 'payable',
 		'type': 'function',
+	}, { 'inputs': [], 'stateMutability': 'nonpayable', 'type': 'constructor' }, {
+		'inputs': [],
+		'name': 'AboveMax',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': 'target', 'type': 'address' }],
+		'name': 'AddressEmptyCode',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'AddressZero', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'AlreadyExists',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'BelowMin', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'BlockOrder',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'DoesntExist', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'implementation',
+			'type': 'address',
+		}], 'name': 'ERC1967InvalidImplementation', 'type': 'error',
+	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'EarlyTpSlUpdate',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'EarlyTradeClose', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'EarlyTradeUpdate',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'EnforcedPause', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'ExpectedPause',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'FailedCall', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'GeneralPaused',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InitError', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidAddresses',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidCollateralIndex', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidInitialization',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidInputLength', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'LiqReached',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'NoPendingTriggerRewards', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NotAllowed',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NotInitializing',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'owner',
+			'type': 'address',
+		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
+		'name': 'OwnableUnauthorizedAccount',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': 'token', 'type': 'address' }],
+		'name': 'SafeERC20FailedOperation',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'SlReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Slippage',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'TpReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'UUPSUnauthorizedCallContext',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'bytes32', 'name': 'slot', 'type': 'bytes32' }],
+		'name': 'UUPSUnsupportedProxiableUUID',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'WrongAccess', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'WrongIndex',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'WrongLength', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'WrongOrder',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'WrongOrderType', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'WrongParams',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'WrongTradeType', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'ZeroAddress',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'ZeroValue', 'type': 'error' }, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'target', 'type': 'address' }, {
+			'indexed': false,
+			'internalType': 'enum IAddressStore.Role',
+			'name': 'role',
+			'type': 'uint8',
+		}, { 'indexed': false, 'internalType': 'bool', 'name': 'access', 'type': 'bool' }],
+		'name': 'AccessControlUpdated',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'rewardsToken',
+				'type': 'address',
+			}, { 'internalType': 'address', 'name': 'rewardsDistributor', 'type': 'address' }],
+			'indexed': false,
+			'internalType': 'struct IAddressStore.Addresses',
+			'name': 'addresses',
+			'type': 'tuple',
+		}],
+		'name': 'AddressesUpdated',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'uint64', 'name': 'version', 'type': 'uint64' }],
+		'name': 'Initialized',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'executor',
+			'type': 'address',
+		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'at', 'type': 'uint256' }],
+		'name': 'Initialized',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'previousOwner',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
+		'name': 'OwnershipTransferStarted',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'previousOwner',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
+		'name': 'OwnershipTransferred',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'account', 'type': 'address' }],
+		'name': 'Paused',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
+		'name': 'SetAdminAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
+		'name': 'SetManagerAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'triggerAddress', 'type': 'address' }],
+		'name': 'TriggerAdded',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'triggerAddress', 'type': 'address' }],
+		'name': 'TriggerRemoved',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': false,
+			'internalType': 'uint8',
+			'name': 'collateralIndex',
+			'type': 'uint8',
+		}, {
+			'indexed': false,
+			'internalType': 'uint256',
+			'name': 'rewardsPerTrigger',
+			'type': 'uint256',
+		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'triggersCount', 'type': 'uint256' }],
+		'name': 'TriggerRewarded',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': false,
+			'internalType': 'address',
+			'name': 'trigger',
+			'type': 'address',
+		}, { 'indexed': false, 'internalType': 'uint8', 'name': 'collateralIndex', 'type': 'uint8' }, {
+			'indexed': false,
+			'internalType': 'uint256',
+			'name': 'rewards',
+			'type': 'uint256',
+		}],
+		'name': 'TriggerRewardsClaimed',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'account', 'type': 'address' }],
+		'name': 'Unpaused',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'implementation', 'type': 'address' }],
+		'name': 'Upgraded',
+		'type': 'event',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': '_triggerAddress', 'type': 'address' }],
+		'name': 'addTrigger',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint8', 'name': '_collateralIndex', 'type': 'uint8' }],
+		'name': 'claimPendingTriggerRewards',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint256', 'name': '_rewards', 'type': 'uint256' }, {
+			'internalType': 'uint8',
+			'name': '_collateralIndex',
+			'type': 'uint8',
+		}], 'name': 'distributeTriggerReward', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
+	}, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': '_triggerAddress',
+			'type': 'address',
+		}, { 'internalType': 'uint8', 'name': '_collateralIndex', 'type': 'uint8' }],
+		'name': 'getTriggerPendingRewards',
+		'outputs': [{ 'internalType': 'uint256', 'name': '', 'type': 'uint256' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': '_triggerAddress', 'type': 'address' }],
+		'name': 'isValidTrigger',
+		'outputs': [{ 'internalType': 'bool', 'name': '', 'type': 'bool' }],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': '_triggerAddress', 'type': 'address' }],
+		'name': 'removeTrigger',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, { 'inputs': [], 'stateMutability': 'nonpayable', 'type': 'constructor' }, {
+		'inputs': [],
+		'name': 'AboveMax',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': 'target', 'type': 'address' }],
+		'name': 'AddressEmptyCode',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'AddressZero', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'AlreadyExists',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'BelowMin', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'BlockOrder',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'DoesntExist', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'implementation',
+			'type': 'address',
+		}], 'name': 'ERC1967InvalidImplementation', 'type': 'error',
+	}, { 'inputs': [], 'name': 'ERC1967NonPayable', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'EarlyTpSlUpdate',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'EarlyTradeClose', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'EarlyTradeUpdate',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'EnforcedPause', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'ExpectedPause',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'FailedCall', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'GeneralPaused',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InitError', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidAddresses',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidCollateralIndex', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'InvalidInitialization',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'InvalidInputLength', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'LiqReached',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'MaxSlippageZero', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NotAllowed',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'NotAuthorized', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'NotInitializing',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'Overflow', 'type': 'error' }, {
+		'inputs': [{
+			'internalType': 'address',
+			'name': 'owner',
+			'type': 'address',
+		}], 'name': 'OwnableInvalidOwner', 'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': 'account', 'type': 'address' }],
+		'name': 'OwnableUnauthorizedAccount',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'SlReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'Slippage',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'TpReached', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'UUPSUnauthorizedCallContext',
+		'type': 'error',
+	}, {
+		'inputs': [{ 'internalType': 'bytes32', 'name': 'slot', 'type': 'bytes32' }],
+		'name': 'UUPSUnsupportedProxiableUUID',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'WrongAccess', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'WrongIndex',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'WrongLength', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'WrongOrder',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'WrongOrderType', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'WrongParams',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'WrongTradeType', 'type': 'error' }, {
+		'inputs': [],
+		'name': 'ZeroAddress',
+		'type': 'error',
+	}, { 'inputs': [], 'name': 'ZeroValue', 'type': 'error' }, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'target', 'type': 'address' }, {
+			'indexed': false,
+			'internalType': 'enum IAddressStore.Role',
+			'name': 'role',
+			'type': 'uint8',
+		}, { 'indexed': false, 'internalType': 'bool', 'name': 'access', 'type': 'bool' }],
+		'name': 'AccessControlUpdated',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'rewardsToken',
+				'type': 'address',
+			}, { 'internalType': 'address', 'name': 'rewardsDistributor', 'type': 'address' }],
+			'indexed': false,
+			'internalType': 'struct IAddressStore.Addresses',
+			'name': 'addresses',
+			'type': 'tuple',
+		}],
+		'name': 'AddressesUpdated',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'uint64', 'name': 'version', 'type': 'uint64' }],
+		'name': 'Initialized',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'executor',
+			'type': 'address',
+		}, { 'indexed': false, 'internalType': 'uint256', 'name': 'at', 'type': 'uint256' }],
+		'name': 'Initialized',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'previousOwner',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
+		'name': 'OwnershipTransferStarted',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'indexed': true,
+			'internalType': 'address',
+			'name': 'previousOwner',
+			'type': 'address',
+		}, { 'indexed': true, 'internalType': 'address', 'name': 'newOwner', 'type': 'address' }],
+		'name': 'OwnershipTransferred',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'account', 'type': 'address' }],
+		'name': 'Paused',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'user',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }],
+			'indexed': false,
+			'internalType': 'struct ITradingStorage.Id',
+			'name': 'orderId',
+			'type': 'tuple',
+		}],
+		'name': 'PendingOrderClosed',
+		'type': 'event',
+	}, {
+		'anonymous': false, 'inputs': [{
+			'components': [{
+				'components': [{
+					'internalType': 'address',
+					'name': 'user',
+					'type': 'address',
+				}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }, {
+					'internalType': 'uint16',
+					'name': 'pairIndex',
+					'type': 'uint16',
+				}, { 'internalType': 'uint24', 'name': 'leverage', 'type': 'uint24' }, {
+					'internalType': 'bool',
+					'name': 'long',
+					'type': 'bool',
+				}, { 'internalType': 'bool', 'name': 'isOpen', 'type': 'bool' }, {
+					'internalType': 'uint8',
+					'name': 'collateralIndex',
+					'type': 'uint8',
+				}, {
+					'internalType': 'enum ITradingStorage.TradeType',
+					'name': 'tradeType',
+					'type': 'uint8',
+				}, { 'internalType': 'uint120', 'name': 'collateralAmount', 'type': 'uint120' }, {
+					'internalType': 'uint64',
+					'name': 'openPrice',
+					'type': 'uint64',
+				}, { 'internalType': 'uint64', 'name': 'tp', 'type': 'uint64' }, {
+					'internalType': 'uint64',
+					'name': 'sl',
+					'type': 'uint64',
+				}, { 'internalType': 'uint192', 'name': '__placeholder', 'type': 'uint192' }],
+				'internalType': 'struct ITradingStorage.Trade',
+				'name': 'trade',
+				'type': 'tuple',
+			}, { 'internalType': 'address', 'name': 'user', 'type': 'address' }, {
+				'internalType': 'uint32',
+				'name': 'index',
+				'type': 'uint32',
+			}, {
+				'internalType': 'bool',
+				'name': 'isOpen',
+				'type': 'bool',
+			}, {
+				'internalType': 'enum ITradingStorage.PendingOrderType',
+				'name': 'orderType',
+				'type': 'uint8',
+			}, { 'internalType': 'uint32', 'name': 'createdBlock', 'type': 'uint32' }, {
+				'internalType': 'uint16',
+				'name': 'maxSlippageP',
+				'type': 'uint16',
+			}, { 'internalType': 'uint64', 'name': 'price', 'type': 'uint64' }],
+			'indexed': false,
+			'internalType': 'struct ITradingStorage.PendingOrder',
+			'name': 'pendingOrder',
+			'type': 'tuple',
+		}], 'name': 'PendingOrderStored', 'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
+		'name': 'SetAdminAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': '_address', 'type': 'address' }],
+		'name': 'SetManagerAddress',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': false, 'internalType': 'address', 'name': 'account', 'type': 'address' }],
+		'name': 'Unpaused',
+		'type': 'event',
+	}, {
+		'anonymous': false,
+		'inputs': [{ 'indexed': true, 'internalType': 'address', 'name': 'implementation', 'type': 'address' }],
+		'name': 'Upgraded',
+		'type': 'event',
+	}, {
+		'inputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'user',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }],
+			'internalType': 'struct ITradingStorage.Id',
+			'name': '_orderId',
+			'type': 'tuple',
+		}], 'name': 'closePendingOrder', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'uint256', 'name': '_offset', 'type': 'uint256' }, {
+			'internalType': 'uint256',
+			'name': '_limit',
+			'type': 'uint256',
+		}], 'name': 'getAllPendingOrders', 'outputs': [{
+			'components': [{
+				'components': [{
+					'internalType': 'address',
+					'name': 'user',
+					'type': 'address',
+				}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }, {
+					'internalType': 'uint16',
+					'name': 'pairIndex',
+					'type': 'uint16',
+				}, { 'internalType': 'uint24', 'name': 'leverage', 'type': 'uint24' }, {
+					'internalType': 'bool',
+					'name': 'long',
+					'type': 'bool',
+				}, { 'internalType': 'bool', 'name': 'isOpen', 'type': 'bool' }, {
+					'internalType': 'uint8',
+					'name': 'collateralIndex',
+					'type': 'uint8',
+				}, {
+					'internalType': 'enum ITradingStorage.TradeType',
+					'name': 'tradeType',
+					'type': 'uint8',
+				}, { 'internalType': 'uint120', 'name': 'collateralAmount', 'type': 'uint120' }, {
+					'internalType': 'uint64',
+					'name': 'openPrice',
+					'type': 'uint64',
+				}, { 'internalType': 'uint64', 'name': 'tp', 'type': 'uint64' }, {
+					'internalType': 'uint64',
+					'name': 'sl',
+					'type': 'uint64',
+				}, { 'internalType': 'uint192', 'name': '__placeholder', 'type': 'uint192' }],
+				'internalType': 'struct ITradingStorage.Trade',
+				'name': 'trade',
+				'type': 'tuple',
+			}, { 'internalType': 'address', 'name': 'user', 'type': 'address' }, {
+				'internalType': 'uint32',
+				'name': 'index',
+				'type': 'uint32',
+			}, {
+				'internalType': 'bool',
+				'name': 'isOpen',
+				'type': 'bool',
+			}, {
+				'internalType': 'enum ITradingStorage.PendingOrderType',
+				'name': 'orderType',
+				'type': 'uint8',
+			}, { 'internalType': 'uint32', 'name': 'createdBlock', 'type': 'uint32' }, {
+				'internalType': 'uint16',
+				'name': 'maxSlippageP',
+				'type': 'uint16',
+			}, { 'internalType': 'uint64', 'name': 'price', 'type': 'uint64' }],
+			'internalType': 'struct ITradingStorage.PendingOrder[]',
+			'name': '',
+			'type': 'tuple[]',
+		}], 'stateMutability': 'view', 'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'address[]', 'name': '_traders', 'type': 'address[]' }, {
+			'internalType': 'uint256',
+			'name': '_offset',
+			'type': 'uint256',
+		}, { 'internalType': 'uint256', 'name': '_limit', 'type': 'uint256' }],
+		'name': 'getAllPendingOrdersForTraders',
+		'outputs': [{
+			'components': [{
+				'components': [{
+					'internalType': 'address',
+					'name': 'user',
+					'type': 'address',
+				}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }, {
+					'internalType': 'uint16',
+					'name': 'pairIndex',
+					'type': 'uint16',
+				}, { 'internalType': 'uint24', 'name': 'leverage', 'type': 'uint24' }, {
+					'internalType': 'bool',
+					'name': 'long',
+					'type': 'bool',
+				}, { 'internalType': 'bool', 'name': 'isOpen', 'type': 'bool' }, {
+					'internalType': 'uint8',
+					'name': 'collateralIndex',
+					'type': 'uint8',
+				}, {
+					'internalType': 'enum ITradingStorage.TradeType',
+					'name': 'tradeType',
+					'type': 'uint8',
+				}, { 'internalType': 'uint120', 'name': 'collateralAmount', 'type': 'uint120' }, {
+					'internalType': 'uint64',
+					'name': 'openPrice',
+					'type': 'uint64',
+				}, { 'internalType': 'uint64', 'name': 'tp', 'type': 'uint64' }, {
+					'internalType': 'uint64',
+					'name': 'sl',
+					'type': 'uint64',
+				}, { 'internalType': 'uint192', 'name': '__placeholder', 'type': 'uint192' }],
+				'internalType': 'struct ITradingStorage.Trade',
+				'name': 'trade',
+				'type': 'tuple',
+			}, { 'internalType': 'address', 'name': 'user', 'type': 'address' }, {
+				'internalType': 'uint32',
+				'name': 'index',
+				'type': 'uint32',
+			}, {
+				'internalType': 'bool',
+				'name': 'isOpen',
+				'type': 'bool',
+			}, {
+				'internalType': 'enum ITradingStorage.PendingOrderType',
+				'name': 'orderType',
+				'type': 'uint8',
+			}, { 'internalType': 'uint32', 'name': 'createdBlock', 'type': 'uint32' }, {
+				'internalType': 'uint16',
+				'name': 'maxSlippageP',
+				'type': 'uint16',
+			}, { 'internalType': 'uint64', 'name': 'price', 'type': 'uint64' }],
+			'internalType': 'struct ITradingStorage.PendingOrder[]',
+			'name': '',
+			'type': 'tuple[]',
+		}],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [{
+			'components': [{
+				'internalType': 'address',
+				'name': 'user',
+				'type': 'address',
+			}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }],
+			'internalType': 'struct ITradingStorage.Id',
+			'name': '_orderId',
+			'type': 'tuple',
+		}], 'name': 'getPendingOrder', 'outputs': [{
+			'components': [{
+				'components': [{
+					'internalType': 'address',
+					'name': 'user',
+					'type': 'address',
+				}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }, {
+					'internalType': 'uint16',
+					'name': 'pairIndex',
+					'type': 'uint16',
+				}, { 'internalType': 'uint24', 'name': 'leverage', 'type': 'uint24' }, {
+					'internalType': 'bool',
+					'name': 'long',
+					'type': 'bool',
+				}, { 'internalType': 'bool', 'name': 'isOpen', 'type': 'bool' }, {
+					'internalType': 'uint8',
+					'name': 'collateralIndex',
+					'type': 'uint8',
+				}, {
+					'internalType': 'enum ITradingStorage.TradeType',
+					'name': 'tradeType',
+					'type': 'uint8',
+				}, { 'internalType': 'uint120', 'name': 'collateralAmount', 'type': 'uint120' }, {
+					'internalType': 'uint64',
+					'name': 'openPrice',
+					'type': 'uint64',
+				}, { 'internalType': 'uint64', 'name': 'tp', 'type': 'uint64' }, {
+					'internalType': 'uint64',
+					'name': 'sl',
+					'type': 'uint64',
+				}, { 'internalType': 'uint192', 'name': '__placeholder', 'type': 'uint192' }],
+				'internalType': 'struct ITradingStorage.Trade',
+				'name': 'trade',
+				'type': 'tuple',
+			}, { 'internalType': 'address', 'name': 'user', 'type': 'address' }, {
+				'internalType': 'uint32',
+				'name': 'index',
+				'type': 'uint32',
+			}, {
+				'internalType': 'bool',
+				'name': 'isOpen',
+				'type': 'bool',
+			}, {
+				'internalType': 'enum ITradingStorage.PendingOrderType',
+				'name': 'orderType',
+				'type': 'uint8',
+			}, { 'internalType': 'uint32', 'name': 'createdBlock', 'type': 'uint32' }, {
+				'internalType': 'uint16',
+				'name': 'maxSlippageP',
+				'type': 'uint16',
+			}, { 'internalType': 'uint64', 'name': 'price', 'type': 'uint64' }],
+			'internalType': 'struct ITradingStorage.PendingOrder',
+			'name': '',
+			'type': 'tuple',
+		}], 'stateMutability': 'view', 'type': 'function',
+	}, {
+		'inputs': [{ 'internalType': 'address', 'name': '_user', 'type': 'address' }],
+		'name': 'getPendingOrders',
+		'outputs': [{
+			'components': [{
+				'components': [{
+					'internalType': 'address',
+					'name': 'user',
+					'type': 'address',
+				}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }, {
+					'internalType': 'uint16',
+					'name': 'pairIndex',
+					'type': 'uint16',
+				}, { 'internalType': 'uint24', 'name': 'leverage', 'type': 'uint24' }, {
+					'internalType': 'bool',
+					'name': 'long',
+					'type': 'bool',
+				}, { 'internalType': 'bool', 'name': 'isOpen', 'type': 'bool' }, {
+					'internalType': 'uint8',
+					'name': 'collateralIndex',
+					'type': 'uint8',
+				}, {
+					'internalType': 'enum ITradingStorage.TradeType',
+					'name': 'tradeType',
+					'type': 'uint8',
+				}, { 'internalType': 'uint120', 'name': 'collateralAmount', 'type': 'uint120' }, {
+					'internalType': 'uint64',
+					'name': 'openPrice',
+					'type': 'uint64',
+				}, { 'internalType': 'uint64', 'name': 'tp', 'type': 'uint64' }, {
+					'internalType': 'uint64',
+					'name': 'sl',
+					'type': 'uint64',
+				}, { 'internalType': 'uint192', 'name': '__placeholder', 'type': 'uint192' }],
+				'internalType': 'struct ITradingStorage.Trade',
+				'name': 'trade',
+				'type': 'tuple',
+			}, { 'internalType': 'address', 'name': 'user', 'type': 'address' }, {
+				'internalType': 'uint32',
+				'name': 'index',
+				'type': 'uint32',
+			}, {
+				'internalType': 'bool',
+				'name': 'isOpen',
+				'type': 'bool',
+			}, {
+				'internalType': 'enum ITradingStorage.PendingOrderType',
+				'name': 'orderType',
+				'type': 'uint8',
+			}, { 'internalType': 'uint32', 'name': 'createdBlock', 'type': 'uint32' }, {
+				'internalType': 'uint16',
+				'name': 'maxSlippageP',
+				'type': 'uint16',
+			}, { 'internalType': 'uint64', 'name': 'price', 'type': 'uint64' }],
+			'internalType': 'struct ITradingStorage.PendingOrder[]',
+			'name': '',
+			'type': 'tuple[]',
+		}],
+		'stateMutability': 'view',
+		'type': 'function',
+	}, {
+		'inputs': [{
+			'components': [{
+				'components': [{
+					'internalType': 'address',
+					'name': 'user',
+					'type': 'address',
+				}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }, {
+					'internalType': 'uint16',
+					'name': 'pairIndex',
+					'type': 'uint16',
+				}, { 'internalType': 'uint24', 'name': 'leverage', 'type': 'uint24' }, {
+					'internalType': 'bool',
+					'name': 'long',
+					'type': 'bool',
+				}, { 'internalType': 'bool', 'name': 'isOpen', 'type': 'bool' }, {
+					'internalType': 'uint8',
+					'name': 'collateralIndex',
+					'type': 'uint8',
+				}, {
+					'internalType': 'enum ITradingStorage.TradeType',
+					'name': 'tradeType',
+					'type': 'uint8',
+				}, { 'internalType': 'uint120', 'name': 'collateralAmount', 'type': 'uint120' }, {
+					'internalType': 'uint64',
+					'name': 'openPrice',
+					'type': 'uint64',
+				}, { 'internalType': 'uint64', 'name': 'tp', 'type': 'uint64' }, {
+					'internalType': 'uint64',
+					'name': 'sl',
+					'type': 'uint64',
+				}, { 'internalType': 'uint192', 'name': '__placeholder', 'type': 'uint192' }],
+				'internalType': 'struct ITradingStorage.Trade',
+				'name': 'trade',
+				'type': 'tuple',
+			}, { 'internalType': 'address', 'name': 'user', 'type': 'address' }, {
+				'internalType': 'uint32',
+				'name': 'index',
+				'type': 'uint32',
+			}, {
+				'internalType': 'bool',
+				'name': 'isOpen',
+				'type': 'bool',
+			}, {
+				'internalType': 'enum ITradingStorage.PendingOrderType',
+				'name': 'orderType',
+				'type': 'uint8',
+			}, { 'internalType': 'uint32', 'name': 'createdBlock', 'type': 'uint32' }, {
+				'internalType': 'uint16',
+				'name': 'maxSlippageP',
+				'type': 'uint16',
+			}, { 'internalType': 'uint64', 'name': 'price', 'type': 'uint64' }],
+			'internalType': 'struct ITradingStorage.PendingOrder',
+			'name': '_pendingOrder',
+			'type': 'tuple',
+		}], 'name': 'storePendingOrder', 'outputs': [{
+			'components': [{
+				'components': [{
+					'internalType': 'address',
+					'name': 'user',
+					'type': 'address',
+				}, { 'internalType': 'uint32', 'name': 'index', 'type': 'uint32' }, {
+					'internalType': 'uint16',
+					'name': 'pairIndex',
+					'type': 'uint16',
+				}, { 'internalType': 'uint24', 'name': 'leverage', 'type': 'uint24' }, {
+					'internalType': 'bool',
+					'name': 'long',
+					'type': 'bool',
+				}, { 'internalType': 'bool', 'name': 'isOpen', 'type': 'bool' }, {
+					'internalType': 'uint8',
+					'name': 'collateralIndex',
+					'type': 'uint8',
+				}, {
+					'internalType': 'enum ITradingStorage.TradeType',
+					'name': 'tradeType',
+					'type': 'uint8',
+				}, { 'internalType': 'uint120', 'name': 'collateralAmount', 'type': 'uint120' }, {
+					'internalType': 'uint64',
+					'name': 'openPrice',
+					'type': 'uint64',
+				}, { 'internalType': 'uint64', 'name': 'tp', 'type': 'uint64' }, {
+					'internalType': 'uint64',
+					'name': 'sl',
+					'type': 'uint64',
+				}, { 'internalType': 'uint192', 'name': '__placeholder', 'type': 'uint192' }],
+				'internalType': 'struct ITradingStorage.Trade',
+				'name': 'trade',
+				'type': 'tuple',
+			}, { 'internalType': 'address', 'name': 'user', 'type': 'address' }, {
+				'internalType': 'uint32',
+				'name': 'index',
+				'type': 'uint32',
+			}, {
+				'internalType': 'bool',
+				'name': 'isOpen',
+				'type': 'bool',
+			}, {
+				'internalType': 'enum ITradingStorage.PendingOrderType',
+				'name': 'orderType',
+				'type': 'uint8',
+			}, { 'internalType': 'uint32', 'name': 'createdBlock', 'type': 'uint32' }, {
+				'internalType': 'uint16',
+				'name': 'maxSlippageP',
+				'type': 'uint16',
+			}, { 'internalType': 'uint64', 'name': 'price', 'type': 'uint64' }],
+			'internalType': 'struct ITradingStorage.PendingOrder',
+			'name': '',
+			'type': 'tuple',
+		}], 'stateMutability': 'nonpayable', 'type': 'function',
 	}],
 };
