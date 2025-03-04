@@ -90,10 +90,9 @@ export const convertPairFactors = (pairFactors) => ({
 });
 
 export const convertFee = (fee) => ({
-	openFeeP: parseFloat(fee.openFeeP) / 1e12,
-	closeFeeP: parseFloat(fee.closeFeeP) / 1e12,
-	minPositionSizeUsd: parseFloat(fee.minPositionSizeUsd) / 1e18,
-	triggerOrderFeeP: parseFloat(fee.triggerOrderFeeP) / 1e12,
+	totalPositionSizeFeeP: parseFloat(fee.totalPositionSizeFeeP) / 1e12,
+	totalLiqCollateralFeeP: parseFloat(fee.totalLiqCollateralFeeP) / 1e12,
+	minPositionSizeUsd: parseFloat(fee.minPositionSizeUsd) / 1e3,
 });
 
 export const convertTradeInitialAccFees = (initialAccFees) => ({
