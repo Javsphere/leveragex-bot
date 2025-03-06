@@ -3860,6 +3860,12 @@ export const ABIS = {
 		'stateMutability': 'nonpayable',
 		'type': 'function',
 	}, {
+		'inputs': [{ 'internalType': 'address', 'name': '_trader', 'type': 'address' }],
+		'name': 'storeTrader',
+		'outputs': [],
+		'stateMutability': 'nonpayable',
+		'type': 'function',
+	}, {
 		'inputs': [{ 'internalType': 'uint8', 'name': '_collateralIndex', 'type': 'uint8' }],
 		'name': 'toggleCollateralActiveState',
 		'outputs': [],
@@ -4241,7 +4247,46 @@ export const ABIS = {
 			'internalType': 'uint16',
 			'name': 'pairIndex',
 			'type': 'uint16',
-		}, { 'indexed': false, 'internalType': 'bool', 'name': 'open', 'type': 'bool' }],
+		}, {
+			'indexed': false,
+			'internalType': 'bool',
+			'name': 'open',
+			'type': 'bool',
+		}, {
+			'components': [{ 'internalType': 'address', 'name': 'user', 'type': 'address' }, {
+				'internalType': 'uint32',
+				'name': 'index',
+				'type': 'uint32',
+			}, { 'internalType': 'uint16', 'name': 'pairIndex', 'type': 'uint16' }, {
+				'internalType': 'uint24',
+				'name': 'leverage',
+				'type': 'uint24',
+			}, { 'internalType': 'bool', 'name': 'long', 'type': 'bool' }, {
+				'internalType': 'bool',
+				'name': 'isOpen',
+				'type': 'bool',
+			}, {
+				'internalType': 'uint8',
+				'name': 'collateralIndex',
+				'type': 'uint8',
+			}, {
+				'internalType': 'enum ITradingStorage.TradeType',
+				'name': 'tradeType',
+				'type': 'uint8',
+			}, { 'internalType': 'uint120', 'name': 'collateralAmount', 'type': 'uint120' }, {
+				'internalType': 'uint64',
+				'name': 'openPrice',
+				'type': 'uint64',
+			}, { 'internalType': 'uint64', 'name': 'tp', 'type': 'uint64' }, {
+				'internalType': 'uint64',
+				'name': 'sl',
+				'type': 'uint64',
+			}, { 'internalType': 'uint192', 'name': '__placeholder', 'type': 'uint192' }],
+			'indexed': false,
+			'internalType': 'struct ITradingStorage.Trade',
+			'name': '_trade',
+			'type': 'tuple',
+		}],
 		'name': 'MarketOrderInitiated',
 		'type': 'event',
 	}, {
@@ -4342,10 +4387,10 @@ export const ABIS = {
 		'type': 'function',
 	}, {
 		'inputs': [{ 'internalType': 'uint32', 'name': '_index', 'type': 'uint32' }, {
-			'internalType': 'bytes[][]',
-			'name': '_priceUpdate',
-			'type': 'bytes[][]',
-		}], 'name': 'closeTradeMarket', 'outputs': [], 'stateMutability': 'payable', 'type': 'function',
+			'internalType': 'uint64',
+			'name': '_expectedPrice',
+			'type': 'uint64',
+		}], 'name': 'closeTradeMarket', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function',
 	}, {
 		'inputs': [{
 			'components': [{

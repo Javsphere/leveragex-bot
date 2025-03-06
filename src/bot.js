@@ -52,6 +52,7 @@ import {
 	transferOiWindows,
 	transformFrom1e10,
 	transformOi,
+	transformRawPendingTrades,
 	transformRawTrade,
 	transformRawTrades,
 	updateWindowsCount,
@@ -203,6 +204,7 @@ const app = {
 		latestL2Block: 0,
 	},
 	// storage/tracking
+	knownPendingTrades: null,
 	knownOpenTrades: null,
 	triggeredOrders: new Map(),
 	triggerRetries: new Map(),
@@ -600,7 +602,7 @@ async function fetchTradingVariables() {
 				totalPositionSizeFeeP: totalPositionSizeFeeP,
 				totalLiqCollateralFeeP: totalLiqCollateralFeeP,
 				minPositionSizeUsd: minPositionSizeUsd,
-		}));
+			}));
 
 		app.pairFactors = pairFactors.map((pairFactor) => convertPairFactors(pairFactor));
 
@@ -730,7 +732,7 @@ async function fetchOpenTrades() {
 
 		const start = performance.now();
 
-		const { allTrades: trades } = await Promise.race([
+		const { allTrades: trades, pendingTrades } = await Promise.race([
 			fetchOpenPairTrades(),
 			new Promise((_, reject) => {
 				setTimeout(() => reject(new Error('Timed out fetching open trades!')), OPEN_TRADES_REFRESH_MS);
@@ -738,10 +740,15 @@ async function fetchOpenTrades() {
 		]);
 
 		app.knownOpenTrades = new Map(trades.map((trade) => [buildTradeIdentifier(trade.user, trade.index), trade]));
+		app.knownPendingTrades = new Map(pendingTrades.map((trade) => [buildTradeIdentifier(trade.user, trade.index), trade]));
 
-		appLogger.info(`Fetched ${app.knownOpenTrades.size} total open trade(s) in ${performance.now() - start}ms.`);
+		appLogger.info(`Fetched ${app.knownOpenTrades.size} total open trade(s) and ${app.knownPendingTrades.size} total pending trade(s) in ${performance.now() - start}ms.`);
 
 		executionStats.refresh.openTrades = Date.now();
+
+		if (pendingTrades.length > 0) {
+			processTradesWithDelay(pendingTrades);
+		}
 
 		// Check if we're supposed to auto-refresh open trades and if so, schedule the next refresh
 		if (OPEN_TRADES_REFRESH_MS !== 0) {
@@ -777,21 +784,36 @@ async function fetchOpenTrades() {
 		const ethersProvider = new ethers.providers.WebSocketProvider(app.currentlySelectedWeb3Client.currentProvider.connection._url);
 		const ethersMultiCollat = getEthersContract(app.contracts.diamond, ethersProvider);
 
-		const openPairTradesRaw = await fetchOpenPairTradesRaw(
-			{
-				gnsMultiCollatDiamond: ethersMultiCollat,
-			},
-			{
-				useMulticall: USE_MULTICALL,
-				pairBatchSize: 10,
-			},
-			ethersProvider,
-		);
+		const [openPairTradesRaw, pendingPairTradesRaw] = await Promise.all([
+			fetchOpenPairTradesRaw(
+				{
+					gnsMultiCollatDiamond: ethersMultiCollat,
+				},
+				{
+					useMulticall: USE_MULTICALL,
+					pairBatchSize: 10,
+				},
+				ethersProvider,
+			),
+			fetchPendingPairTradesRaw(
+				{
+					gnsMultiCollatDiamond: ethersMultiCollat,
+				},
+				{
+					useMulticall: USE_MULTICALL,
+					pairBatchSize: 10,
+				},
+				ethersProvider,
+			),
+		]);
+
 		const allTrades = transformRawTrades(openPairTradesRaw);
+		const pendingTrades = transformRawPendingTrades(pendingPairTradesRaw);
 
-		appLogger.info(`Fetched ${allTrades.length} new open pair trade(s).`);
 
-		return { allTrades };
+		appLogger.info(`Fetched ${allTrades.length} new open and pending ${pendingTrades.length} pair trade(s).`);
+
+		return { allTrades, pendingTrades };
 	}
 }
 
@@ -898,6 +920,98 @@ export async function fetchOpenPairTradesRaw(
 	}
 }
 
+export async function fetchPendingPairTradesRaw(
+	contracts,
+	overrides,
+	provider,
+) {
+	if (!contracts) {
+		return [];
+	}
+	const empty = '0x0000000000000000000000000000000000000000';
+
+	const {
+		batchSize = 10,
+		includeLimits = true,
+		useMulticall = false,
+	} = overrides;
+
+	const { gnsMultiCollatDiamond: multiCollatDiamondContract } = contracts;
+
+	try {
+		const multicallCtx = {
+			provider: provider,
+			diamond: new Contract(multiCollatDiamondContract.address, [
+				...multiCollatDiamondContract.interface.fragments,
+			]),
+		};
+
+		if (useMulticall) {
+			await multicallCtx.provider.init(multiCollatDiamondContract.provider);
+		}
+
+		let allPendingPairTrades = [];
+		let running = true;
+		let offset = 0;
+
+		while (running) {
+			const trades = await multiCollatDiamondContract.getAllPendingOrders(
+				offset,
+				offset + batchSize,
+			);
+			// Array is immer von Länge `batchSize`,
+			// also müssen wir die leeren Trades herausfiltern, die Indizes sind zuverlässig
+			const openTrades = trades
+				.filter(
+					(t) =>
+						t.user !== empty && includeLimits || (!includeLimits && t.tradeType === 0),
+				)
+				.map(
+					(trade, ix) => ({
+						trade,
+						initialAccFees: {
+							accPairFee: 0,
+							accGroupFee: 0,
+							block: 0,
+							__placeholder: 0,
+						},
+					}),
+				);
+
+			const initialAccFeesPromises = openTrades
+				.map(({ trade }) => ({
+					collateralIndex: trade.trade.collateralIndex,
+					user: trade.user,
+					index: trade.index,
+				}))
+				.map(({ collateralIndex, user, index }) =>
+					(useMulticall
+							? multicallCtx.diamond
+							: multiCollatDiamondContract
+					).getBorrowingInitialAccFees(collateralIndex, user, index),
+				);
+
+			const initialAccFees =
+				await (useMulticall
+					? multicallCtx.provider.all(initialAccFeesPromises)
+					: Promise.all(initialAccFeesPromises));
+
+			initialAccFees.forEach((accFees, ix) => {
+				openTrades[ix].initialAccFees = accFees;
+			});
+
+			allPendingPairTrades = allPendingPairTrades.concat(openTrades);
+			offset += batchSize + 1;
+			running = (trades[trades.length - 1]).user !== empty;
+		}
+
+		return allPendingPairTrades;
+	} catch (error) {
+		appLogger.error(`Unexpected error while fetching pending pair trades!`);
+		throw error;
+	}
+}
+
 // -----------------------------------------
 // WATCH TRADING EVENTS
 // -----------------------------------------
@@ -948,6 +1062,9 @@ function watchLiveTradingEvents() {
 					'PendingOrderClosed',
 					'TradePositionUpdated',
 					'TradeMaxClosingSlippagePUpdated',
+					'MarketOpenCanceled',
+					'MarketCloseCanceled',
+					'MarketOrderInitiated',
 				].indexOf(event.event) > -1
 			) {
 				//
@@ -1297,6 +1414,53 @@ async function synchronizeOpenTrades(event) {
 			await slackWebhook('⚠️ ' + webhookText + ' txId ' + event.transactionHash);
 
 			return;
+
+		} else if (eventName === 'MarketOpenCanceled' || eventName === 'MarketCloseCanceled') {
+			const { cancelReason } = eventReturnValues;
+			const { user, index } = eventReturnValues.orderId;
+
+			const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(user, index, eventName === 'MarketOpenCanceled' ? PENDING_ORDER_TYPE.MARKET_OPEN : PENDING_ORDER_TYPE.MARKET_CLOSE);
+
+			if (app.triggeredOrders.has(triggeredOrderTrackingInfoIdentifier)) {
+				app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
+				appLogger.warn(`Synchronize trigger tracking from event ${eventName}: Order canceled ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}:${getCancelReasonByIndex(cancelReason)} Tx ${event.transactionHash}`);
+			} else {
+				appLogger.error(`Synchronize trigger tracking from event ${eventName}: Trigger not found for ${triggeredOrderTrackingInfoIdentifier}! Tx ${event.transactionHash}`,
+				);
+			}
+			const webhookText = `Trade TRIGGER CANCELED with id ${triggeredOrderTrackingInfoIdentifier} with reason ${cancelReason}:${getCancelReasonByIndex(cancelReason)}`;
+
+			await slackWebhook('⚠️ ' + webhookText + ' txId ' + event.transactionHash);
+
+			return;
+		} else if (eventName === 'MarketOrderInitiated') {
+
+			const { leverage, long, collateralIndex, pairIndex } = eventReturnValues._trade;
+			const { index } = eventReturnValues.orderId;
+			const { open, trader } = eventReturnValues;
+			const orderType = open ? PENDING_ORDER_TYPE.MARKET_OPEN : PENDING_ORDER_TYPE.MARKET_CLOSE;
+			const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(trader, index, orderType);
+
+			const trade = {
+				leverage,
+				long,
+				user: trader,
+				collateralIndex,
+				pairIndex,
+				index,
+			};
+
+			try {
+				await triggerMarketOrders(
+					triggeredOrderTrackingInfoIdentifier,
+					trade,
+					orderType,
+				);
+				appLogger.info(`✅ Processed market order ${triggeredOrderTrackingInfoIdentifier}`);
+			} catch (error) {
+				appLogger.error(`❌ Error processing trade ${triggeredOrderTrackingInfoIdentifier}:`, error);
+			}
+			return;
 		}
 
 		executionStats = {
@@ -1337,7 +1501,7 @@ async function handleBorrowingFeesEvent(event) {
 				pairBorrowingFees.accFeeShort = parseFloat(accFeeShort) / 1e10;
 				pairBorrowingFees.accLastUpdatedBlock = parseInt(event.blockNumber);
 				appLogger.info(
-					`${event.event}: Updated borrowingFees.pair[${pairIndex},${collateralIndex}] with accFeeLong:${pairBorrowingFees.accFeeLong}, accFeeShort:${pairBorrowingFees.accFeeShort}, accLastUpdatedBlock:${pairBorrowingFees.accLastUpdatedBlock}`
+					`${event.event}: Updated borrowingFees.pair[${pairIndex},${collateralIndex}] with accFeeLong:${pairBorrowingFees.accFeeLong}, accFeeShort:${pairBorrowingFees.accFeeShort}, accLastUpdatedBlock:${pairBorrowingFees.accLastUpdatedBlock}`,
 				);
 			}
 		} else if (event.event === 'BorrowingGroupAccFeesUpdated') {
@@ -1350,7 +1514,7 @@ async function handleBorrowingFeesEvent(event) {
 				groupBorrowingFees.accFeeShort = parseFloat(accFeeShort) / 1e10;
 				groupBorrowingFees.accLastUpdatedBlock = parseInt(event.blockNumber);
 				appLogger.info(
-					`${event.event}: Updated borrowingFees.group[${groupIndex},${collateralIndex}] with accFeeLong:${groupBorrowingFees.accFeeLong}, accFeeShort:${groupBorrowingFees.accFeeShort}, accLastUpdatedBlock:${groupBorrowingFees.accLastUpdatedBlock}`
+					`${event.event}: Updated borrowingFees.group[${groupIndex},${collateralIndex}] with accFeeLong:${groupBorrowingFees.accFeeLong}, accFeeShort:${groupBorrowingFees.accFeeShort}, accLastUpdatedBlock:${groupBorrowingFees.accLastUpdatedBlock}`,
 				);
 			}
 		} else if (event.event === 'BorrowingGroupUpdated') {
@@ -1769,7 +1933,7 @@ function watchPricingStream() {
 						try {
 							// before we execute limit or liquidation we get the actual prices from oracle
 							// and give them in the trigger order function so directly before trigger price is live
-							const actualPrice = await getActualPrice(openTrade.pairIndex, openTrade.collateralIndex, messageData);
+							const actualPrice = await getActualPrice(openTrade.pairIndex, openTrade.collateralIndex);
 							const orderTransaction = createTransaction(
 								{
 									to: app.contracts.diamond.options.address,
@@ -1920,19 +2084,16 @@ function watchPricingStream() {
 		}
 	};
 
-	async function getActualPrice(priceId, colId, messageData) {
+	async function getActualPrice(priceId, colId) {
 
 		try {
-			const assetName = messageData.asset;
 			const priceIdLocal = priceId;
 			const colIdLocal = colId;
-
-			appLogger.info(`Reading from Pyth price feed for asset ${assetName} ...`);
 
 			const [priceUpdatesPyth] = await Promise.all([
 				fetchPythPrices([app.pairs[priceIdLocal].feedId, app.collaterals[colIdLocal].collateralFeed, NETWORK.rewardTokenId]),
 			]);
-			appLogger.info(`Prices get for pair ${assetName}:${priceIdLocal} with value ${+priceUpdatesPyth.parsed[0].price.price * 10 ** priceUpdatesPyth.parsed[0].price.expo}`);
+			appLogger.info(`Prices get for pair ${app.pairs[priceIdLocal].from + '/' + app.pairs[priceIdLocal].to}:${priceIdLocal} with value ${+priceUpdatesPyth.parsed[0].price.price * 10 ** priceUpdatesPyth.parsed[0].price.expo}`);
 			return [['0x' + priceUpdatesPyth.binary.data[0]], []];
 
 		} catch (err) {
@@ -2026,3 +2187,178 @@ function getTransactionGasFees(network, isPriority = false) {
 
 	throw new Error(`Unsupported gas mode: ${NETWORK?.gasMode}`);
 }
+
+async function processTradesWithDelay(trades) {
+	for (let i = 0; i < trades.length; i++) {
+		const trade = trades[i];
+
+		const identifier = buildTriggerIdentifier(trade.user, trade.index, trade.orderType);
+
+		try {
+			await triggerMarketOrders(
+				identifier,
+				trade,
+				trade.orderType,
+			);
+			appLogger.info(`✅ Processed market order ${trade.identifier}`);
+		} catch (error) {
+			appLogger.error(`❌ Error processing trade ${trade.identifier}:`, error);
+		}
+
+		// Wait for 500ms before processing the next trade
+		if (i < trades.length - 1) {
+			await new Promise((resolve) => setTimeout(resolve, 500));
+		}
+	}
+}
+
+async function getActualPriceMarket(priceId, colId) {
+
+	try {
+		const priceIdLocal = priceId;
+		const colIdLocal = colId;
+
+		const [priceUpdatesPyth] = await Promise.all([
+			fetchPythPrices([app.pairs[priceIdLocal].feedId, app.collaterals[colIdLocal].collateralFeed, NETWORK.rewardTokenId]),
+		]);
+		appLogger.info(`Prices get for pair ${app.pairs[priceIdLocal].from + '/' + app.pairs[priceIdLocal].to}:${priceIdLocal} with value ${+priceUpdatesPyth.parsed[0].price.price * 10 ** priceUpdatesPyth.parsed[0].price.expo}`);
+		return [['0x' + priceUpdatesPyth.binary.data[0]], []];
+
+	} catch (err) {
+		appLogger.error(`error ${err?.message} in getActualPriceMarket`);
+
+	}
+}
+
+async function triggerMarketOrders(triggeredOrderTrackingInfoIdentifier, trade, orderType) {
+	const triggeredOrderDetails = {
+		cleanupTimerId: null,
+		transactionSent: false,
+		error: null,
+	};
+
+	appLogger.info(`🤞 Trying to trigger ${triggeredOrderTrackingInfoIdentifier}: ${getPendingOrderTypeByValue(orderType)} collateral ${app.collaterals[trade.collateralIndex].symbol} pair ${app.pairs[trade.pairIndex].from}/${app.pairs[trade.pairIndex].to} ${trade.leverage / 1e3}x ${trade.long ? 'long' : 'short'} ...`);
+
+
+	try {
+		// before we execute limit or liquidation we get the actual prices from oracle
+		// and give them in the trigger order function so directly before trigger price is live
+		const actualPrice = await getActualPriceMarket(trade.pairIndex, trade.collateralIndex);
+		const orderTransaction = createTransaction(
+			{
+				to: app.contracts.diamond.options.address,
+				data: app.contracts.diamond.methods.triggerOrder(packTrigger(orderType, trade.user, trade.index), actualPrice).encodeABI(),
+			},
+			true,
+		);
+
+		// NOTE: technically this should execute synchronously because we're supplying all necessary details on
+		// the transaction object up front
+		const signedTransaction = await app.currentlySelectedWeb3Client.eth.accounts.signTransaction(
+			orderTransaction,
+			process.env.PRIVATE_KEY,
+		);
+		let tx;
+		if (DRY_RUN_MODE === false) {
+			tx = await app.currentlySelectedWeb3Client.eth.sendSignedTransaction(signedTransaction.rawTransaction);
+		} else {
+			appLogger.info(
+				`DRY RUN MODE ACTIVE: skipping actually sending transaction for order: ${triggeredOrderTrackingInfoIdentifier}`,
+				orderTransaction,
+			);
+		}
+
+		triggeredOrderDetails.transactionSent = true;
+
+		// If we successfully send the transaction, we set up a timer to make sure we've heard about its
+		// eventual completion and, if not, we clean up tracking and log that we didn't hear back
+		triggeredOrderDetails.cleanupTimerId = setTimeout(() => {
+			if (app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier)) {
+				appLogger.warn(
+					`❕ Never heard back from the blockchain about triggered order ${triggeredOrderTrackingInfoIdentifier}; removed from tracking.`,
+				);
+
+				executionStats = {
+					...executionStats,
+					missedTriggers: (executionStats.missedTriggers ?? 0) + 1,
+				};
+			}
+		}, FAILED_ORDER_TRIGGER_TIMEOUT_MS);
+
+		appLogger.info(`⚡️ Triggered order for ${triggeredOrderTrackingInfoIdentifier} with tx ${tx.transactionHash}.`);
+	} catch (error) {
+		const executionStatsTriggerErrors = executionStats.triggerErrors ?? {};
+		const errorReason = error.reason ?? 'UNKNOWN_TRANSACTION_ERROR';
+
+		executionStatsTriggerErrors[errorReason] = (executionStatsTriggerErrors[errorReason] ?? 0) + 1;
+
+		executionStats = {
+			...executionStats,
+			triggerErrors: executionStatsTriggerErrors,
+		};
+
+		switch (errorReason) {
+			case 'PendingTrigger()':
+				// The trade has been triggered by others, delay removing it and maybe we'll have a
+				// chance to try again if original trigger fails
+				appLogger.warn(
+					`Order ${triggeredOrderTrackingInfoIdentifier} was already triggered; will remove from triggered tracking shortly and it may be tried again if original trigger didn't hit!`,
+				);
+
+				// Wait a bit and then clean from triggered orders list so it might get tried again
+				triggeredOrderDetails.cleanupTimerId = setTimeout(() => {
+					if (!app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier)) {
+						appLogger.debug(
+							`Tried to clean up triggered order ${triggeredOrderTrackingInfoIdentifier} which previously failed due to "${errorReason}", but it was already removed.`,
+						);
+					}
+				}, FAILED_ORDER_TRIGGER_TIMEOUT_MS / 2);
+
+				break;
+
+			case 'NoTrade()':
+				appLogger.warn(
+					`❌ Order ${triggeredOrderTrackingInfoIdentifier} missed due to "${errorReason}" error; removing order from known trades and triggered tracking.`,
+				);
+
+				// The trade is gone, just remove it from known trades
+				app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
+				currentKnownPendingTrades.delete(openTradeKey);
+
+				break;
+			default:
+				const errorMessage = error.message?.toLowerCase();
+
+				if (
+					errorMessage !== undefined &&
+					(errorMessage.includes('nonce too low') ||
+						errorMessage.includes('nonce too high') ||
+						errorMessage.includes('replacement transaction underpriced'))
+				) {
+					appLogger.error(
+						`⁉️ Some how we ended up with a nonce that was too low; forcing a refresh now and the trade may be tried again if still available.`,
+					);
+
+					await nonceManager.refreshNonceFromOnChainTransactionCount();
+					app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier);
+
+					appLogger.info('Nonce refreshed and tracking of triggered order cleared so it can possibly be retried.');
+				} else {
+					appLogger.error(
+						`🔥 Order ${triggeredOrderTrackingInfoIdentifier} transaction failed for unexpected reason "${errorReason}"; removing order from tracking.`,
+						{ error },
+					);
+
+					// Wait a bit and then clean from triggered orders list so it might get tried again
+					triggeredOrderDetails.cleanupTimerId = setTimeout(() => {
+						if (!app.triggeredOrders.delete(triggeredOrderTrackingInfoIdentifier)) {
+							appLogger.debug(
+								`Tried to clean up triggered order ${triggeredOrderTrackingInfoIdentifier} which previously failed, but it was already removed?`,
+							);
+						}
+					}, FAILED_ORDER_TRIGGER_TIMEOUT_MS);
+				}
+		}
+	}
+}
+

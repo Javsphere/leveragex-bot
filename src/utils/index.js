@@ -41,6 +41,26 @@ export const transformRawTrade = ({ trade, tradeInfo, initialAccFees, liquidatio
 		endLeverage: liquidationParams.endLeverage + '',
 	},
 });
+
+export const transformRawPendingTrades = (rawTrades) => rawTrades?.map((t) => transformPndingRawTrade(t));
+
+export const transformPndingRawTrade = ({ trade }) => ({
+	user: trade.user,
+	index: trade.index + '',
+	open: trade.isOpen + '' === 'true',
+	orderType: trade.orderType,
+	pairIndex: trade.trade.pairIndex + '',
+	leverage: trade.trade.leverage + '',
+	long: trade.trade.long + '' === 'true',
+	isOpen: trade.trade.isOpen + '' === 'true',
+	collateralIndex: trade.trade.collateralIndex + '',
+	tradeType: trade.trade.tradeType,
+	collateralAmount: trade.trade.collateralAmount + '',
+	openPrice: trade.trade.openPrice + '',
+	tp: trade.trade.tp + '',
+	sl: trade.trade.sl + '',
+});
+
 export const transformOi = ({ long, short, max }) => ({
   long: parseFloat(long) / 1e10,
   short: parseFloat(short) / 1e10,
