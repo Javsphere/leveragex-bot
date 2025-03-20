@@ -1359,11 +1359,11 @@ async function synchronizeOpenTrades(event) {
 				const colPrice = app.collaterals[existingKnownOpenTrade.collateralIndex].price;
 				const colSymbol = app.collaterals[existingKnownOpenTrade.collateralIndex].symbol;
 
-				webhookText = `ℹ️ Trade TradePositionUpdated with id ${tradeKey}
-				- OLD values - with open price ${existingKnownOpenTrade.openPrice / 1e10} leverage ${existingKnownOpenTrade.leverage / 1e3}x
-				${existingKnownOpenTrade.collateralAmount / colPrecision} ${colSymbol}: ${round2(existingKnownOpenTrade.collateralAmount / colPrecision * colPrice / 1e8)}$
-				- NEW values - with open price ${eventReturnValues.openPrice / 1e10} leverage ${eventReturnValues.leverage / 1e3}x
-				${eventReturnValues.collateralAmount / colPrecision} ${colSymbol}: ${round2(eventReturnValues.collateralAmount / colPrecision * colPrice / 1e8)}$`;
+				webhookText = `ℹ️ Trade TradePositionUpdated  with id ${tradeKey}
+				- OLD values - with open price ${existingKnownOpenTrade.openPrice / 1e10} leverage ${existingKnownOpenTrade.leverage / 1e3}x tp ${existingKnownOpenTrade.tp} / sl ${existingKnownOpenTrade.sl}
+				${existingKnownOpenTrade.collateralAmount / colPrecision} ${colSymbol}: ${round2(existingKnownOpenTrade.collateralAmount / colPrecision * colPrice)}$
+				- NEW values - with open price ${eventReturnValues.openPrice / 1e10} leverage ${eventReturnValues.leverage / 1e3}x tp ${eventReturnValues.newTp.toString()} / sl ${eventReturnValues.newSl.toString()}
+				${eventReturnValues.collateralAmount / colPrecision} ${colSymbol}: ${round2(eventReturnValues.collateralAmount / colPrecision * colPrice)}$`;
 
 				// Update trade values
 				existingKnownOpenTrade.collateralAmount = eventReturnValues.collateralAmount.toString();
@@ -2204,10 +2204,11 @@ async function processTradesWithDelay(trades) {
 		} catch (error) {
 			appLogger.error(`❌ Error processing trade ${trade.identifier}:`, error);
 		}
+		await nonceManager.refreshNonceFromOnChainTransactionCount();
 
-		// Wait for 500ms before processing the next trade
+		// Wait for 1000ms before processing the next trade
 		if (i < trades.length - 1) {
-			await new Promise((resolve) => setTimeout(resolve, 500));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 		}
 	}
 }
@@ -2286,6 +2287,7 @@ async function triggerMarketOrders(triggeredOrderTrackingInfoIdentifier, trade, 
 		}, FAILED_ORDER_TRIGGER_TIMEOUT_MS);
 
 		appLogger.info(`⚡️ Triggered order for ${triggeredOrderTrackingInfoIdentifier} with tx ${tx.transactionHash}.`);
+		await nonceManager.refreshNonceFromOnChainTransactionCount();
 	} catch (error) {
 		const executionStatsTriggerErrors = executionStats.triggerErrors ?? {};
 		const errorReason = error.reason ?? 'UNKNOWN_TRANSACTION_ERROR';
