@@ -1359,9 +1359,11 @@ async function synchronizeOpenTrades(event) {
 				const colSymbol = app.collaterals[existingKnownOpenTrade.collateralIndex].symbol;
 
 				webhookText = `ℹ️ Trade TradePositionUpdated  with id ${tradeKey}
-				- OLD values - with open price ${existingKnownOpenTrade.openPrice / 1e10} leverage ${existingKnownOpenTrade.leverage / 1e3}x tp ${existingKnownOpenTrade.tp} / sl ${existingKnownOpenTrade.sl}
+
+				- OLD values - with open price ${existingKnownOpenTrade.openPrice / 1e10} leverage ${existingKnownOpenTrade.leverage / 1e3}x tp ${existingKnownOpenTrade.tp / 1e10} / sl ${existingKnownOpenTrade.sl / 1e10}
 				${existingKnownOpenTrade.collateralAmount / colPrecision} ${colSymbol}: ${round2(existingKnownOpenTrade.collateralAmount / colPrecision * colPrice)}$
-				- NEW values - with open price ${eventReturnValues.openPrice / 1e10} leverage ${eventReturnValues.leverage / 1e3}x tp ${eventReturnValues.newTp.toString()} / sl ${eventReturnValues.newSl.toString()}
+
+				- NEW values - with open price ${eventReturnValues.openPrice / 1e10} leverage ${eventReturnValues.leverage / 1e3}x tp ${eventReturnValues.newTp / 1e10} / sl ${eventReturnValues.newSl / 1e10}
 				${eventReturnValues.collateralAmount / colPrecision} ${colSymbol}: ${round2(eventReturnValues.collateralAmount / colPrecision * colPrice)}$`;
 
 				// Update trade values
