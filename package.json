@@ -1,6 +1,6 @@
 {
 	"name": "leveragex-bot",
-	"version": "5.1.1",
+	"version": "5.0.0",
 	"description": "LeverageX Bot for Liquidations and Limit Orders",
 	"main": "bot.js",
 	"type": "module",
@@ -13,20 +13,21 @@
 	"license": "ISC",
 	"dependencies": {
 		"@datalust/winston-seq": "^2.0.0",
-		"@gainsnetwork/sdk": "0.2.46",
+		"@gainsnetwork/sdk": "0.2.61-rc2",
 		"@sentry/node": "^8.39.0",
 		"@sentry/profiling-node": "^8.55.0",
 		"axios": "^1.7.9",
-		"dotenv": "^16.4.5",
+		"dotenv": "^16.4.7",
 		"ethcall": "^4.8.13",
 		"ethers": "^5.7.2",
-		"luxon": "^3.5.0",
+		"luxon": "^3.6.1",
 		"node-fetch": "^3.3.2",
 		"web3": "^1.10.4",
 		"winston": "^3.17.0",
-		"ws": "^8.18.0"
+		"ws": "^8.18.1"
 	},
 	"devDependencies": {
+		"@types/luxon": "^3.6.2",
 		"cross-env": "^7.0.3"
 	}
 }

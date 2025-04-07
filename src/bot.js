@@ -12,7 +12,6 @@ import {
 	getSpreadWithPriceImpactP,
 	isCommoditiesOpen,
 	isForexOpen,
-	isStocksOpen,
 	withinMaxGroupOi,
 } from '@gainsnetwork/sdk';
 import Web3 from 'web3';
@@ -52,7 +51,6 @@ import {
 	transferOiWindows,
 	transformFrom1e10,
 	transformOi,
-	transformRawPendingTrades,
 	transformRawTrade,
 	transformRawTrades,
 	updateWindowsCount,
@@ -66,6 +64,7 @@ import { parseEther } from 'ethers/lib/utils.js';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import packageFile from '../package.json' with { type: 'json' };
+import { isStocksOpen } from './utils/stocks.js';
 
 const { toHex, BN } = Web3.utils;
 const abiCoder = new ethers.utils.AbiCoder();
@@ -795,7 +794,7 @@ async function fetchOpenTrades() {
 				},
 				ethersProvider,
 			),
-			fetchPendingPairTradesRaw(
+			/*fetchPendingPairTradesRaw(
 				{
 					gnsMultiCollatDiamond: ethersMultiCollat,
 				},
@@ -804,12 +803,12 @@ async function fetchOpenTrades() {
 					pairBatchSize: 10,
 				},
 				ethersProvider,
-			),
+			),*/
 		]);
 
 		const allTrades = transformRawTrades(openPairTradesRaw);
-		const pendingTrades = transformRawPendingTrades(pendingPairTradesRaw);
-
+		//const pendingTrades = transformRawPendingTrades(pendingPairTradesRaw);
+		const pendingTrades = [];
 
 		appLogger.info(`Fetched ${allTrades.length} new open and pending ${pendingTrades.length} pair trade(s).`);
 
@@ -1433,34 +1432,34 @@ async function synchronizeOpenTrades(event) {
 			await slackWebhook('⚠️ ' + webhookText + ' txId ' + event.transactionHash);
 
 			return;
-		} else if (eventName === 'MarketOrderInitiated') {
+			/*} else if (eventName === 'MarketOrderInitiated') {
 
-			const { leverage, long, collateralIndex, pairIndex } = eventReturnValues._trade;
-			const { index } = eventReturnValues.orderId;
-			const { open, trader } = eventReturnValues;
-			const orderType = open ? PENDING_ORDER_TYPE.MARKET_OPEN : PENDING_ORDER_TYPE.MARKET_CLOSE;
-			const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(trader, index, orderType);
+				const { leverage, long, collateralIndex, pairIndex } = eventReturnValues._trade;
+				const { index } = eventReturnValues.orderId;
+				const { open, trader } = eventReturnValues;
+				const orderType = open ? PENDING_ORDER_TYPE.MARKET_OPEN : PENDING_ORDER_TYPE.MARKET_CLOSE;
+				const triggeredOrderTrackingInfoIdentifier = buildTriggerIdentifier(trader, index, orderType);
 
-			const trade = {
-				leverage,
-				long,
-				user: trader,
-				collateralIndex,
-				pairIndex,
-				index,
-			};
+				const trade = {
+					leverage,
+					long,
+					user: trader,
+					collateralIndex,
+					pairIndex,
+					index,
+				};
 
-			try {
-				await triggerMarketOrders(
-					triggeredOrderTrackingInfoIdentifier,
-					trade,
-					orderType,
-				);
-				appLogger.info(`✅ Processed market order ${triggeredOrderTrackingInfoIdentifier}`);
-			} catch (error) {
-				appLogger.error(`❌ Error processing trade ${triggeredOrderTrackingInfoIdentifier}:`, error);
-			}
-			return;
+				try {
+					await triggerMarketOrders(
+						triggeredOrderTrackingInfoIdentifier,
+						trade,
+						orderType,
+					);
+					appLogger.info(`✅ Processed market order ${triggeredOrderTrackingInfoIdentifier}`);
+				} catch (error) {
+					appLogger.error(`❌ Error processing trade ${triggeredOrderTrackingInfoIdentifier}:`, error);
+				}
+				return;*/
 		}
 
 		executionStats = {
