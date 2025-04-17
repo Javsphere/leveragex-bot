@@ -21,6 +21,7 @@ export const COLLATERAL = {
 	WETH: 'WETH',
 	cbBTC: 'cbBTC',
 	USDC: 'USDC',
+	JAV: 'JAV',
 };
 
 export const COLLATERAL_CONFIG = {
@@ -84,6 +85,11 @@ export const COLLATERAL_CONFIG = {
 		precision: 1e6,
 		precisionDelta: 1,
 	},
+	[COLLATERAL.JAV]: {
+		decimals: 18,
+		precision: 1e18,
+		precisionDelta: 1,
+	},
 };
 
 export const NETWORKS = {
@@ -93,7 +99,7 @@ export const NETWORKS = {
 		gasMode: GAS_MODE.EIP1559,
     gasStationUrl: undefined,
 		diamondAddress: '0xDED8c59c45D8e0f45D8C32f6F6E0A4a2d582e59d',
-		maxPnl: 900,
+		maxPnl: 400,
     collaterals: [
       {
 				symbol: COLLATERAL.tWETH,
@@ -109,6 +115,11 @@ export const NETWORKS = {
         symbol: COLLATERAL.tUSDC,
 				collateralIndex: 2,
 				collateralFeed: '0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a',
+			},
+			{
+				symbol: COLLATERAL.JAV,
+				collateralIndex: 3,
+				collateralFeed: '0x2c14b4d35d0e7061b86be6dd7d168ca1f919c069f54493ed09a91adabea60ce6',
 			},
     ],
 		rewardTokenId: '0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
