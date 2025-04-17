@@ -2091,6 +2091,15 @@ function watchPricingStream() {
 			const priceIdLocal = priceId;
 			const colIdLocal = colId;
 
+			if (colIdLocal === 3) {
+				const [priceUpdatesPyth, javSigned] = await Promise.all([
+					fetchPythPrices([app.pairs[priceIdLocal].feedId, NETWORK.rewardTokenId]),
+					fetchSignedPrice(app.collaterals[colIdLocal].collateralFeed.substring(2)),
+				]);
+				appLogger.info(`Prices get for pair ${app.pairs[priceIdLocal].from + '/' + app.pairs[priceIdLocal].to}:${priceIdLocal} with value ${+priceUpdatesPyth.parsed[0].price.price * 10 ** priceUpdatesPyth.parsed[0].price.expo}`);
+				return [['0x' + priceUpdatesPyth.binary.data[0]], [javSigned.signedPrice[0]]];
+			}
+
 			const [priceUpdatesPyth] = await Promise.all([
 				fetchPythPrices([app.pairs[priceIdLocal].feedId, app.collaterals[colIdLocal].collateralFeed, NETWORK.rewardTokenId]),
 			]);
