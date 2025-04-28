@@ -499,14 +499,18 @@ async function startFetchingLatestGasPrices() {
 			}
 		} else {
 			if (NETWORK.gasMode === GAS_MODE.EIP1559) {
-				app.gas.standardTransactionGasFees = {
-					maxFee: Number(await app.currentlySelectedWeb3Client.eth.getGasPrice()) / 1e9,
-					maxPriorityFee: Number(await app.currentlySelectedWeb3Client.eth.getMaxPriorityFeePerGas()) / 1e9,
-				};
-				app.gas.priorityTransactionMaxPriorityFeePerGas = Math.max(
-					app.gas.standardTransactionGasFees.maxPriorityFee * PRIORITY_GWEI_MULTIPLIER,
-					MIN_PRIORITY_GWEI,
-				);
+				try {
+					app.gas.standardTransactionGasFees = {
+						maxFee: Number(await app.currentlySelectedWeb3Client.eth.getGasPrice()) / 1e9,
+						maxPriorityFee: Number(await app.currentlySelectedWeb3Client.eth.getMaxPriorityFeePerGas()) / 1e9,
+					};
+					app.gas.priorityTransactionMaxPriorityFeePerGas = Math.max(
+						app.gas.standardTransactionGasFees.maxPriorityFee * PRIORITY_GWEI_MULTIPLIER,
+						MIN_PRIORITY_GWEI,
+					);
+				} catch (error) {
+					appLogger.error('Error while fetching gas prices GAS_MODE.EIP1559!', error);
+				}
 			} else if (NETWORK.gasMode === GAS_MODE.LEGACY) {
 				app.gas.gasPriceBn = new BN(await app.currentlySelectedWeb3Client.eth.getGasPrice());
 			}
