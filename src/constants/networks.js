@@ -147,6 +147,11 @@ export const NETWORKS = {
 				collateralIndex: 2,
 				collateralFeed: '0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a',
 			},
+			{
+				symbol: COLLATERAL.JAV,
+				collateralIndex: 3,
+				collateralFeed: '0x2c14b4d35d0e7061b86be6dd7d168ca1f919c069f54493ed09a91adabea60ce6',
+			},
 		],
 		rewardTokenId: '0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a',
 	},

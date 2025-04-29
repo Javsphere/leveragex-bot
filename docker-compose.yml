@@ -1,13 +1,19 @@
-version: '2.4'
+version: '3.7'
+volumes:
+    data_leveragex-bot: { }
 services:
-  bot-sepolia:
-    environment:
-      - NODE_ENV=sepolia
-    image: nft_bot
-    build:
-      context: .
-      dockerfile: Dockerfile
-    cpus: 1
-    mem_limit: 1G
-    command: node src/bot.js
-    restart: unless-stopped
+    leveragex-bot:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: always
+        env_file: ".env"
+        ports:
+            - "4000"
+        volumes:
+            - data_leveragex-bot:/data/db
+        networks:
+            - default
+networks:
+    default:
+        driver: bridge
