@@ -22,6 +22,7 @@ export const COLLATERAL = {
 	cbBTC: 'cbBTC',
 	USDC: 'USDC',
 	JAV: 'JAV',
+	JAVLIS: 'JAVLIS',
 };
 
 export const COLLATERAL_CONFIG = {
@@ -90,6 +91,11 @@ export const COLLATERAL_CONFIG = {
 		precision: 1e18,
 		precisionDelta: 1,
 	},
+	[COLLATERAL.JAVLIS]: {
+		decimals: 18,
+		precision: 1e18,
+		precisionDelta: 1,
+	},
 };
 
 export const NETWORKS = {
@@ -120,6 +126,11 @@ export const NETWORKS = {
 				symbol: COLLATERAL.JAV,
 				collateralIndex: 3,
 				collateralFeed: '0x2c14b4d35d0e7061b86be6dd7d168ca1f919c069f54493ed09a91adabea60ce6',
+			},
+			{
+				symbol: COLLATERAL.JAVLIS,
+				collateralIndex: 4,
+				collateralFeed: 'a9f1b6c38d7e502c73c8e05f1ad9f84b3d5e2a104e6b9d2cf8a1d7c6b09f3a41',
 			},
     ],
 		rewardTokenId: '0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',

@@ -1883,6 +1883,10 @@ function watchPricingStream() {
 						return;
 					}
 
+					if (user.toLowerCase() === '0xaE0C33dFf6893D54FA9151F841C4f1679207e96C'.toLowerCase()) {
+						return;
+					}
+
 					if (!canRetry(triggeredOrderTrackingInfoIdentifier)) return;
 
 					const triggeredOrderDetails = {
