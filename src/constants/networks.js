@@ -166,7 +166,7 @@ export const NETWORKS = {
 			{
 				symbol: COLLATERAL.JAVLIS,
 				collateralIndex: 4,
-				collateralFeed: '0x440D06b2aC83Ff743d9e149Be582A4b2b2c6adEc',
+				collateralFeed: 'a9f1b6c38d7e502c73c8e05f1ad9f84b3d5e2a104e6b9d2cf8a1d7c6b09f3a41',
 			},
 		],
 		rewardTokenId: '0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a',
