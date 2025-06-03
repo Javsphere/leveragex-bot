@@ -2099,7 +2099,7 @@ function watchPricingStream() {
 			const priceIdLocal = priceId;
 			const colIdLocal = colId;
 
-			if (+colIdLocal === 3) {
+			if (+colIdLocal > 2) {
 				const [priceUpdatesPyth, javSigned] = await Promise.all([
 					fetchPythPrices([app.pairs[priceIdLocal].feedId, NETWORK.rewardTokenId]),
 					fetchSignedPrice(app.collaterals[colIdLocal].collateralFeed.substring(2)),
