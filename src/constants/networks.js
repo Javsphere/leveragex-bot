@@ -130,7 +130,7 @@ export const NETWORKS = {
 			{
 				symbol: COLLATERAL.JAVLIS,
 				collateralIndex: 4,
-				collateralFeed: 'a9f1b6c38d7e502c73c8e05f1ad9f84b3d5e2a104e6b9d2cf8a1d7c6b09f3a41',
+				collateralFeed: '0xa9f1b6c38d7e502c73c8e05f1ad9f84b3d5e2a104e6b9d2cf8a1d7c6b09f3a41',
 			},
     ],
 		rewardTokenId: '0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
@@ -166,7 +166,7 @@ export const NETWORKS = {
 			{
 				symbol: COLLATERAL.JAVLIS,
 				collateralIndex: 4,
-				collateralFeed: 'a9f1b6c38d7e502c73c8e05f1ad9f84b3d5e2a104e6b9d2cf8a1d7c6b09f3a41',
+				collateralFeed: '0xa9f1b6c38d7e502c73c8e05f1ad9f84b3d5e2a104e6b9d2cf8a1d7c6b09f3a41',
 			},
 		],
 		rewardTokenId: '0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a',
